@@ -1,0 +1,20 @@
+digraph architecture {
+   graph [autosize=false, size="25.7,8.3!", resolution=100];
+
+   dfm -> esch [ label = "Store and Search" ];
+   dfm -> dede [ label = "Submit News Body Text" ];
+   dede -> dfm [ label = "Predict News Topics and Rank"];
+   kb -> esch [ label = "Admin Graph and B.I."];
+   dfm -> "Twitter" [ label = "Crawl"];
+#   dfm -> "Reddit" [ label = "Crawl"];
+   dfm -> ttrss [ label = "Crawl"];
+   dfm -> "Internet" [ label = "Crawl News Content"];
+
+   dfm [ style = "filled, bold" penwidth = 5 fillcolor = "white" fontname = "Courier New" shape = "Mrecord" label =<<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">Data Feed Manager</font></td></tr><tr><td align="left" port="r0">Enroll news feeds</td></tr><tr><td align="left" port="r1">Schedule feeds crawlers</td></tr><tr><td align="left" port="r0">Format news and feeds</td></tr><tr><td align="left" port="r0">Sources discovery</td></tr><tr><td align="left" port="r0">Source auto-management</td></tr></table>> ];
+   dede [ style = "filled, bold" penwidth = 5 fillcolor = "white" fontname = "Courier New" shape = "Mrecord" label =<<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">Deep Detect</font></td></tr><tr><td align="left" port="r0">Train Machine Learning Models</td></tr><tr><td align="left" port="r1">Predict Topics</td></tr><tr><td align="left" port="r0">Rank News</td></tr><tr><td align="left" port="r0">Multi-Models Management</td></tr></table>> ];
+   esch [ style = "filled, bold" penwidth = 5 fillcolor = "white" fontname = "Courier New" shape = "Mrecord" label =<<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">Elastic Search</font></td></tr><tr><td align="left" port="r0">Natural Language Search</td></tr><tr><td align="left" port="r1">Store Feeds and News</td></tr><tr><td align="left" port="r0">Rank Keywords on News</td></tr><tr><td align="left" port="r0">Math and Aggregations Processing</td></tr></table>> ];
+   kb [ style = "filled, bold" penwidth = 5 fillcolor = "white" fontname = "Courier New" shape = "Mrecord" label =<<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">Kibana</font></td></tr><tr><td align="left" port="r0">Dashboards Management</td></tr></table>> ];
+   ttrss [ style = "filled, bold" penwidth = 5 fillcolor = "white" fontname = "Courier New" shape = "Mrecord" label =<<table border="0" cellborder="0" cellpadding="3" bgcolor="white"><tr><td bgcolor="black" align="center" colspan="2"><font color="white">Tiny Tiny RSS</font></td></tr><tr><td align="left" port="r0">Aggregate manual RSS sources</td></tr><tr><td align="left" port="r1">Generate feeds by categories</td></tr><tr><td align="left" port="r0">Generate feeds by labels (regex)</td></tr></table>> ];
+
+
+}

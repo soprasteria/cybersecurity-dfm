@@ -1,0 +1,5 @@
+30 *   * * * dfm_path/utils/killPhantomjs.sh # avoid too big memory leak
+30 */1 * * * dfm_path/utils/contents_crawl.sh
+00 */1 * * * dfm_path/utils/sources_crawl.sh
+00 00 * */7 * dfm_path/utils/generate_models.sh
+00 23 * */7 * dfm_path/utils/contents_predict.sh

@@ -1,0 +1,61 @@
+# Default config class for all environments
+
+# Enable DEBUG Level
+# Warning in Debug mode Flask fork the initial process to be able to reload it i ncase of crash
+# This behaviour can not be handled by supervisor 
+# you will have to kill the 2 processes manually instead of user supervisor stop dfm
+DEBUG = False
+WERKZEUG_DEBUG_PIN = "off"
+
+# ElasticSearch REST API URLs
+ES_URIS = ['http://localhost:9200']
+# ElasticSearcg index name
+ES_INDEX = 'watch'
+# ElasticSearch queries timeout
+ES_TIMEOUT = 180
+
+# DFM log file path
+LOG_PATH = 'dfm.log'
+
+# create app on https://apps.twitter.com/
+# TWITTER OAuth consumer key
+TWITTER_CONSUMER_KEY = 'fM66moBW1X4rRmr7iMzfD3Bd9'
+# TWITTER OAuth consumer secret
+TWITTER_CONSUMER_SECRET = 'VTut0nn6uKlpMRv7PG4cOYx7CBhHUa0KGuEMj4m8WyJWmQiwEO'
+# TWITTER OAuth access token
+TWITTER_ACCESS_TOKEN = '836627418517495810-j0qMXe0XJ2orl9L33GjlcF5ZaUNOgWl'
+# TWITTER OAuth access secret
+TWITTER_ACCESS_SECRET = 'o0bZonqUGkBb47wvbONIMFVFjuFVjuho6WYFb2TUytHva'
+
+# Deep Detect rest api URI
+DEEP_DETECT_URI = 'localhost'
+# Enable Deep Detect Topics prediction
+TOPICS_PREDICTION = True
+
+# Minimum characters which must be present in a news to be imported
+NEWS_MIN_TEXT_SIZE=1000
+# Enable crawling with PhantomJS and Chromium (commented currently)
+BROWSER_CRAWLING=False
+
+# Mask subnet range to listen for requests
+LISTEN_MASK='0.0.0.0'
+# Listen port for requests
+LISTEN_PORT=12345
+
+# RSS ATOM Generated feed number of max news presented
+ATOM_SIZE='4000'
+
+# DFM is multi-threaded is True
+THREADED=True
+
+# News rank threshold for RSS ATOM Generated feed
+OVERALL_SCORE_THRESHOLD=0.1
+# Method for calculating oaverall_score about news ranking
+#   python math formula to process evaluated during score calculation.
+#   parameters are: es_score (ElasticSearch given score in float for the news), topics_scores (Predicted topics scores in a list of float)
+#   scores are between 0 and 1 float values.
+#   :examples: 'es_score*(sum(topics_scores)/len(topics_scores))', 'log(1+score(ES))*(sum(topics_scores)/len(topics_scores))'
+OVERALL_SCORE_CALCULATION="es_score*(sum(topics_scores)/len(topics_scores))"
+
+# List urls which as to be excluded from crawl """
+EXCLUDED_URIS=[r'sourceforge\.net']

@@ -1,0 +1,3 @@
+#!/bin/bash
+curl -H "Content-Type: application/json" -X PUT -d '{"link":"https%3A%2F%2Ftwitter.com%2FDataFeedsManager","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"Twitter CSP RSS","title":"Twitter CSP RSS Account","format":"twitter","predict":true,"enable_content":false,"active":true}' http://localhost:12345/api
+curl -H "Content-Type: application/json" -X PUT -d '{"link":"http%3A%2F%2Flocalhost%2Ftt-rss%2Fpublic.php%3Fop%3Drss%26id%3D-4%26key%3D1b2e3a3b2dd0a42ba5e5c62379762e941bcbdca5","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"aggregated cybersecurity rss feeds","title":"CSP RSS first","format":"tt-rss","predict":false,"enable_content":false,"active":true}' http://localhost:12345/api

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Feed Manager Sources</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="static/css/main.css" rel="stylesheet" media="screen">
+    <link rel="alternate" type="application/atom+xml" title="News" href="/atom.xml" />
+    <script src="static/js/lib/jquery.js"></script>
+    <script src="static/js/lib/bootstrap.min.js"></script>
+  </head>
+  <body>
+
+  <div class="container-narrow">
+    <ul class="nav nav-pills pull-right">
+      <li ><a href="/">HOME</a></li>
+      <li class="active"><a href="#">SOURCES</a></li>
+      <li ><a href="/topics">TOPICS</a></li>
+      <li ><a href="/models">MODELS</a></li>
+      <li><a href="/doc">DOC</a></li>
+      <li><a href="/api">API</a></li>
+      <li><a href="/doc/license.html">LICENSE</a></li>
+    </ul>
+    <h3><span class="glyphicon glyphicon-asterisk" style="color:#5cb85c"></span>Data Feed Manager</h3>
+
+    <hr>
+
+  <div class="jumbotron">
+    <h1>Manage sources (feeds)</h1>
+  </div>
+<hr/>
+<div class="container">
+  <form id="addSource" class="form-inline">
+    <h2 class="form-heading">Add Source </h2>
+      <!-- {"link":"http://wwww.test.com/rss/atom.xml","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"","title":"","format":"","predict":true,"enable_content":true,"active":true} -->
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" name="title" id="title" class="form-control" placeholder="Title" required autofocus/>
+    </div>
+    <div class="form-group">
+      <label for="summary">Summary</label>
+      <input type="text" name="summary" id="summary" class="form-control" placeholder="Description" required autofocus/>
+    </div>
+    <div class="form-group">
+      <label for="link">Link or Query</label>
+      <input type="text" name="link" id="link" class="form-control" placeholder="Feed Address or Query" required autofocus/>
+    </div>
+      <!--<input type="hidden" name="tags" value="[]"/>-->
+      <input type="hidden" name="freq" value="30"/>
+      <input type="hidden" name="depth" value="2"/>
+      <div class="form-group">
+        <label for="step">step by batch</label>
+        <input type="text" name="step" value="10000"/>
+      </div>
+      <div class="form-group">
+        <label for="limit">limit by batch</label>
+        <input type="text" name="limit" value="10000"/>
+      </div>
+      <!--<input type="hidden" name="topics" value="{}"/>-->
+      <input type="hidden" name="predict" value="true"/>
+      <input type="hidden" name="enable_content" value="true"/>
+      <input type="hidden" name="active" value="true"/>
+    <div class="form-group">
+      <label for="format">Format</label>
+      <select name="format" id="format" class="form-control">
+        <option value="rss">RSS Feed</option>
+        <option value="twitter">Twitter Search</option>
+        <option value="tt-rss">TinyTiny RSS Feed</option>
+      </select>
+    </div>
+    <button class="btn btn-default" id="addSourceButton" type="button">Add Source</button>
+  </form>
+<hr/>
+<div class="table-responsive">
+  <table id="sourcesTable" class="table table-sm">
+  </table>
+</div>
+  <hr/>
+</div>
+
+
+  <div class="footer">
+    <p>&copy; Copyright 2016, Alexandre CABROL PERALES on behalf of Sopra Steria Group, GNU General Public License version 3 or later; see LICENSE</p>
+  </div>
+  </div>
+  <script type="text/javascript">
+  $(document).ready(function(){
+    $('#addSourceButton').click(function() {
+        $.ajax({
+            contentType: 'application/json',
+            url: '/api',
+            dataType : 'json',
+            data: serializeForm($('#addSource')),
+            type: 'PUT',
+            success: function(response) {
+                console.log(response);
+                refreshSources();
+                alert("Add Successfull");
+                location.reload();
+            },
+            error: function(error) {
+                console.log(error);
+                alert("Add Failed");
+            }
+        });
+    });
+    refreshSources();
+  });
+
+
+
+function serializeForm(originForm){
+  arr=originForm.serializeArray();
+  dict={};
+  $.each( arr , function( key, input ) {
+   console.log( input.name + ": " + input.value );
+   dict[input.name]=input.value;
+  });
+  return JSON.stringify(dict) ;
+}
+
+function refreshSources(){
+  console.log("Refesh Sources");
+  $("#sourcesTable").empty()
+  $.getJSON( "/api", function( data ) {
+      drawTable(data.hits.hits);
+  });
+}
+
+function drawTable(data) {
+  headers=$("<tr/>");
+  $("#sourcesTable").append(headers);
+
+  $.each( data[0]._source , function( key, value ) { headers.prepend($("<th>"+key+"</th>"))});
+    for (var i = 0; i < data.length; i++) {
+        drawRow(data[i]);
+    }
+    headers.prepend($("<th>id</th>"));
+    headers.append($('<td>Config</td>'));
+    headers.append($('<td>CSV</td>'));
+    headers.append($('<td>JSON</td>'));
+    headers.append($('<td><a href="/api/schedule/sources_crawl">CRAWL</a></td>'));
+    headers.append($('<td>DELETE</td>'));
+}
+
+function drawRow(rowData) {
+    var row = $("<tr />")
+    $("#sourcesTable").append(row); //this will append tr element to table... keep its reference for a while since we will add cels into it
+
+    $.each( rowData._source , function( key, value ) {
+      row.prepend($("<td>" + value + "</td>"));
+    });
+    row.prepend($("<td>" + rowData._id + "</td>"));
+    row.append($('<td><a href="/api/'+rowData._id+'/config">config</a></td>'));
+    row.append($('<td><a href="/api/'+rowData._id+'?format=csv">CSV</a></td>'));
+    row.append($('<td><a href="/api/'+rowData._id+'">JSON</a></td>'));
+    row.append($('<td><a href="/api/schedule/'+rowData._id+'">CRAWL</a></td>'));
+    td_deletion=$('<td></td>');
+    a_deletion=$('<a href="#" id="'+rowData._id+'" class="delete">DELETE</a>');
+    a_deletion.click(function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: '/api/'+e.target.id+'/config',
+        type: 'DELETE',
+        success: function(result) {
+            alert("Deletion Successfull");
+            location.reload();
+        }
+      });
+    });
+    td_deletion.append(a_deletion)
+    row.append(td_deletion);
+    row.append();
+}
+  </script>
+
+  </body>
+</html>

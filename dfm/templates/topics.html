@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Feed Manager Topics</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="static/css/main.css" rel="stylesheet" media="screen">
+    <link rel="alternate" type="application/atom+xml" title="News" href="/atom.xml" />
+    <script src="static/js/lib/jquery.js"></script>
+    <script src="static/js/lib/bootstrap.min.js"></script>
+  </head>
+  <body>
+
+  <div class="container-narrow">
+    <ul class="nav nav-pills pull-right">
+      <li ><a href="/">HOME</a></li>
+      <li ><a href="/sources">SOURCES</a></li>
+      <li class="active"><a href="#">TOPICS</a></li>
+      <li ><a href="/models">MODELS</a></li>
+      <li><a href="/doc">DOC</a></li>
+      <li><a href="/api">API</a></li>
+      <li><a href="/doc/license.html">LICENSE</a></li>
+    </ul>
+    <h3><span class="glyphicon glyphicon-asterisk" style="color:#5cb85c"></span>Data Feed Manager</h3>
+
+    <hr>
+
+  <div class="jumbotron">
+    <h1>Manage topics (predicted labels)</h1>
+  </div>
+<hr/>
+<div class="container">
+  <form id="addTopic" class="form-inline">
+    <h2 class="form-heading">Add Topic </h2>
+      <!-- {"tags":[],"freq":30,"summary":"","title":"","active":true} -->
+    <div class="form-group">
+      <label for="title">Topic</label>
+      <input type="text" name="title" id="title" class="form-control" placeholder="Topic" required autofocus/>
+    </div>
+    <div class="form-group">
+      <label for="summary">Summary</label>
+      <input type="text" name="summary" id="summary" class="form-control" placeholder="Description" required autofocus/>
+    </div>
+      <!--<input type="hidden" name="tags" value="[]"/>-->
+      <input type="hidden" name="freq" value="30"/>
+      <input type="hidden" name="link" value=""/>
+      <!--<input type="hidden" name="topics" value="{}"/>-->
+      <!--<input type="hidden" name="active" value="true"/>-->
+    <div class="form-group">
+      <label for="tags">Top 1000 Tags</label>
+      <select multiple name="tags" id="tags" class="form-control" size="20">
+      </select>
+    </div>
+    <button class="btn btn-default" id="addTopicButton" type="button">Add Topic</button>
+  </form>
+<hr/>
+<div class="table-responsive">
+  <table id="topicsTable" class="table table-sm">
+  </table>
+</div>
+</div>
+
+
+  <div class="footer">
+    <p>&copy; Copyright 2016, Alexandre CABROL PERALES on behalf of Sopra Steria Group, GNU General Public License version 3 or later; see LICENSE</p>
+  </div>
+  </div>
+  <script type="text/javascript">
+  $(document).ready(function(){
+    $('#addTopicButton').click(function() {
+        $.ajax({
+            contentType: 'application/json',
+            url: '/api/topics/config',
+            dataType : 'json',
+            data: serializeForm($('#addTopic')),
+            type: 'PUT',
+            success: function(response) {
+                console.log(response);
+                refreshTopics();
+                refreshTags();
+                alert("Add Successfull");
+                location.reload();
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    });
+    refreshTopics();
+    refreshTags();
+});
+
+function serializeForm(originForm){
+  arr=originForm.serializeArray();
+  dict={};
+  $.each( arr , function( key, input ) {
+   console.log( input.name + ": " + input.value );
+   if(input.name=="tags"){
+     if(dict[input.name]){
+       dict[input.name].push(input.value)
+     }
+     else{
+       dict[input.name]=[input.value]
+     }
+   }
+   else if (input.name=="link") {
+     dict[input.name]="http://localhost:12345/api/topics/"+dict["title"]
+     console.log("UID: "+dict[input.name])
+   }
+   else {
+     dict[input.name]=input.value;
+   }
+
+  });
+  return JSON.stringify(dict) ;
+}
+
+function refreshTags(){
+  console.log("Refesh Tags");
+  $("#tags").empty()
+  $.getJSON( "/api/tags?size=1000", function( data ) {
+      drawList(data.aggregations.group_by_state.buckets);
+  });
+}
+
+function drawList(data) {
+    for (var i = 0; i < data.length; i++) {
+        drawItem(data[i]);
+    }
+}
+
+function drawItem(rowData) {
+    $("#tags").append($('<option value="'+rowData.key+'">Tag:' + rowData.key+' News:'+rowData.doc_count+ '</option>'));
+}
+
+function refreshTopics(){
+  console.log("Refesh Topics");
+  $("#topicsTable").empty()
+  $.getJSON( "/api/topics/config", function( data ) {
+      drawTable(data.hits.hits);
+  });
+}
+
+function drawTable(data) {
+  headers=$("<tr/>");
+  $("#topicsTable").append(headers);
+
+  $.each( data[0]._source , function( key, value ) { headers.prepend($("<th>"+key+"</th>"))});
+    for (var i = 0; i < data.length; i++) {
+        drawRow(data[i]);
+    }
+    headers.prepend($("<th>id</th>"));
+    headers.append($("<th>DELETE</th>"));
+}
+
+function drawRow(rowData) {
+    var row = $("<tr />")
+    $("#topicsTable").append(row); //this will append tr element to table... keep its reference for a while since we will add cels into it
+
+    $.each( rowData._source , function( key, value ) {
+      row.prepend($("<td>" + value + "</td>"));
+    });
+    row.prepend($("<td>" + rowData._id + "</td>"));
+    td_deletion=$('<td></td>');
+    a_deletion=$('<a href="#" id="'+rowData._id+'" class="delete">DELETE</a>');
+    a_deletion.click(function(e) {
+      e.preventDefault();
+      $.ajax({
+        url: '/api/'+e.target.id+'/config',
+        type: 'DELETE',
+        success: function(result) {
+            alert("Deletion Successfull");
+            location.reload();
+        }
+      });
+    });
+    td_deletion.append(a_deletion)
+    row.append(td_deletion);
+}
+  </script>
+
+  </body>
+</html>

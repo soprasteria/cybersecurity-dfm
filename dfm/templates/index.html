@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Feed Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="static/css/main.css" rel="stylesheet" media="screen">
+    <link rel="alternate" type="application/atom+xml" title="News" href="/atom.xml" />
+  </head>
+  <body>
+
+  <div class="container-narrow">
+    <ul class="nav nav-pills pull-right">
+      <li class="active"><a href="#">HOME</a></li>
+      <li ><a href="/sources">SOURCES</a></li>
+      <li ><a href="/topics">TOPICS</a></li>
+      <li ><a href="/models">MODELS</a></li>
+      <li><a href="/doc">DOC</a></li>
+      <li><a href="/api">API</a></li>
+      <li><a href="/doc/license.html">LICENSE</a></li>
+    </ul>
+    <h3><span class="glyphicon glyphicon-asterisk" style="color:#5cb85c"></span>Data Feed Manager</h3>
+
+    <hr>
+
+  <div class="jumbotron">
+    <h1>we <span class="glyphicon glyphicon-heart" style="color:#428bca;"></span> good feeds!</h1>
+    <p class="lead">DFM is a Data Feed Manager service which crawl feeds, extract key text content to store it into ElasticSearch and predict topics with DeepDetect to perform a selection of news by score and provide through it webservices and rss feed.</p>
+    <img src="static/images/atom.png"/><a class="btn btn-large btn-success" href="/atom.xml?size=15">Subscribe to RSS Feed Now!&nbsp;<span class="glyphicon glyphicon-ok-circle"></span></a><br/>
+    <span>See the <a href="/doc/server.html#dfm.server.recent_feed"> documentation </a> for RSS Feed parameters.</span>
+    <br/>
+  </div>
+<hr/>
+<div class="container">
+<div class="row"><div class="col-md-1"><h3>Source</h3></div><div class="col-md-1"><h3>News</h3></div><div class="col-md-3"><h3>Topics</h3></div><div class="col-md-3"><h3>Actions</h3></div></div>
+<hr/>
+  {% for source in content.aggregations.sources.buckets %}
+  <div class="row">
+    <div class="col-md-1"><a href="/api/{{ source.key }}">{{ source.title }}</a></div>
+    <div class="col-md-1">{{ source.doc_count }}</div>
+    <div class="row">
+      <div class="col-md-3">
+      <div class="row"><div class="col-md-4"><h4>topics</h4></div><div class="col-md-4"><h4>news</h4></div><div class="col-md-4"><h4>average score</h4></div></div>
+        {% for topic in source.topics.group_by_state.buckets %}
+        <div class="row">
+          <div class="col-md-4">{{ topic.key }}</div>
+          <div class="col-md-4">{{ topic.doc_count }}</div>
+          <div class="col-md-4">{{ topic.average_score.value }}</div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="col-md-3">
+        <div class="row">
+        <div class="col-md-1"><a href="/api/{{ source.key }}/config">config</a></div>
+        <div class="col-md-1"><a href="/api/{{ source.key }}?format=csv">csv</a></div>
+        <div class="col-md-1"><a href="/api/{{ source.key }}">json</a></div>
+      </div>
+    </div>
+      </div>
+
+  </div>
+  <hr/>
+  {% endfor %}
+</div>
+
+
+  <div class="footer">
+    <p>&copy; Copyright 2016, Alexandre CABROL PERALES on behalf of Sopra Steria Group, GNU General Public License version 3 or later; see LICENSE</p>
+  </div>
+  </div>
+
+  <script src="static/js/lib/jquery.js"></script>
+  <script src="static/js/lib/bootstrap.min.js"></script>
+  </body>
+</html>

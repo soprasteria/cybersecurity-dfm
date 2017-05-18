@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+  <title>Data Feed Manager</title>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>Data Feed Manager</h1>
+  <div>
+  </div>
+  <div>
+    <a href="/api/schedule/content_crawl">Crawl news content and predict their topics.</a>
+  </div>
+  <table class=entries>
+    <tr>
+      <th>source</th><th>doc count</th><th>topics</th><th>action</th>
+    </tr>
+    {% for source in content.aggregations.sources.buckets %}
+    <tr>
+      <td><a href="/api/{{ source.key }}">{{ source.title }}</a></td>
+      <td>{{ source.doc_count }}</td>
+      <td>
+        <div class="grid">
+          <div class="grid-row"><span class="grid-col">topic</span><span class="grid-col">doc count</span><span class="grid-col">average score</span></div>
+          {% for topic in source.topics.buckets %}
+          <div class="grid-row">
+            <span class="grid-col">{{ topic.key }}</span>
+            <span class="grid-col">{{ topic.doc_count }}</span>
+            <span class="grid-col">{{ topic.average_score.value }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </td>
+      <td><a href="/api/schedule/{{ source.key }}">crawl</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>
