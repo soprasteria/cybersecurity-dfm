@@ -212,7 +212,7 @@ runCMD "sysctl -w vm.max_map_count=262144"
 showSection "Start & Setup ElasticSearch $ES_VERSION"
 runCMD "chown -Rf $DFM_USER elasticsearch*"
 runCMD "cp -bf --suffix=.backup utils/supervisor/es.conf /etc/supervisor/conf.d/es.conf"
-sed 's@dfm_path@'$INSTALL_PATH'@g' /etc/supervisor/conf.d/es.conf
+sed -i.default 's@dfm_path@'$INSTALL_PATH'@g' /etc/supervisor/conf.d/es.conf
 
 echo "#half of the memory dedicated to ES see https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html">>/etc/supervisor/conf.d/es.conf
 head -n 1 /proc/meminfo |sed 's/[^ ]\+ \+\([^ ]\+\) .*/numfmt --from-unit=512 --to=iec --padding=7 \1/'|bash| awk '{print "environment=ES_HEAP_SIZE="$1}'>>/etc/supervisor/conf.d/es.conf
@@ -235,7 +235,7 @@ fi
 showSection "Start Kibana $ES_VERSION"
 runCMD "chown -Rf $DFM_USER kibana*"
 runCMD "cp -bf --suffix=.backup utils/supervisor/kb.conf /etc/supervisor/conf.d/kb.conf"
-sed "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/kb.conf
+sed -i.default "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/kb.conf
 runCMD "supervisorctl reread"
 runCMD "supervisorctl reload"
 sleep 15
@@ -278,7 +278,7 @@ showSection "Start & Setup DeepDetect"
 runCMD "cd $INSTALL_PATH"
 runCMD "chown -Rf $DFM_USER deepdetect*"
 runCMD "cp -bf --suffix=.backup utils/supervisor/dede.conf /etc/supervisor/conf.d/dede.conf"
-sed "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/dede.conf
+sed -i.default "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/dede.conf
 runCMD "supervisorctl reread"
 runCMD "supervisorctl reload"
 sleep 15
@@ -315,7 +315,7 @@ showSection "Start & Setup DFM"
 cp -f $DFM_PATH/utils/settings.cfg.default $DFM_PATH/dfm/settings.cfg
 runCMD "chown -Rf $DFM_USER *"
 runCMD "cp -bf --suffix=.backup utils/supervisor/dfm.conf /etc/supervisor/conf.d/dfm.conf"
-sed "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/dfm.conf
+sed -i.default "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/dfm.conf
 runCMD "supervisorctl reread"
 runCMD "supervisorctl reload"
 sleep 5
