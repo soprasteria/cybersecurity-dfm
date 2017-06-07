@@ -247,7 +247,7 @@ class Storage:
          # Issue opened https://github.com/elastic/elasticsearch-py/issues/466
          self.logger.debug("storage.query es.search:"+json.dumps(criteria))
          if query_size<limit or ("topics.score" in json.dumps(criteria)):
-             results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout)
+             results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout,size=query_size)
              global_results.set_total(1)
              global_results.add_success(criteria)
          else:
