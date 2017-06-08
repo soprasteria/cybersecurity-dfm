@@ -702,7 +702,7 @@ class Schedule(Resource):
         start_time = time.time()
 
         if src_id=="generate_models":
-            if len(self.args['id'])>0:
+            if self.args['id'] is not None:
                 model_caller=ObjectDetail()
                 models=[model_caller.get(self.args['id'])]
             else:
