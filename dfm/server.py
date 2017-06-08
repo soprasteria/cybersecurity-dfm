@@ -6,6 +6,7 @@
 
 import io
 import os
+import types
 import errno
 import shutil
 import inspect
@@ -742,7 +743,7 @@ class Schedule(Resource):
                                     if count_docs>int(model["_source"]["limit"])/nb_tags:
                                         app.logger.debug("Exceed training model extraction tags limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
                                         break
-                                    if isinstance(doc,list):
+                                    if isinstance(doc,list) or isinstance(doc,types.GeneratorType):
                                         for sub_doc in doc:
                                             app.logger.debug("output_sub_doc:"+sub_doc["_source"]["link"])
                                             generate_doc(topic_path,sub_doc)

@@ -254,9 +254,11 @@ class Storage:
              self.logger.debug("storage.query helpers.scan:"+json.dumps(criteria))
              results_gen=helpers.scan(self.es,query=criteria,scroll=self.config['ES_SEARCH_CACHING_DELAY'],preserve_order=True,request_timeout=self.timeout)
              global_results.add_success(criteria)
-             for result in results_gen:
-                 results['hits']['hits'].append(result)
-                 global_results.add_success({'id':result['_id']})
-             del results_gen
-         gc.collect()
+
+#             for result in results_gen:
+             results['hits']['hits'].append(results_gen)
+#                 global_results.add_success({'id':result['_id']})
+#             del results_gen
+
+#         gc.collect()
          return [results,global_results]
