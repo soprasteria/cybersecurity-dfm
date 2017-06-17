@@ -175,7 +175,7 @@ if [ $? -gt 0 ]; then echo "DFMPATH=`pwd`">>/etc/environment
 export DFMPATH=`pwd`
 fi
 runCMD "source /etc/profile"
-runCMD "apt-get install -y supervisor curl git build-essential openjdk-$JAVA_VERSION-jre-headless python-dev cmake"
+runCMD "apt-get install -y supervisor curl git build-essential openjdk-$JAVA_VERSION-jre-headless python-dev cmake wget sudo"
 grep 'minfds=125000' /etc/supervisor/supervisord.conf
 if [ $? -ne 0 ]
   then sed -i.old "s/^\[supervisord\]$/\[supervisord\]\n### minfds parameter added for ElasticSearch\nminfds=125000/g" /etc/supervisor/supervisord.conf
@@ -262,6 +262,7 @@ runCMD "cd .."
 showSection "Install DeepDetect"
 runCMD "git clone https://github.com/beniz/deepdetect.git"
 runCMD "cd deepdetect"
+runCMD "git checkout d2c404e43cc25ff802e5d053aad55ed032c9ed83"
 runCMD "mkdir build"
 runCMD "cd build"
 runCMD "cmake .. -DUSE_XGBOOST=ON"
@@ -312,7 +313,7 @@ runCMD "mkdir models"
 runCMD "mkdir training"
 
 showSection "Start & Setup DFM"
-cp -f $DFM_PATH/utils/settings.cfg.default $DFM_PATH/dfm/settings.cfg
+cp -f $INSTALL_PATH/utils/settings.cfg.default $INSTALL_PATH/dfm/settings.cfg
 runCMD "chown -Rf $DFM_USER *"
 runCMD "cp -bf --suffix=.backup utils/supervisor/dfm.conf /etc/supervisor/conf.d/dfm.conf"
 sed -i.default "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/dfm.conf
