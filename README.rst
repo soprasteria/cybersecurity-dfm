@@ -95,7 +95,7 @@ Run following commands in a terminal::
     cd /opt
     git clone https://github.com/soprasteria/cybersecurity-dfm.git
     cd dfm
-    ./install.sh
+    ./install_ubuntu.sh
 
 The *install.sh* will install all dependencies, build when it is required, and create account dfm to run daemons.
 There are 4 daemons with web protocol setup in supervisor:
