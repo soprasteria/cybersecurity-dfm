@@ -3,13 +3,17 @@
 import sys
 import time
 
+import ConfigParser
 import datetime
+import imp
 import requests
 import hashlib
 import urlparse
 import urllib,urllib3
 import json
 import feedparser
+
+import os
 
 import telepot
 from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
@@ -19,6 +23,9 @@ dfm_feed='http://localhost:12345/atom.xml?size=10'
 telegram_dfm_id="/api/telegram"
 
 http=urllib3.PoolManager(num_pools=3,timeout=urllib3.Timeout(connect=10, read=10),retries=urllib3.Retry(3, redirect=1))
+
+config = ConfigParser.ConfigParser()
+config.read('/opt/dfm/dfm/settings.cfg')
 
 def generate_uuid(data):
      """ Generate UUID for any entry in ElasticSearch
@@ -258,7 +265,7 @@ def handle(msg):
 
 
 
-TOKEN = '286712538:AAGacp7GWbreBT_-wxun18z1_PLsc1Env0Y'  # get token from command-line
+#TOKEN = '286712538:AAG3eK9niWtkMnsppscPBddfM0iT2XV1QVw'  # get token from command-line
 
 #bot = telepot.Bot(TOKEN)
 #bot.message_loop(handle)
@@ -282,9 +289,7 @@ TOKEN = '286712538:AAGacp7GWbreBT_-wxun18z1_PLsc1Env0Y'  # get token from comman
 #     result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
 #     print ('Chosen Inline Result:', result_id, from_id, query_string)
 
-
-
-bot = telepot.Bot(TOKEN)
+bot = telepot.Bot(config.get('variables', 'BOT_TOKEN'))
 bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
 # Keep the program running.
 while 1:
