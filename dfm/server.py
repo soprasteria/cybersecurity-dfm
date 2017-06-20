@@ -719,10 +719,13 @@ class Schedule(Resource):
                 #generate training set for the model
                 training_path=config['TRAININGS_PATH']+os.path.sep+model["_source"]["title"]
 
-                #delete training folder if exists to avoid conflicts with previous training set
-                if os.path.exists(training_path):
-                    shutil.rmtree(training_path)
-                os.makedirs(training_path)
+		try:
+		    os.makedirs(training_path)
+		except OSError as e:
+		    if e.errno == errno.EEXIST and os.path.isdir(training_path):
+		        pass
+		    else:
+		        raise
 
                 for curr_topic in model["_source"]["related_topics"]:
                     app.logger.debug("topic:"+curr_topic)
