@@ -25,7 +25,7 @@ telegram_dfm_id="/api/telegram"
 http=urllib3.PoolManager(num_pools=3,timeout=urllib3.Timeout(connect=10, read=10),retries=urllib3.Retry(3, redirect=1))
 
 config = ConfigParser.ConfigParser()
-config.read('/opt/dfm/dfm/settings.cfg')
+config.read('telegrambot.cfg')
 
 def generate_uuid(data):
      """ Generate UUID for any entry in ElasticSearch

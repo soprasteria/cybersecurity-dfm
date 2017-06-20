@@ -60,6 +60,3 @@ OVERALL_SCORE_CALCULATION="es_score*(sum(topics_scores)/len(topics_scores))"
 
 # List urls which as to be excluded from crawl """
 EXCLUDED_URIS=[r'sourceforge\.net']
-
-# TelegramBot Token
-BOT_TOKEN=''

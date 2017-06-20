@@ -313,7 +313,7 @@ runCMD "mkdir models"
 runCMD "mkdir training"
 
 showSection "Start & Setup DFM"
-cp -f $INSTALL_PATH/utils/settings.cfg.default $INSTALL_PATH/dfm/settings.cfg
+cp -f $INSTALL_PATH/utils/configs/settings.cfg.default $INSTALL_PATH/dfm/settings.cfg
 runCMD "chown -Rf $DFM_USER *"
 runCMD "cp -bf --suffix=.backup utils/supervisor/dfm.conf /etc/supervisor/conf.d/dfm.conf"
 sed -i.default "s@dfm_path@$INSTALL_PATH@g" /etc/supervisor/conf.d/dfm.conf
