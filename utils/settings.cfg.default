@@ -19,13 +19,13 @@ LOG_PATH = 'dfm.log'
 
 # create app on https://apps.twitter.com/
 # TWITTER OAuth consumer key
-TWITTER_CONSUMER_KEY = 'fM66moBW1X4rRmr7iMzfD3Bd9'
+TWITTER_CONSUMER_KEY = ''
 # TWITTER OAuth consumer secret
-TWITTER_CONSUMER_SECRET = 'VTut0nn6uKlpMRv7PG4cOYx7CBhHUa0KGuEMj4m8WyJWmQiwEO'
+TWITTER_CONSUMER_SECRET = ''
 # TWITTER OAuth access token
-TWITTER_ACCESS_TOKEN = '836627418517495810-j0qMXe0XJ2orl9L33GjlcF5ZaUNOgWl'
+TWITTER_ACCESS_TOKEN = ''
 # TWITTER OAuth access secret
-TWITTER_ACCESS_SECRET = 'o0bZonqUGkBb47wvbONIMFVFjuFVjuho6WYFb2TUytHva'
+TWITTER_ACCESS_SECRET = ''
 
 # Deep Detect rest api URI
 DEEP_DETECT_URI = 'localhost'
@@ -59,3 +59,6 @@ OVERALL_SCORE_CALCULATION="es_score*(sum(topics_scores)/len(topics_scores))"
 
 # List urls which as to be excluded from crawl """
 EXCLUDED_URIS=[r'sourceforge\.net']
+
+# TelegramBot Token
+BOT_TOKEN=''
