@@ -28,7 +28,8 @@ from modeltrainer import ModelTrainer
 from multiprocessing import Lock, Process, Queue, current_process
 """ Use multiprocessing with Workers defined in settings for concurrent crawl on web page content"""
 
-from dd_client import DD, DDCommunicationError
+#from dd_client import DD, DDCommunicationError
+from dd_client import DD
 """ Deep Detect client library import """
 
 #"""Virtual screen to run real web browsers"""
@@ -761,12 +762,18 @@ class Schedule(Resource):
                 model_path=config['MODELS_PATH']+os.path.sep+model["_source"]["title"]
 
                 #delete model folder if exists to avoid conflicts with previous model version
-                if os.path.exists(model_path):
-                    shutil.rmtree(model_path)
-                os.makedirs(model_path)
+                #if os.path.exists(model_path):
+                #    shutil.rmtree(model_path)
+                #os.makedirs(model_path)
 
-                if not os.path.exists(model_path):
-                    os.makedirs(model_path)
+                #if not os.path.exists(model_path):
+                #    os.makedirs(model_path)
+                try:
+                    os.mkdir(model_path)
+                except OSError as e:
+                    if e.errno != errno.EEXIST
+                        raise
+                    pass
                 trainer_def={"model-repo":os.path.abspath(model_path),"training-repo":os.path.abspath(training_path),"sname":model["_source"]["title"]+"_trainer","tsplit":0.01,"base-lr":0.01,"clevel":False,"sequence":140,"iterations":50000,"test-interval":1000,"stepsize":15000,"destroy":True,"resume":False,"finetune":False,"weights":None,"nclasses":len(model["_source"]["related_topics"]),"documents":True,"batch-size":128,"test-batch-size":16,"gpuid":0,"mllib":"xgboost","lregression":False}
                 mt=ModelTrainer(trainer_def,app.logger,config)
                 app.logger.debug(mt.createMLTrainerService())
@@ -780,7 +787,7 @@ class Schedule(Resource):
                 try:
                     response=dd.delete(model["_source"]["title"])
                 except:
-                    app.logger.debug(response)
+                    app.logger.debug(model["_source"]["title"])
                 retry=0
                 while model["_source"]["title"] in dd.info():
                     time.sleep(5)

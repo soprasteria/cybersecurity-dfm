@@ -38,7 +38,8 @@ from readability.readability import Document
 from bs4 import BeautifulSoup
 
 from langdetect import detect
-from dd_client import DD, DDCommunicationError
+#from dd_client import DD, DDCommunicationError
+from dd_client import DD
 """ Deep Detect client is mandatory for prediction """
 
 from results import Results
@@ -489,7 +490,7 @@ class Feed:
                         results.add_success({'url':doc['link'],'message':doc['topics']})
                 else:
                     results.add_fail({'url':doc['link'],'message':"Predict: DD failed result code:"+str(classif['status']['code'])})
-        except DDCommunicationError as e:
+        except Error as e:
             results.add_error(e)
         if len(doc['topics'])<1:
             doc.pop('topics')
