@@ -762,10 +762,6 @@ class Schedule(Resource):
                 if os.path.exists(model_path):
                     shutil.rmtree(model_path)
                 os.makedirs(model_path)
-
-                if not os.path.exists(model_path):
-                    os.makedirs(model_path)
-
 		trainer_def={"model-repo":os.path.abspath(model_path),"training-repo":os.path.abspath(training_path),"sname":model["_source"]["title"]+"_trainer","tsplit":0.01,"base-lr":0.01,"clevel":False,"sequence":140,"iterations":50000,"test-interval":1000,"stepsize":15000,"destroy":True,"resume":False,"finetune":False,"weights":None,"nclasses":len(model["_source"]["related_topics"]),"documents":True,"batch-size":128,"test-batch-size":16,"gpuid":0,"mllib":"xgboost","lregression":False}
                 mt=ModelTrainer(trainer_def,app.logger,config)
                 app.logger.debug(mt.createMLTrainerService())
