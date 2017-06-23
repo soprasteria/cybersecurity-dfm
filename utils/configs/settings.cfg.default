@@ -4,7 +4,6 @@
 # Warning in Debug mode Flask fork the initial process to be able to reload it i ncase of crash
 # This behaviour can not be handled by supervisor 
 # you will have to kill the 2 processes manually instead of user supervisor stop dfm
-[variables]
 DEBUG = False
 WERKZEUG_DEBUG_PIN = "off"
 
