@@ -490,8 +490,9 @@ class Feed:
                         results.add_success({'url':doc['link'],'message':doc['topics']})
                 else:
                     results.add_fail({'url':doc['link'],'message':"Predict: DD failed result code:"+str(classif['status']['code'])})
-        except Error as e:
-            results.add_error(e)
+        except Exception as e:
+            results.add_error({'url':doc['link'],'lib':"dede",'message':str(e)})
+	    
         if len(doc['topics'])<1:
             doc.pop('topics')
         return [doc,results.results]
@@ -562,7 +563,10 @@ class Feed:
                 title=article.title
                 tags=article.keywords
                 url=article.url
-                results.add_success({'url':url,'lib':last_lib,'message':'news extraction','title':title,'tags':tags,'text_size':len(text)})
+		if len(text) == 0:
+                    results.add_error({'url':url,'lib':last_lib,'message':'Could not extract any text'})
+                else:
+                    results.add_success({'url':url,'lib':last_lib,'message':'news extraction','title':title,'tags':tags,'text_size':len(text)})
                 del article
             except Exception as e:
                 results.add_error({'url':url,'lib':last_lib,'message':str(e)})
