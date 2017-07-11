@@ -25,7 +25,6 @@ telegram_dfm_id="/api/telegram"
 http=urllib3.PoolManager(num_pools=3,timeout=urllib3.Timeout(connect=10, read=10),retries=urllib3.Retry(3, redirect=1))
 
 config = ConfigParser.ConfigParser()
-print(os.path.dirname(os.path.abspath(__file__)) + 'telegrambot.cfg')
 if os.path.isfile(os.path.dirname(os.path.abspath(__file__)) + '/telegrambot.cfg'):
     config.read(os.path.dirname(os.path.abspath(__file__)) + '/telegrambot.cfg')
 else:
@@ -269,7 +268,6 @@ def handle(msg):
 
 
 
-#TOKEN = '286712538:AAG3eK9niWtkMnsppscPBddfM0iT2XV1QVw'  # get token from command-line
 
 #bot = telepot.Bot(TOKEN)
 #bot.message_loop(handle)
@@ -293,7 +291,6 @@ def handle(msg):
 #     result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
 #     print ('Chosen Inline Result:', result_id, from_id, query_string)
 
-print(config.sections())
 bot = telepot.Bot(config.get('variables', 'BOT_TOKEN'))
 bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
 # Keep the program running.
