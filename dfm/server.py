@@ -261,7 +261,7 @@ def recent_feed():
     app.logger.debug("ATOM RSS Feed parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
 
     #query by default
-    time_range_query={ "sort" : [ { "topics.score" : { "order" : "dsc", "nested_path" : "topics" } }, { "updated" : { "order" : "dsc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }, { "type":{ "value":"doc" } }] } } }
+    time_range_query={ "sort" : [ { "topics.score" : { "order" : "dsc", "nested_path" : "topics" } }, { "updated" : { "order" : "dsc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }] } }}
 
     if model or topic:
         model_query={"query" : { "constant_score" : { "filter" : { "bool" : { "must":[{ "type":{ "value":"model" } }] } } } } }
@@ -302,7 +302,10 @@ def recent_feed():
     for doc in docs:
         if isinstance(doc, list):
             doc=doc[0]
-        news=doc['_source']
+        if '_source' in doc:
+            news=doc['_source']
+        else:
+            news=doc
         topics=[]
         scores=[]
         overall_scr=0
