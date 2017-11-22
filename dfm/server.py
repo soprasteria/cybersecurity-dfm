@@ -738,13 +738,14 @@ class Schedule(Resource):
                             app.logger.debug("topic match:"+curr_topic)
                             for tag in scan_topic["_source"]["tags"]:
                                 count_docs=0
+                                app.logger.debug(
                                 nb_tags=len(scan_topic["_source"]["tags"])
                                 app.logger.debug("tag:"+tag)
                                 current_tag_doc_query={"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
                                 app.logger.debug("API: Tags: "+tag+"="+str(len(tag_doc_results["hits"]["hits"])))
                                 for doc in tag_doc_results["hits"]["hits"]:
-                                    if count_docs>int(model["_source"]["limit"]/nb_tags):
+                                    if count_docs>int(model["_source"]["limit"])/nb_tags:
                                         app.logger.debug("Exceed training model extraction tags limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
                                         break
                                     if isinstance(doc,list) or isinstance(doc,types.GeneratorType):
