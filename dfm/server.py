@@ -755,7 +755,7 @@ class Schedule(Resource):
                                         app.logger.debug("output_doc:"+doc["_source"]["link"])
                                         generate_doc(topic_path,doc)
                                     count_docs+=1
-                                if count_docs>int(model["_source"]["limit"]):
+                                if count_docs>int(model["_source"]["limit"])/nb_tags:
                                     app.logger.debug("Exceed training model extraction limit:"+str(count_docs)+"/"+model["_source"]["limit"])
                                     break
                 #generate models from training set
