@@ -738,9 +738,8 @@ class Schedule(Resource):
                             app.logger.debug("topic match:"+curr_topic)
                             for tag in scan_topic["_source"]["tags"]:
                                 count_docs=0
-                                app.logger.debug(
                                 nb_tags=len(scan_topic["_source"]["tags"])
-                                app.logger.debug("tag:"+tag)
+                                app.logger.debug("[Training Data] Topic: "+curr_topic+", Tag: "+tag+", Limit:"+str(int(model["_source"]["limit"])/nb_tags))
                                 current_tag_doc_query={"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
                                 app.logger.debug("API: Tags: "+tag+"="+str(len(tag_doc_results["hits"]["hits"])))
