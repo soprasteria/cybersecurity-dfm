@@ -698,7 +698,7 @@ class Schedule(Resource):
 
     #@profile
     def get(self, src_id):
-        """ crawl one source
+        """ schedulable tasks
 
         :param str src_id: source identifier, if identifier is *source_crawl* it is a special keyword to crawl sources, *content_crawl* it is a special keyword to crawl missing content for all news, *generate_models* is a special .
         :returns: json return result
@@ -721,6 +721,7 @@ class Schedule(Resource):
             for model in models:
                 app.logger.debug("[model training] model:"+model["_source"]["title"])
                 app.logger.debug("[model training] training set topic's limit: "+str(int(model["_source"]["limit"])))
+                topic_limit=int(model["_source"]["limit"])
                 #generate training set for the model
                 training_path=config['TRAININGS_PATH']+os.path.sep+model["_source"]["title"]
 
@@ -740,26 +741,28 @@ class Schedule(Resource):
                             for tag in scan_topic["_source"]["tags"]:
                                 count_docs=0
                                 nb_tags=len(scan_topic["_source"]["tags"])
+                                # set tag_limit a bit above to ensure that each topic has at least the nb of doc given in the topic_limit
+                                tag_limit=topic_limit-int(topic_limit/nb_tags)*nb_tags+int(topic_limit/nb_tags)
                                 current_tag_doc_query={"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
                                 app.logger.debug("[model training] tag's docs: "+tag+"="+str(len(tag_doc_results["hits"]["hits"])))
                                 for doc in tag_doc_results["hits"]["hits"]:
-                                    app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
-                                    if count_docs>int(model["_source"]["limit"])/nb_tags:
-                                        app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
+                                    app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(tag_limit)+" curr_doc: "+str(count_docs))
+                                    if count_docs>tag_limit:
+                                        app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(tag_limit))
                                         break
                                     else:
                                         if isinstance(doc,list) or isinstance(doc,types.GeneratorType):
                                             for sub_doc in doc:
-                                                app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
+                                                app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(tag_limit)+" curr_doc: "+str(count_docs))
                                                 app.logger.debug("[model training] output_sub_doc:"+sub_doc["_source"]["link"])
                                                 generate_doc(topic_path,sub_doc)
-                                                if count_docs>int(model["_source"]["limit"])/nb_tags:
-                                                    app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
+                                                if count_docs>tag_limit:
+                                                    app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(tag_limit))
                                                     break
                                                 count_docs+=1
                                         else:
-                                            app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
+                                            app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(tag_limit)+" curr_doc: "+str(count_docs))
                                             app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
                                             generate_doc(topic_path,doc)
                                             count_docs+=1
