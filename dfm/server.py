@@ -751,12 +751,16 @@ class Schedule(Resource):
                                     else:
                                         if isinstance(doc,list) or isinstance(doc,types.GeneratorType):
                                             for sub_doc in doc:
+                                                app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
                                                 app.logger.debug("[model training] output_sub_doc:"+sub_doc["_source"]["link"])
                                                 generate_doc(topic_path,sub_doc)
+                                                count_docs+=1
                                         else:
+                                            app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
                                             app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
                                             generate_doc(topic_path,doc)
-                                        count_docs+=1
+                                            count_docs+=1
+
 
                 #generate models from training set
                 model_path=config['MODELS_PATH']+os.path.sep+model["_source"]["title"]
