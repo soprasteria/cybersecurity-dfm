@@ -744,7 +744,7 @@ class Schedule(Resource):
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
                                 app.logger.debug("API: Tags: "+tag+"="+str(len(tag_doc_results["hits"]["hits"])))
                                 for doc in tag_doc_results["hits"]["hits"]:
-                                    app.logger.debug("Training Set doc ratio: "+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags)
+                                    app.logger.debug("Training Set doc ratio: "+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
                                     if count_docs>int(model["_source"]["limit"])/nb_tags:
                                         app.logger.debug("Exceed training model extraction tags limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
                                         break
