@@ -754,6 +754,9 @@ class Schedule(Resource):
                                                 app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
                                                 app.logger.debug("[model training] output_sub_doc:"+sub_doc["_source"]["link"])
                                                 generate_doc(topic_path,sub_doc)
+                                                if count_docs>int(model["_source"]["limit"])/nb_tags:
+                                                    app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
+                                                    break
                                                 count_docs+=1
                                         else:
                                             app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
