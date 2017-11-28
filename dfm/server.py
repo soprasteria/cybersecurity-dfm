@@ -711,7 +711,7 @@ class Schedule(Resource):
                 model_caller=ObjectDetail()
                 models=[model_caller.get(self.args['id'])]
             else:
-                app.logger.debug("generate models:"+src_id)
+                app.logger.debug("[model training] generate models:"+src_id)
                 models_settings=ModelsSettingsList()
                 models=models_settings.get()["hits"]["hits"]
 
@@ -719,8 +719,8 @@ class Schedule(Resource):
             topics=topics_settings.get()["hits"]["hits"]
 
             for model in models:
-                app.logger.debug("model:"+model["_source"]["title"])
-                app.logger.debug("model training set limit: "+str(int(model["_source"]["limit"])))
+                app.logger.debug("[model training] model:"+model["_source"]["title"])
+                app.logger.debug("[model training] training set topic's limit: "+str(int(model["_source"]["limit"])))
                 #generate training set for the model
                 training_path=config['TRAININGS_PATH']+os.path.sep+model["_source"]["title"]
 
@@ -730,32 +730,33 @@ class Schedule(Resource):
                 os.makedirs(training_path)
 
                 for curr_topic in model["_source"]["related_topics"]:
-                    app.logger.debug("topic:"+curr_topic)
+                    app.logger.debug("[model training] topic:"+curr_topic)
                     topic_path=training_path+os.path.sep+curr_topic
                     if not os.path.exists(topic_path):
                         os.makedirs(topic_path)
                     for scan_topic in topics:
                         if curr_topic == scan_topic["_source"]["title"]:
-                            app.logger.debug("topic match:"+curr_topic)
+                            app.logger.debug("[model training] topic match:"+curr_topic)
                             for tag in scan_topic["_source"]["tags"]:
                                 count_docs=0
                                 nb_tags=len(scan_topic["_source"]["tags"])
-                                app.logger.debug("[Training Data] Topic: "+curr_topic+", Tag: "+tag+", Limit:"+str(int(model["_source"]["limit"])/nb_tags))
+                                app.logger.debug("[model training] training set topic: "+curr_topic+", tag: "+tag+", tag's limit:"+str(int(model["_source"]["limit"])/nb_tags))
                                 current_tag_doc_query={"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
-                                app.logger.debug("API: Tags: "+tag+"="+str(len(tag_doc_results["hits"]["hits"])))
+                                app.logger.debug("[model training] tag's docs: "+tag+"="+str(len(tag_doc_results["hits"]["hits"])))
                                 for doc in tag_doc_results["hits"]["hits"]:
-                                    app.logger.debug("Training Set doc ratio: "+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
+                                    app.logger.debug("[model training] training set doc ratio: "+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
                                     if count_docs>int(model["_source"]["limit"])/nb_tags:
-                                        app.logger.debug("Exceed training model extraction tags limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
+                                        app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
                                         break
-                                    elif isinstance(doc,list) or isinstance(doc,types.GeneratorType):
-                                        for sub_doc in doc:
-                                            app.logger.debug("output_sub_doc:"+sub_doc["_source"]["link"])
-                                            generate_doc(topic_path,sub_doc)
                                     else:
-                                        app.logger.debug("output_doc:"+doc["_source"]["link"])
-                                        generate_doc(topic_path,doc)
+                                        if isinstance(doc,list) or isinstance(doc,types.GeneratorType):
+                                            for sub_doc in doc:
+                                                app.logger.debug("[model training] output_sub_doc:"+sub_doc["_source"]["link"])
+                                                generate_doc(topic_path,sub_doc)
+                                        else:
+                                            app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
+                                            generate_doc(topic_path,doc)
                                     count_docs+=1
 
                 #generate models from training set
