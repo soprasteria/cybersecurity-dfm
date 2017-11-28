@@ -740,12 +740,11 @@ class Schedule(Resource):
                             for tag in scan_topic["_source"]["tags"]:
                                 count_docs=0
                                 nb_tags=len(scan_topic["_source"]["tags"])
-                                app.logger.debug("[model training] training set topic: "+curr_topic+", tag: "+tag+", tag's limit:"+str(int(model["_source"]["limit"])/nb_tags))
                                 current_tag_doc_query={"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
                                 app.logger.debug("[model training] tag's docs: "+tag+"="+str(len(tag_doc_results["hits"]["hits"])))
                                 for doc in tag_doc_results["hits"]["hits"]:
-                                    app.logger.debug("[model training] training set doc ratio: "+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
+                                    app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(int(model["_source"]["limit"])/nb_tags)+" curr_doc: "+str(count_docs))
                                     if count_docs>int(model["_source"]["limit"])/nb_tags:
                                         app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(int(model["_source"]["limit"])/nb_tags))
                                         break
