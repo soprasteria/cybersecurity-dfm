@@ -757,7 +757,7 @@ class Schedule(Resource):
                                         else:
                                             app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
                                             generate_doc(topic_path,doc)
-                                    count_docs+=1
+                                        count_docs+=1
 
                 #generate models from training set
                 model_path=config['MODELS_PATH']+os.path.sep+model["_source"]["title"]
