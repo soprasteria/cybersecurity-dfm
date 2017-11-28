@@ -720,6 +720,7 @@ class Schedule(Resource):
 
             for model in models:
                 app.logger.debug("model:"+model["_source"]["title"])
+                app.logger.debug("model training set limit: "+str(int(model["_source"]["limit"])))
                 #generate training set for the model
                 training_path=config['TRAININGS_PATH']+os.path.sep+model["_source"]["title"]
 
