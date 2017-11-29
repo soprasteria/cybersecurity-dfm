@@ -564,19 +564,19 @@ class Feed:
         self.logger.debug("Content-Type: "+doc_type)
         #manage not web documents
         if "html" not in doc_type and "text" not in doc_type and "htm" not in doc_type and "javascript" not in doc_type:
-            self.logger.debug("Document type guess process")
             #create temporary file to download the document
             tmp_file = tempfile.NamedTemporaryFile(delete=False)
             last_lib="magic"
             tmp_file.write(res.data)
             tmp_file.close()
             mime = magic.Magic(mime=True) #instantiate libmagic object
+            self.logger.debug("Attempting to guess type of document: "+tmp_file.name)
             mimes = mime.from_file(tmp_file.name) # Get mime type
             ext = mimetypes.guess_all_extensions(mimes)[0] # Guess extension
-            self.logger.debug("Document guessed type: "+ext)
+            self.logger.debug("Document guessed type: "+tmp_file.name+ext)
             last_lib="textract"
             #extract text from the document
-            self.logger.debug("Attempting text extraction")
+            self.logger.debug("Attempting text extraction: "+tmp_file.name)
             text = textract.process(tmp_file.name, extension=ext)
             os.unlink(tmp_file)
             if len(text)<1:
