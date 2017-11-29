@@ -547,7 +547,7 @@ class Feed:
             return [doc, results.results]
 
         res = self.http.request('GET', url, preload_content=False)
-        doc_type = res.content_type
+        doc_type = res.getheader('Content-Type')
         type_exclusion=any(re.match(regex, doc_type) for regex in self.file_extensions_exclusion)
 
         if type_exclusion:
