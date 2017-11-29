@@ -7,6 +7,7 @@ import os
 import signal
 import inspect
 import tempfile
+import mimetypes
 
 from memory_profiler import profile
 import base64
@@ -568,8 +569,9 @@ class Feed:
             tmp_file = tempfile.TemporaryFile()
             last_lib="magic"
             tmp_file.write(res.data)
-            mimes = magic.mime.from_file(tmp_file) # Get mime type
-            ext = magic.mimetypes.guess_all_extensions(mimes)[0] # Guess extension
+            mime = magic.Magic(mime=True) #instantiate libmagic object
+            mimes = mime.from_file(tmp_file) # Get mime type
+            ext = mimetypes.guess_all_extensions(mimes)[0] # Guess extension
             self.logger.debug("Document guessed type: "+ext)
             last_lib="textract"
             #extract text from the document
