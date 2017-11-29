@@ -6,6 +6,7 @@ import sys
 import os
 import signal
 import inspect
+import tempfile
 
 from memory_profiler import profile
 import base64
@@ -36,8 +37,11 @@ from tweepy import OAuthHandler
 from newspaper import Article
 from readability.readability import Document
 from bs4 import BeautifulSoup
+import magic
+import textract
 
 from langdetect import detect
+
 #from dd_client import DD, DDCommunicationError
 from dd_client import DD
 """ Deep Detect client is mandatory for prediction """
@@ -492,7 +496,7 @@ class Feed:
                     results.add_fail({'url':doc['link'],'message':"Predict: DD failed result code:"+str(classif['status']['code'])})
         except Exception as e:
             results.add_error({'url':doc['link'],'lib':"dede",'message':str(e)})
-	    
+
         if len(doc['topics'])<1:
             doc.pop('topics')
         return [doc,results.results]
@@ -528,6 +532,7 @@ class Feed:
         :return: json extracted attributes mostly text, tags, summary and title if extraction success
         """
         results=Results(self.logger,1,str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
+
         url_exclusion=any(re.match(regex, url) for regex in self.uri_exclusion)
         extension_exclusion=any(re.match(regex, url) for regex in self.file_extensions_exclusion)
 
@@ -541,15 +546,43 @@ class Feed:
             doc={"link":url,"content":[{"base":url,"language":""}]}
             return [doc, results.results]
 
+        res = self.http.request('GET', url, preload_content=False)
+        doc_type = res.info().maintype()
+        type_exclusion=any(re.match(regex, doc_type) for regex in self.file_extensions_exclusion)
+
+        if type_exclusion:
+            results.add_fail({"url":url,"message":"document type has been excluded by settings EXCLUDED_FILE_EXTENSIONS"})
+            doc={"link":url,"content":[{"base":url,"language":""}]}
+            return [doc, results.results]
+
         html=""
         text=""
         title=""
         summary=""
         tags=[]
-        last_lib="newspaper"
+
+        #manage not web documents
+        if doc_type != "html" and doc_type != "text" and doc_type != "htm" and doc_type != "application":
+            #create temporary file to download the document
+            tmp_file = tempfile.TemporaryFile()
+            last_lib="magic"
+            with open(tmp_file, 'wb') as out:
+                out.write(res.data)
+                mimes = magic.mime.from_file(out) # Get mime type
+                ext = magic.mimetypes.guess_all_extensions(mimes)[0] # Guess extension
+                last_lib="textract"
+                #extract text from the document
+                text = textract.process(out, extension=ext)
+        #if pure text just download it
+        elif doc_type == "text":
+            text=res.data
+            last_lib="No Lib"
+
+
         #most effective library to crawl newscontent found
         if len(text)<self.config['NEWS_MIN_TEXT_SIZE']:
             #try newspaper content scraping
+            last_lib="newspaper"
 
             try:
                 self.logger.debug("Source: try to extract content with newspaper "+url)

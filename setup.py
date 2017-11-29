@@ -43,7 +43,9 @@ setup(
      'sphinx_rtd_theme',
      'sphinx_git',
      'memory_profiler',
-     'selenium'
+     'selenium',
+     'textract',
+     'python-magic'
     ],
     packages=find_packages(exclude=('tests','utils'))
 )
