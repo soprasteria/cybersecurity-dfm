@@ -176,7 +176,7 @@ export DFMPATH=`pwd`
 fi
 runCMD "source /etc/profile"
 runCMD "apt-get install -y supervisor curl git build-essential openjdk-$JAVA_VERSION-jre-headless python-dev cmake wget sudo libmagic-dev python-dev libxml2-dev libxslt1-dev antiword unrtf poppler-utils pstotext tesseract-ocr \
-flac ffmpeg lame libmad0 libsox-fmt-mp3 sox libjpeg-dev swig"
+flac ffmpeg lame libmad0 libsox-fmt-mp3 sox libjpeg-dev swig libpulse-dev"
 grep 'minfds=125000' /etc/supervisor/supervisord.conf
 if [ $? -ne 0 ]
   then sed -i.old "s/^\[supervisord\]$/\[supervisord\]\n### minfds parameter added for ElasticSearch\nminfds=125000/g" /etc/supervisor/supervisord.conf
