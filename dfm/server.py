@@ -742,7 +742,21 @@ class Schedule(Resource):
                             # set tag_limit a bit above to ensure that each topic has at least the nb of doc given in the topic_limit
                             tag_limit=int(topic_limit/nb_tags)
                             remaining_docs=0
+                            tags_size={}
+                            ordered_tags_size={}
+                            
+                            #inventory nb docs by tag
                             for tag in scan_topic["_source"]["tags"]:
+                                current_tag_doc_query={"size":0,"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
+                                results=storage.query(current_tag_doc_query)[0]
+                                tags_size[tag]=int(results["hits"]["total"])
+
+                            #order tags from smallest nb doc to largest
+                            for key, value in sorted(tags_size.iteritems(), key=lambda (k,v): (v,k)):
+                                ordered_tags_size[key]=value
+                                app.logger.debug("[model training] topic: "+curr_topic+" tag: "+key+" nb_docs:"+str(value))
+
+                            for tag,nb_docs in ordered_tags_size:
                                 count_docs=0
                                 current_tag_doc_query={"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
