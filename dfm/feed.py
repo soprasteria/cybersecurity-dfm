@@ -569,10 +569,10 @@ class Feed:
             tmp_file = tempfile.NamedTemporaryFile(delete=False)
             last_lib="magic"
             tmp_file.write(res.data)
-            mime = magic.Magic(mime=True) #instantiate libmagic object
-            mimes = mime.from_file(tmp_file) # Get mime type
-            ext = mimetypes.guess_all_extensions(mimes)[0] # Guess extension
             tmp_file.close()
+            mime = magic.Magic(mime=True) #instantiate libmagic object
+            mimes = mime.from_file(tmp_file.name) # Get mime type
+            ext = mimetypes.guess_all_extensions(mimes)[0] # Guess extension
             self.logger.debug("Document guessed type: "+ext)
             last_lib="textract"
             #extract text from the document
