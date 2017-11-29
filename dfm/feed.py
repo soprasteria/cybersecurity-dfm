@@ -1,6 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 "Data Feed Manager Feed object used to crawl, extract content for one feed"
+from __future__ import absolute_import
+from __future__ import division, print_function, unicode_literals
+
 import re
 import sys
 import os
@@ -40,6 +43,11 @@ from readability.readability import Document
 from bs4 import BeautifulSoup
 import magic
 import textract
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer as Summarizer
+from sumy.nlp.stemmers import Stemmer
+from sumy.utils import get_stop_words
 
 from langdetect import detect
 
@@ -578,16 +586,17 @@ class Feed:
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
             html = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
-            article = Article(url)
-            article.download(input_html=text)
-            article.parse()
-            html=""
-            article.nlp()
-            text=article.text
-            summary=article.summary
-            title=article.title
-            tags=article.keywords
-            url=article.url
+            parser = PlaintextParser.from_file("document.txt", Tokenizer(LANGUAGE))
+            stemmer = Stemmer(detect(text))
+            summarizer = Summarizer(stemmer)
+            summarizer.stop_words = get_stop_words(detect(text))
+            summary=""
+            sentences_count=0
+            for sentence in summarizer(parser.document, 10):
+                if sentences_count=0:
+                    title=sentence
+                summary=summary+"\n"+sentence
+                sentences_count+=1
             self.logger.debug("Text Extracted file: "+tmp_file.name+" text size:"+str(len(text)))
             os.unlink(tmp_file.name)
             if len(text)<1:

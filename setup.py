@@ -45,7 +45,8 @@ setup(
      'memory_profiler',
      'selenium',
      'textract',
-     'python-magic'
+     'python-magic',
+     'sumy'
     ],
     packages=find_packages(exclude=('tests','utils'))
 )

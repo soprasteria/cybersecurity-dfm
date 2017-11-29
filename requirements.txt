@@ -25,3 +25,4 @@ nltk
 telepot
 textract
 python-magic
+sumy
