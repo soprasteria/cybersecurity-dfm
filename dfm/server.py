@@ -756,7 +756,7 @@ class Schedule(Resource):
                                 ordered_tags_size[key]=value
                                 app.logger.debug("[model training] topic: "+curr_topic+" tag: "+key+" nb_docs:"+str(value))
 
-                            for tag, nb_docs in ordered_tags_size.iter_items():
+                            for tag, nb_docs in ordered_tags_size.iteritems():
                                 count_docs=0
                                 current_tag_doc_query={"query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}}, {'term': {'tags': tag}}]}}}
                                 tag_doc_results=storage.query(current_tag_doc_query)[0]
