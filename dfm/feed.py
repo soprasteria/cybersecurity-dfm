@@ -584,11 +584,6 @@ class Feed:
                 results.add_fail({"url":url,"message":"document "+ext+" text extraction failed with textract"})
                 return [doc, results.results]
 
-        #if pure text just download it
-        elif "text" in doc_type:
-            text=res.data
-            last_lib="No Lib"
-
 
         #most effective library to crawl newscontent found
         if len(text)<self.config['NEWS_MIN_TEXT_SIZE']:
