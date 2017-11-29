@@ -562,7 +562,7 @@ class Feed:
         tags=[]
         self.logger.debug("Content-Type: "+doc_type)
         #manage not web documents
-        if "html" not in doc_type and "text" not in doc_type and "htm" not in doc_type and "application" not in doc_type:
+        if "html" not in doc_type and "text" not in doc_type and "htm" not in doc_type and "javascript" not in doc_type:
             #create temporary file to download the document
             tmp_file = tempfile.TemporaryFile()
             last_lib="magic"
