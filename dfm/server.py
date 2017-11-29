@@ -782,7 +782,7 @@ class Schedule(Resource):
                                             app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
                                             generate_doc(topic_path,doc)
                                             count_docs+=1
-                                remaining_docs=tag_limit-count_docs
+                                remaining_docs=curr_tag_limit-count_docs
                                 app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_missing_docs: "+str(remaining_docs))
                                 if remaining_docs<0:
                                     remaining_docs=0
