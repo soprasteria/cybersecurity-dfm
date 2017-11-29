@@ -567,18 +567,17 @@ class Feed:
             #create temporary file to download the document
             tmp_file = tempfile.TemporaryFile()
             last_lib="magic"
-            with open(tmp_file, 'wb') as out:
-                out.write(res.data)
-                mimes = magic.mime.from_file(out) # Get mime type
-                ext = magic.mimetypes.guess_all_extensions(mimes)[0] # Guess extension
-                self.logger.debug("Document guessed type: "+ext)
-                last_lib="textract"
-                #extract text from the document
-                self.logger.debug("Attempting text extraction")
-                text = textract.process(out, extension=ext)
-                if len(text)<1:
-                    results.add_fail({"url":url,"message":"document "+ext+" text extraction failed with textract"})
-                    return [doc, results.results]
+            tmp_file.write(res.data)
+            mimes = magic.mime.from_file(tmp_file) # Get mime type
+            ext = magic.mimetypes.guess_all_extensions(mimes)[0] # Guess extension
+            self.logger.debug("Document guessed type: "+ext)
+            last_lib="textract"
+            #extract text from the document
+            self.logger.debug("Attempting text extraction")
+            text = textract.process(tmp_file, extension=ext)
+            if len(text)<1:
+                results.add_fail({"url":url,"message":"document "+ext+" text extraction failed with textract"})
+                return [doc, results.results]
 
         #if pure text just download it
         elif "text" in doc_type:
