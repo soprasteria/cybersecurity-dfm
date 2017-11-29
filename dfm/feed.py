@@ -577,7 +577,7 @@ class Feed:
             last_lib="textract"
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
-            text = textract.process(str(tmp_file.name), extension=ext)
+            text = textract.process(str(tmp_file.name), extension=str(ext))
             os.unlink(tmp_file)
             if len(text)<1:
                 results.add_fail({"url":url,"message":"document "+ext+" text extraction failed with textract"})
