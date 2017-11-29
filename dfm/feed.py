@@ -579,7 +579,7 @@ class Feed:
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
             html = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
             article = Article(url)
-            article.download(html=text)
+            article.download(input_html=text)
             article.parse()
             html=""
             article.nlp()
