@@ -741,7 +741,7 @@ class Schedule(Resource):
                             nb_tags=len(scan_topic["_source"]["tags"])
                             # set tag_limit a bit above to ensure that each topic has at least the nb of doc given in the topic_limit
                             tag_limit=int(topic_limit/nb_tags)
-                            remaining_docs=0
+                            remaining_docs=topic_limit-(tag_limit*nb_tags)
                             tags_size={}
                             ordered_tags_size={}
 
