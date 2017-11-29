@@ -585,8 +585,8 @@ class Feed:
             last_lib="textract"
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
-            html = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
-            parser = PlaintextParser.from_file("document.txt", Tokenizer(LANGUAGE))
+            text = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
+            parser = PlaintextParser.from_string(text, Tokenizer(detect(text)))
             stemmer = Stemmer(detect(text))
             summarizer = Summarizer(stemmer)
             summarizer.stop_words = get_stop_words(detect(text))
