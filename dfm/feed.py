@@ -593,7 +593,7 @@ class Feed:
             summary=""
             sentences_count=0
             for sentence in summarizer(parser.document, 10):
-                if sentences_count=0:
+                if sentences_count==0:
                     title=sentence
                 summary=summary+"\n"+sentence
                 sentences_count+=1
