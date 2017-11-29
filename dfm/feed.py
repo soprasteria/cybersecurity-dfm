@@ -547,7 +547,7 @@ class Feed:
             return [doc, results.results]
 
         res = self.http.request('GET', url, preload_content=False)
-        doc_type = res.info().maintype()
+        doc_type = res.content_type
         type_exclusion=any(re.match(regex, doc_type) for regex in self.file_extensions_exclusion)
 
         if type_exclusion:
@@ -562,7 +562,7 @@ class Feed:
         tags=[]
 
         #manage not web documents
-        if doc_type != "html" and doc_type != "text" and doc_type != "htm" and doc_type != "application":
+        if "html" not in doc_type and "text" not in doc_type and "htm" not in doc_type and "application" not in doc_type:
             #create temporary file to download the document
             tmp_file = tempfile.TemporaryFile()
             last_lib="magic"
@@ -574,7 +574,7 @@ class Feed:
                 #extract text from the document
                 text = textract.process(out, extension=ext)
         #if pure text just download it
-        elif doc_type == "text":
+        elif "text" in doc_type:
             text=res.data
             last_lib="No Lib"
 
