@@ -586,17 +586,20 @@ class Feed:
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
             text = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
-            parser = PlaintextParser.from_string(text, Tokenizer(detect(text)))
-            stemmer = Stemmer(detect(text))
-            summarizer = Summarizer(stemmer)
-            summarizer.stop_words = get_stop_words(detect(text))
-            summary=""
-            sentences_count=0
-            for sentence in summarizer(parser.document, 10):
-                if sentences_count==0:
-                    title=sentence
-                summary=summary+"\n"+sentence
-                sentences_count+=1
+            #quick cleanup
+            text=text.replace('\n\n','\n').replace('\n',"\n").replace('....',' ')
+            # nltk models issue for sumy to investigate
+            #parser = PlaintextParser.from_string(text, Tokenizer(detect(text)))
+            #stemmer = Stemmer(detect(text))
+            #summarizer = Summarizer(stemmer)
+            #summarizer.stop_words = get_stop_words(detect(text))
+            #summary=""
+            #sentences_count=0
+            #for sentence in summarizer(parser.document, 10):
+            #    if sentences_count==0:
+            #        title=sentence
+            #    summary=summary+"\n"+sentence
+            #    sentences_count+=1
             self.logger.debug("Text Extracted file: "+tmp_file.name+" text size:"+str(len(text)))
             os.unlink(tmp_file.name)
             if len(text)<1:
