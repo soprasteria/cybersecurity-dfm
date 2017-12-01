@@ -156,7 +156,8 @@ Todo List
 =============
 - [ ] OPML import/export
 - [ ] Social Networks other webservices integration (Reddit, Linkedin,... )
-- [ ] Download text document (PDF,PPT,DOC,ODT,ODP,...) and key text extraction
+- [X] Extract text from documents (CSV,DOC,DOCX,EML,EPUB,GIF,JPG,JSON,MSG,ODT,PDF,PPTX,PS,RTF,TXT,XSLX,XSL)
+- [ ] Extract text from video's audio speech
 - [ ] Search engines crawling
 - [ ] Pass javascript adds redirection
 - [ ] Pass captcha filter
