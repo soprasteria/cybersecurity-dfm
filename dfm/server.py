@@ -663,10 +663,11 @@ def generate_doc(curr_path,doc):
         curr_doc=""
         if "title" in doc['_source']:
             curr_doc+="\r\n"+doc['_source']['title']
-        if "updated" in doc['_source'] and isinstance(doc['_source']['updated'],basestring):
-            curr_doc+="\r\n"+doc['_source']['updated']
-        if "content" in doc['_source']:
-            curr_doc+="\r\n"+str(doc['_source']['content'])
+        # value that reduce quality of the training
+        #if "updated" in doc['_source'] and isinstance(doc['_source']['updated'],basestring):
+        #    curr_doc+="\r\n"+doc['_source']['updated']
+        #if "content" in doc['_source']:
+        #     curr_doc+="\r\n"+str(doc['_source']['content'])
         if "summary" in doc['_source']:
             curr_doc+="\r\n"+doc['_source']['summary']
         if "author" in doc['_source']:
