@@ -16,8 +16,8 @@ from flask import Flask
 import urllib,urlparse
 import time
 
-class ProxiesConnection(self,RequestsHttpConnection):
-     def __init__(*args, **kwargs):
+class ProxiesConnection(RequestsHttpConnection):
+     def __init__(self, *args, **kwargs):
          proxies = kwargs.pop('proxies', {})
          super(ProxiesConnection, self).__init__(*args, **kwargs)
          self.session.proxies = proxies
