@@ -16,6 +16,13 @@ from flask import Flask
 import urllib,urlparse
 import time
 
+class ProxiesConnection(RequestsHttpConnection):
+     def __init__(*args, **kwargs):
+         proxies = kwargs.pop('proxies', {})
+         super(ProxiesConnection, self).__init__(*args, **kwargs)
+         self.session.proxies = proxies
+
+
 class Storage:
      """ ElasticSearch storage management """
      def __init__(self,logger=Flask(__name__).logger,config=Flask(__name__).config):
@@ -26,11 +33,6 @@ class Storage:
          """
          self.config=config
          if self.config['ES_PROXY'] is not None:
-            class ProxiesConnection(RequestsHttpConnection):
-               def __init__(*args, **kwargs):
-                   proxies = kwargs.pop('proxies', {})
-                   super(ProxiesConnection, self).__init__(*args, **kwargs)
-                   self.session.proxies = proxies
             self.es = Elasticsearch(self.config['ES_URIS'], timeout=self.config['ES_TIMEOUT'], connection_class=ProxiesConnection, proxies = self.config['ES_PROXY'])
          else:
             self.es=Elasticsearch(self.config['ES_URIS'],timeout=self.config['ES_TIMEOUT'])
