@@ -4,7 +4,7 @@
 
 from memory_profiler import profile
 from datetime import datetime
-from elasticsearch import Elasticsearch, helpers, TransportError, ConnectionTimeout, ConnectionError, RequestError
+from elasticsearch import Elasticsearch, helpers, TransportError, ConnectionTimeout, ConnectionError, RequestError, RequestsHttpConnection
 import hashlib
 import sys
 import gc
@@ -25,7 +25,15 @@ class Storage:
          :returns: DFM storage object
          """
          self.config=config
-         self.es=Elasticsearch(self.config['ES_URIS'],timeout=self.config['ES_TIMEOUT'])
+         if self.config['ES_PROXY'] is not None:
+            class ProxiesConnection(RequestsHttpConnection):
+               def __init__(*args, **kwargs):
+                   proxies = kwargs.pop('proxies', {})
+                   super(ProxiesConnection, self).__init__(*args, **kwargs)
+                   self.session.proxies = proxies
+            self.es = Elasticsearch(self.config['ES_URIS'], timeout=self.config['ES_TIMEOUT'], connection_class=ProxiesConnection, proxies = self.config['ES_PROXY'])
+         else:
+            self.es=Elasticsearch(self.config['ES_URIS'],timeout=self.config['ES_TIMEOUT'])
          self.index=self.config['ES_INDEX']
          self.logger=logger
          self.serializer=CustomSerializer(logger)
