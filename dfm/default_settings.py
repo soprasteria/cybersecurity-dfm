@@ -20,6 +20,10 @@ class Config(object):
     MEMORY_LIMIT=int(os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')/2)
     """ Set memory limit for DFM by default Limit is half of total memory size """
     ES_URIS = ['http://localhost:9200']
+    """ Set proxy if required to access ElastiSearch (could become global variable in the futur)
+    syntax: {'https': 'http://proxy.adress:port' }
+    """
+    ES_PROXY = None
     """ ElasticSearch REST API URLs """
     ES_INDEX = 'watch'
     """ ElasticSearcg index name """
