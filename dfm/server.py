@@ -773,7 +773,7 @@ class Schedule(Resource):
                                             for sub_doc in doc:
                                                 app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(curr_tag_limit)+" curr_doc: "+str(count_docs))
                                                 app.logger.debug("[model training] output_sub_doc:"+sub_doc["_source"]["link"])
-                                                if len(sub_doc["_source"]["text"])>100:
+                                                if len(sub_doc["_source"]["text"])>500:
                                                     generate_doc(topic_path,sub_doc)
                                                     if count_docs>curr_tag_limit:
                                                        app.logger.debug("[model training] training set exceed training model extraction tag limit:"+str(count_docs)+"/"+str(curr_tag_limit))
@@ -782,7 +782,7 @@ class Schedule(Resource):
                                         else:
                                             app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(curr_tag_limit)+" curr_doc: "+str(count_docs))
                                             app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
-                                            if len(doc["_source"]["text"])>100:
+                                            if len(doc["_source"]["text"])>500:
                                                generate_doc(topic_path,doc)
                                                count_docs+=1
                                 remaining_docs=curr_tag_limit-count_docs
