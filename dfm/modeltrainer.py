@@ -33,6 +33,7 @@ class ModelTrainer:
             *documents* whether to train from text documents (as opposed to sentences in one doc),type=boolean
             *batch-size* batch size,type=int,default=128
             *test-batch-size* test batch size,type=int,default=16
+            *gpu* enable gpu usage is True, default=False
             *gpuid* specify gpu id,type=int,default=0
             *mllib* caffe or xgboost,default='caffe'
             *lregression* whether to use logistic regression,type=boolean
@@ -104,7 +105,7 @@ class ModelTrainer:
         if self.structure['documents']:
             self.parameters_input['sentences'] = False
         if self.mllib == 'caffe':
-            self.parameters_mllib = {'gpu':True,'gpuid':self.structure['gpuid'],'resume':self.structure['resume'],'net':{'batch_size':self.structure['batch_size'],'test_batch_size':self.structure['test_batch_size']},'solver':{'test_interval':self.structure['test_interval'],'test_initialization':False,'base_lr':self.structure['base_lr'],'solver_type':'ADAM','iterations':self.structure['iterations'],'iter_size':1}}#,'lr_policy':'step','stepsize':self.structure['stepsize'],'gamma':0.5,'weight_decay':0.0001}}
+            self.parameters_mllib = {'gpu':self.structure['gpu'],'gpuid':self.structure['gpuid'],'resume':self.structure['resume'],'net':{'batch_size':self.structure['batch_size'],'test_batch_size':self.structure['test_batch_size']},'solver':{'test_interval':self.structure['test_interval'],'test_initialization':False,'base_lr':self.structure['base_lr'],'solver_type':'ADAM','iterations':self.structure['iterations'],'iter_size':1}}#,'lr_policy':'step','stepsize':self.structure['stepsize'],'gamma':0.5,'weight_decay':0.0001}}
         elif self.mllib == 'xgboost':
             self.parameters_mllib = {'iterations':self.structure['iterations'],'objective':'multi:softprob','booster_params':{'max_depth':50}}
         self.parameters_output = {'measure':['mcll','f1','cmdiag','cmfull']}
