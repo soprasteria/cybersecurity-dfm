@@ -90,7 +90,7 @@ def generate_uuid(data):
          to_hash_uri=urllib.quote(full_uri)
      hasher.update(to_hash_uri)
      item_id=hasher.hexdigest()
-     print "ES creation generated ID:"+item_id+"\r\nfor: "+to_hash_uri
+     app.logger.debug("ES creation generated ID:"+item_id+"\r\nfor: "+to_hash_uri)
      return item_id
 
 # class CustomFlask(Flask):
@@ -1067,10 +1067,10 @@ class ChromePlugin(Resource):
         doc["source_type"] = "chromeplugin"
         doc["link"] = data['link']
         doc["source"] = data['first_name']+" "+data['lastname']
-        print json.dumps(doc)
+        app.logger.debug(json.dumps(doc))
 
         response = http.request('GET',dfm_api_base+source_uuid+"/"+news_uuid)
-        print "GET "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status)
+        app.logger.debug("GET "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status))
         result_doc=json.loads(response.data)
 
         if result_doc['found'] and 'text' in result_doc['_source']:
@@ -1081,28 +1081,26 @@ class ChromePlugin(Resource):
         retries=0
         text=False
         while not text:
-            print "waiting for body text..."
+            app.logger.debug("waiting for body text...")
             response = http.urlopen('PUT',dfm_api_base+source_uuid+"/"+news_uuid, headers={'content-type': 'application/json'},body=json.dumps(doc))
-            print "PUT "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status)
-            #print response.data
+            app.logger.debug("PUT "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status))
 
             response = http.request('GET',dfm_api_base+"schedule/contents_crawl?id="+news_uuid) #auth=('user', 'password'))
-            print "GET "+dfm_api_base+"schedule/contents_crawl?id="+news_uuid+" status:"+str(response.status)
-            #print response.data
+            app.logger.debug("GET "+dfm_api_base+"schedule/contents_crawl?id="+news_uuid+" status:"+str(response.status))
 
             response = http.request('GET',dfm_api_base+source_uuid+"/"+news_uuid)
-            print "GET "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status)
-            #print response.data
+            app.logger.debug("GET "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status))
+
             result_doc=json.loads(response.data)
             retries+=1
 
             if '_source' in result_doc:
                 if 'text' in result_doc['_source']:
                     text=True
-                    print "body text found!"
+                    app.logger.debug("body text found!")
 
             if retries>max_retry:
-                print "MAX RETRY EXIT"
+                app.logger.debug("MAX RETRY EXIT")
                 break
         if '_source' in result_doc:
             if 'html' in result_doc:
