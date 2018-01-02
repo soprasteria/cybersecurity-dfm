@@ -676,8 +676,7 @@ def generate_doc(curr_path,doc):
             curr_doc+="\r\n"+doc['_source']['text']
         if "tags" in doc['_source']:
             curr_doc+="\r\n"+",".join(doc['_source']['tags'])
-        if detect(curr_doc) == "en":
-            f.write(curr_doc.encode('utf-8','ignore'))
+        f.write(curr_doc.encode('ascii','ignore'))
 
 class Schedule(Resource):
     """ Function to call scheduled task from an external scheduler (e.g. curl with crontab)
@@ -773,7 +772,7 @@ class Schedule(Resource):
                                             for sub_doc in doc:
                                                 app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(curr_tag_limit)+" curr_doc: "+str(count_docs))
                                                 app.logger.debug("[model training] output_sub_doc parent:"+sub_doc["_parent"]+" id:"+sub_doc["_id"]+" link:"+sub_doc["_source"]["link"])
-                                                if len(sub_doc["_source"]["text"])>500:
+                                                if len(sub_doc["_source"]["text"])>500 and detect(sub_doc["_source"]["text"]) == "en":
                                                     generate_doc(topic_path,sub_doc)
                                                     app.logger.debug("[model training] generated document for training parent:"+sub_doc["_parent"]+" id:"+sub_doc["_id"]+" link:"+sub_doc["_source"]["link"])
                                                     if count_docs>curr_tag_limit:
@@ -783,7 +782,7 @@ class Schedule(Resource):
                                         else:
                                             app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(curr_tag_limit)+" curr_doc: "+str(count_docs))
                                             app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
-                                            if len(doc["_source"]["text"])>00:
+                                            if len(doc["_source"]["text"])>500 and detect(sub_doc["_source"]["text"]) == "en":
                                                generate_doc(topic_path,doc)
                                                app.logger.debug("[model training] generated document for training parent:"+doc["_parent"]+" id:"+doc["_id"]+" link:"+doc["_source"]["link"])
                                                count_docs+=1
