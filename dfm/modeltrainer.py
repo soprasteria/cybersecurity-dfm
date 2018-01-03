@@ -14,11 +14,11 @@ class ModelTrainer:
     def __init__(self,structure,logger,config):
         """ Instanciate a model trainer
         :param dic structure: Model Trainer specific settings
-            eg: {"model-repo":"../models/mymodel","training-repo":"../training/mytraining","sname":"MyTrainer","tsplit":0.01,"base-lr":0.01,"clevel":False,"sequence":140,"iterations":50000,"test-interval":1000,"stepsize":15000,"destroy":True,"resume":False,"finetune":False,"weights":"","nclasses":2,"documents":True,"batch-size":128,"test-batch-size":16,"gpuid":0,"mllib":"xgboost","lregression":False}
+            eg: {"model-repo":"../models/mymodel","training-repo":"../training/mytraining","sname":"MyTrainer","test_split":0.01,"base-lr":0.01,"clevel":False,"sequence":140,"iterations":50000,"test_interval":1000,"stepsize":15000,"destroy":True,"resume":False,"finetune":False,"weights":"","nclasses":2,"documents":True,"batch-size":128,"test-batch-size":16,"gpuid":0,"mllib":"xgboost","lregression":False}
             *model-repo* location of the model
             *training-repo* location of the training files
             *sname* service name
-            *tsplit* training split between 0 and < 1,type=float,default=0.01
+            *test_plit* training split between 0 and < 1,type=float,default=0.01
             *base_lr* initial learning rate,default=0.01,type=float
             *clevel* character-level convolutional net,type=boolean
             *sequence* sequence length for character level models,default=140,type=int
@@ -90,9 +90,9 @@ class ModelTrainer:
     def trainModel(self):
         """ Train the model. """
         self.train_data = [self.structure['training-repo']]
-        self.parameters_input = {'test_split':self.structure['tsplit'],'shuffle':True,'db':True}
+        self.parameters_input = {'test_split':self.structure['test_plit'],'shuffle':True,'db':True}
         if not self.structure['clevel']:
-            self.parameters_input['min_word_length'] = 3
+            self.parameters_input['min_word_length'] = 5
             self.parameters_input['min_count'] = 10
             self.parameters_input['count'] = False
             if self.mllib == 'xgboost':
@@ -105,9 +105,29 @@ class ModelTrainer:
         if self.structure['documents']:
             self.parameters_input['sentences'] = False
         if self.mllib == 'caffe':
-            self.parameters_mllib = {'gpu':self.structure['gpu'],'gpuid':self.structure['gpuid'],'resume':self.structure['resume'],'net':{'batch_size':self.structure['batch_size'],'test_batch_size':self.structure['test_batch_size']},'solver':{'test_interval':self.structure['test_interval'],'test_initialization':False,'base_lr':self.structure['base_lr'],'solver_type':'ADAM','iterations':self.structure['iterations'],'iter_size':1}}#,'lr_policy':'step','stepsize':self.structure['stepsize'],'gamma':0.5,'weight_decay':0.0001}}
+            self.parameters_mllib = {
+             'gpu':self.structure['gpu'],
+             'gpuid':self.structure['gpuid'],
+             'resume':self.structure['resume'],
+             'net':{
+              'batch_size':self.structure['batch_size'],
+              'test_batch_size':self.structure['test_batch_size']
+             },
+             'solver':{
+              'test_interval':self.structure['test_interval'],
+              'test_initialization':False,
+              'base_lr':self.structure['base_lr'],
+              'solver_type':'ADAM',
+              'iterations':self.structure['iterations'],
+              'iter_size':1
+             }
+            }#,'lr_policy':'step','stepsize':self.structure['stepsize'],'gamma':0.5,'weight_decay':0.0001}}
         elif self.mllib == 'xgboost':
-            self.parameters_mllib = {'iterations':self.structure['iterations'],'objective':'multi:softprob','booster_params':{'max_depth':50}}
+            self.parameters_mllib = {
+              'iterations':self.structure['iterations'],
+              'objective':'multi:softprob',
+              'booster_params':{'max_depth':50}
+             }
         self.parameters_output = {'measure':['mcll','f1','cmdiag','cmfull']}
         if self.nclasses == 2:
             self.parameters_output['measure'].append('auc')

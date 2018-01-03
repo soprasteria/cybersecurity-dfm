@@ -805,9 +805,53 @@ class Schedule(Resource):
                 os.makedirs(model_path)
                 os.chmod(model_path, 0o770)
                 if config['MODEL_TYPE']=='caffe':
-                    trainer_def={"model-repo":os.path.abspath(model_path),"training-repo":os.path.abspath(training_path),"sname":model["_source"]["title"]+"_trainer","tsplit":0.2,"base_lr":0.05,"clevel":False,"sequence":140,"iterations":2000,"test_interval":200,"stepsize":15000,"destroy":True,"resume":True,"finetune":False,"weights":None,"nclasses":len(model["_source"]["related_topics"]),"documents":True,"batch_size":300,"test_batch_size":16,"gpu":config['MODEL_GPU'],"gpuid":0,"mllib":"caffe","lregression":False}
+                    trainer_def={
+                     "model-repo":os.path.abspath(model_path),
+                     "training-repo":os.path.abspath(training_path),
+                     "sname":model["_source"]["title"]+"_trainer",
+                     "test_split":0.2,
+                     "base_lr":0.05,
+                     "clevel":False,
+                     "iterations":2000,
+                     "test_interval":200,
+                     "destroy":True,
+                     "resume":True,
+                     "finetune":False,
+                     "weights":None,
+                     "nclasses":len(model["_source"]["related_topics"]),
+                     "documents":True,
+                     "batch_size":100,
+                     "test_batch_size":20,
+                     "gpu":config['MODEL_GPU'],
+                     "gpuid":0,
+                     "mllib":"caffe",
+                     "lregression":False
+                    }
                 else:
-                    trainer_def={"model-repo":os.path.abspath(model_path),"training-repo":os.path.abspath(training_path),"sname":model["_source"]["title"]+"_trainer","tsplit":0.01,"base-lr":0.01,"clevel":False,"sequence":140,"iterations":50000,"test-interval":1000,"stepsize":15000,"destroy":True,"resume":False,"finetune":False,"weights":None,"nclasses":len(model["_source"]["related_topics"]),"documents":True,"batch-size":128,"test-batch-size":16,"gpu":False,"gpuid":0,"mllib":"xgboost","lregression":False}
+                    trainer_def={
+                     "model-repo":os.path.abspath(model_path),
+                     "training-repo":os.path.abspath(training_path),
+                     "sname":model["_source"]["title"]+"_trainer",
+                     "test_split":0.01,
+                     "base_lr":0.01,
+                     "clevel":False,
+                     "sequence":140,
+                     "iterations":2500,
+                     "test_interval":1000,
+                     "stepsize":500,
+                     "destroy":True,
+                     "resume":False,
+                     "finetune":False,
+                     "weights":None,
+                     "nclasses":len(model["_source"]["related_topics"]),
+                     "documents":True,
+                     "batch_size":128,
+                     "test_batch_size":16,
+                     "gpu":False,
+                     "gpuid":0,
+                     "mllib":"xgboost",
+                     "lregression":False
+                    }
                 mt=ModelTrainer(trainer_def,app.logger,config)
                 app.logger.debug(mt.createMLTrainerService())
                 app.logger.debug(mt.trainModel())
