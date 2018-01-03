@@ -722,7 +722,10 @@ class Schedule(Resource):
                 app.logger.debug("[model training] model:"+model["_source"]["title"])
                 app.logger.debug("[model training] training set topic's limit: "+str(int(model["_source"]["limit"])))
                 topic_limit=int(model["_source"]["limit"])
-                model_lang=model["_source"]["lang"]
+                if "lang" in model["_source"]:
+                    model_lang=model["_source"]["lang"]
+                else:
+                    model_lang="en"
                 #generate training set for the model
                 training_path=config['TRAININGS_PATH']+os.path.sep+model["_source"]["title"]
 
