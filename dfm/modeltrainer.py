@@ -19,11 +19,11 @@ class ModelTrainer:
             *training-repo* location of the training files
             *sname* service name
             *tsplit* training split between 0 and < 1,type=float,default=0.01
-            *base-lr* initial learning rate,default=0.01,type=float
+            *base_lr* initial learning rate,default=0.01,type=float
             *clevel* character-level convolutional net,type=boolean
             *sequence* sequence length for character level models,default=140,type=int
             *iterations* number of iterations,default=50000,type=int
-            *test-interval* test interval',default=1000,type=int
+            *test_interval* test interval',default=1000,type=int
             *stepsize* lr policy stepsize',default=15000,type=int
             *destroy* whether to destroy model',type=boolean
             *resume* whether to resume training,type=boolean
@@ -31,8 +31,8 @@ class ModelTrainer:
             *weights* pre-trained weight file, when finetuning
             *nclasses* number of classes,type=int,default=2
             *documents* whether to train from text documents (as opposed to sentences in one doc),type=boolean
-            *batch-size* batch size,type=int,default=128
-            *test-batch-size* test batch size,type=int,default=16
+            *batch_size* batch size,type=int,default=128
+            *test_batch_size* test batch size,type=int,default=16
             *gpu* enable gpu usage is True, default=False
             *gpuid* specify gpu id,type=int,default=0
             *mllib* caffe or xgboost,default='caffe'
