@@ -63,7 +63,7 @@ class ModelTrainer:
             self.template = 'convnet'
             self.layers = ['1CR256','1CR256','4CR256','1024','1024']
         self.model = {'templates':'../templates/caffe/','repository':self.structure['model-repo']}
-        self.parameters_input = {'connector':'txt','sentences':True,'characters':self.structure['clevel'],'read_forward':True}
+        self.parameters_input = {'connector':'txt','sentences':False,'characters':self.structure['clevel'],'read_forward':True}
         if self.structure['documents']:
             self.parameters_input['sentences'] = False
         if self.structure['clevel']:
@@ -105,21 +105,20 @@ class ModelTrainer:
         if self.structure['documents']:
             self.parameters_input['sentences'] = False
         if self.mllib == 'caffe':
+            self.parameters_input['db']=True
             self.parameters_mllib = {
              'gpu':self.structure['gpu'],
              'gpuid':self.structure['gpuid'],
              'resume':self.structure['resume'],
              'net':{
-              'batch_size':self.structure['batch_size'],
-              'test_batch_size':self.structure['test_batch_size']
+              'batch_size':self.structure['batch_size']
              },
              'solver':{
               'test_interval':self.structure['test_interval'],
               'test_initialization':False,
               'base_lr':self.structure['base_lr'],
               'solver_type':'ADAM',
-              'iterations':self.structure['iterations'],
-              'iter_size':1
+              'iterations':self.structure['iterations']
              }
             }#,'lr_policy':'step','stepsize':self.structure['stepsize'],'gamma':0.5,'weight_decay':0.0001}}
         elif self.mllib == 'xgboost':
