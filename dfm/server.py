@@ -529,6 +529,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         query['size']=size
     docs=storage.query(query)[0]['hits']
     results.set_total(docs['total'])
+    app.logger.debug("total docs to process: "+str(docs['total']))
     count_docs=0
     for doc in docs['hits']:
         if isinstance(doc, list):
@@ -538,6 +539,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         else:
             work_queue.put(doc)
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+    app.logger.debug("queue size: "+str(work_queue.qsize()))
 
     for w in xrange(workers):
         p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
@@ -550,6 +552,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
     done_queue.put(None)
     result=done_queue.get()
+    app.logger.debug("queue processed size: "+str(work_queue.qsize()))
 
     if result != None:
         if result['failed']==0:
