@@ -159,6 +159,9 @@ class Feed:
         self.twitter_consumer_secret = self.config['TWITTER_CONSUMER_SECRET']
         self.twitter_access_token = self.config['TWITTER_ACCESS_TOKEN']
         self.twitter_access_secret = self.config['TWITTER_ACCESS_SECRET']
+        auth = OAuthHandler(self.twitter_consumer_key, self.twitter_consumer_secret)
+        auth.set_access_token(self.twitter_access_token, self.twitter_access_secret)
+        self.twt_api = tweepy.API(auth,retry_count=3,retry_delay=1,timeout=10,wait_on_rate_limit=True,wait_on_rate_limit_notify=True)
 
         self.min_text_size=self.config['NEWS_MIN_TEXT_SIZE']
 
@@ -293,14 +296,11 @@ class Feed:
         """ Twitter news collect, link are extracted from the twitts and manage as news """
         results=Results(self.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
 
-        auth = OAuthHandler(self.twitter_consumer_key, self.twitter_consumer_secret)
-        auth.set_access_token(self.twitter_access_token, self.twitter_access_secret)
-
         #tweepy.debug(True)
-        twt_api = tweepy.API(auth,retry_count=3,retry_delay=1,timeout=10,wait_on_rate_limit=True,wait_on_rate_limit_notify=True)
+
         ssearches=[]
         # gather stored seraches from your twitter account
-        for ssearch in twt_api.saved_searches():
+        for ssearch in self.twt_api.saved_searches():
             ssearches.append(ssearch.query)
         #add search from current source
         ssearches.append(self.structure['_source']['link'])
@@ -314,7 +314,7 @@ class Feed:
                 lastest_id=0
             twitts=[]
             try:
-                for raw_twitt in tweepy.Cursor(twt_api.search,q=ssearch,
+                for raw_twitt in tweepy.Cursor(self.twt_api.search,q=ssearch,
                                count=self.structure['_source']['limit'],
                                result_type='recent',
                                #since=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
@@ -377,7 +377,7 @@ class Feed:
             results.add_success(result)
             del twitts
 
-        del twt_api,ssearches
+        del self.twt_api,ssearches
         gc.collect()
         results.finish()
         return results.results
@@ -544,6 +544,7 @@ class Feed:
 
         url_exclusion=any(re.match(regex, url) for regex in self.uri_exclusion)
         extension_exclusion=any(re.match(regex, url) for regex in self.file_extensions_exclusion)
+        twitter_link=any(re.match(regex, url) for regex in "twitter.com")
 
         if url_exclusion:
             results.add_fail({"url":url,"message":"url has been excluded by settings EXCLUDED_URIS"})
@@ -554,6 +555,17 @@ class Feed:
             results.add_fail({"url":url,"message":"url has been excluded by settings EXCLUDED_FILE_EXTENSIONS"})
             doc={"link":url,"content":[{"base":url,"language":""}]}
             return [doc, results.results]
+
+        if twitter_link:
+            self.logger.debug("Twitt detected")
+            matched=re.search('\/([0-9]+)[\/|\?][^\/]+$',url)
+            if matched:
+                tweet_id=matched.group(1)
+                self.logger.debug("Twitt ID: "+tweet_id)
+                tweets=self.twt_api.statuses_lookup([twitt_id])
+                url=tweets[0].entities['urls'][0]
+
+
 
         res = self.http.request('GET', url, preload_content=False)
         doc_type = res.getheader('Content-Type')
