@@ -544,7 +544,7 @@ class Feed:
 
         url_exclusion=any(re.match(regex, url) for regex in self.uri_exclusion)
         extension_exclusion=any(re.match(regex, url) for regex in self.file_extensions_exclusion)
-        twitter_link=any(re.match(regex, url) for regex in "twitter.com")
+        twitter_link=any(re.match(regex, url) for regex in [r'twitter.com'])
 
         if url_exclusion:
             results.add_fail({"url":url,"message":"url has been excluded by settings EXCLUDED_URIS"})
