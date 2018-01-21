@@ -1102,7 +1102,7 @@ class DataGraph(Resource):
         nodes={}
         edges={}
         result={"nodes": [],"edges": []}
-        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "range": { "_timestamp": { "gte": "now-15d/d", "lt": "now/d" } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label" }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags" }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link" }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author" ] } } } } } } } } } } } } } } } } }
+        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "range": { "_timestamp": { "gte": "now-15d/d", "lt": "now/d" } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label" }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags" }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link" }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text" ] } } } } } } } } } } } } } } } } }
         doc_results=storage.query(query)[0]['aggregations']
         for topic in doc_results['graph']['topics']['buckets']:
             if topic['key'] not in nodes:
@@ -1121,19 +1121,50 @@ class DataGraph(Resource):
                     nodes[tag['key']]+=1
 
                 for link in tag['linked_links']['links']['buckets']:
-                        if link['fields']['hits']['hits'][0]['_id'] not in nodes:
-                            node={ "id": link['fields']['hits']['hits'][0]['_id'], "label": link['fields']['hits']['hits'][0]['_source']['title'], "size": 3, "metadata": { "category": link['fields']['hits']['hits'][0]['_source']['source_type'], "source":link['fields']['hits']['hits'][0]['_source']['source'], "summary":link['fields']['hits']['hits'][0]['_source']['summary'], "author":link['fields']['hits']['hits'][0]['_source']['author'], "url":link['key'] }}
-                            result['nodes'].append(node)
-                            nodes[link['fields']['hits']['hits'][0]['_id']]=1
-                        else:
-                            nodes[link['fields']['hits']['hits'][0]['_id']]+=1
 
-                        m = re.search('https?://([^/]+).*', link['key'])
+                        url=link['key']
+
+                        link=link['fields']['hits']['hits'][0]
+
+                        if '_id' in link:
+                            link_id=link['_id']
+                        else:
+                            link_id=None
+                        if 'title' in link['_source']:
+                            title=link['_source']['title']
+                        else:
+                            title=link_id
+                        if 'source_type' in link['_source']:
+                            source_type=link['_source']['source_type']
+                        else:
+                            source_type=None
+                        if 'author' in link['_source']:
+                            author=link['_source']['author']
+                        else:
+                            author=None
+                        if 'summary' in link['_source']:
+                            summary=link['_source']['summary']
+                        else:
+                            summary=""
+                        if 'text' in link['_source']:
+                            text=link['_source']['text']
+                        else:
+                            text=""
+
+
+                        if link_id not in nodes:
+                            node={ "id":link_id , "label": title, "size": 3, "metadata": { "category": source_type, "source":source, "summary":summary, "author":author, "url":url }}
+                            result['nodes'].append(node)
+                            nodes[link_id]=1
+                        else:
+                            nodes[link_id]+=1
+
+                        m = re.search('https?://([^/]+).*', url)
                         if m:
                               found = m.group(1)
                               source=found
                         else:
-                              source=link['fields']['hits']['hits'][0]['_source']['source']
+                              source=link['_source']['source']
 
                         if source not in nodes:
                               nodes[source]=1
@@ -1142,8 +1173,7 @@ class DataGraph(Resource):
                         else:
                             nodes[source]+=1
 
-                        author=link['fields']['hits']['hits'][0]['_source']['author']
-                        if author not in nodes:
+                        if ( author is not None ) and ( author not in nodes )  :
                               nodes[author]=1
                               node={ "id":author, "label":author, "size": 3, "type": "square", "metadata": { "category": "author"}}
                               result['nodes'].append(node)
@@ -1157,12 +1187,12 @@ class DataGraph(Resource):
                         else:
                             edges[source+"_"+author]+=1
 
-                        if author+"_"+link['fields']['hits']['hits'][0]['_id'] not in edges:
-                          edge={ "id": author+"_"+link['fields']['hits']['hits'][0]['_id'], "source": author, "target": link['fields']['hits']['hits'][0]['_id'] }
-                          edges[author+"_"+link['fields']['hits']['hits'][0]['_id']]=1
+                        if author+"_"+link_id not in edges:
+                          edge={ "id": author+"_"+link_id, "source": author, "target": link_id }
+                          edges[author+"_"+link_id]=1
                           result['edges'].append(edge)
                         else:
-                            edges[author+"_"+link['fields']['hits']['hits'][0]['_id']]+=1
+                            edges[author+"_"+link_id]+=1
 
                         if topic['key']+"_"+tag['key'] not in edges:
                           edge={ "id": topic['key']+"_"+tag['key'], "source": topic['key'], "target": tag['key'] }
@@ -1171,12 +1201,12 @@ class DataGraph(Resource):
                         else:
                             edges[topic['key']+"_"+tag['key']]+=1
 
-                        if tag['key']+"_"+link['fields']['hits']['hits'][0]['_id'] not in edges:
-                          edge={ "id": tag['key']+"_"+link['fields']['hits']['hits'][0]['_id'], "source": tag['key'], "target": link['fields']['hits']['hits'][0]['_id'] }
-                          edges[tag['key']+"_"+link['fields']['hits']['hits'][0]['_id']]=True
+                        if tag['key']+"_"+link_id not in edges:
+                          edge={ "id": tag['key']+"_"+link_id, "source": tag['key'], "target": link_id }
+                          edges[tag['key']+"_"+link_id]=True
                           result['edges'].append(edge)
                         else:
-                            edges[tag['key']+"_"+link['fields']['hits']['hits'][0]['_id']]+=1
+                            edges[tag['key']+"_"+link_id]+=1
 
         return result
 
