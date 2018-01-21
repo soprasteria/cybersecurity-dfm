@@ -1121,7 +1121,7 @@ class DataGraph(Resource):
 
                 for link in tag['linked_links']['links']['buckets']:
                         if link['fields']['hits']['hits'][0]['_id'] not in nodes:
-                            node={ "id": link['fields']['hits']['hits'][0]['_id'], "label": link['fields']['hits']['hits'][0]['title'], "size": 3, "metadata": { "category": link['fields']['hits']['hits'][0]['source_type'], "source":link['fields']['hits']['hits'][0]['source'], "summary":link['fields']['hits']['hits'][0]['summary'], "author":link['fields']['hits']['hits'][0]['author'], "url":link['key'] }}
+                            node={ "id": link['fields']['hits']['hits'][0]['_id'], "label": link['fields']['hits']['hits'][0]['_source']['title'], "size": 3, "metadata": { "category": link['fields']['hits']['hits'][0]['_source']['source_type'], "source":link['fields']['hits']['hits'][0]['_source']['source'], "summary":link['fields']['hits']['hits'][0]['_source']['summary'], "author":link['fields']['hits']['hits'][0]['_source']['author'], "url":link['key'] }}
                             result['nodes'].append(node)
                             nodes[link['fields']['hits']['hits'][0]['_id']]=1
                         else:
@@ -1132,7 +1132,7 @@ class DataGraph(Resource):
                               found = m.group(1)
                               source=found
                         else:
-                              source=link['fields']['hits']['hits'][0]['source']
+                              source=link['fields']['hits']['hits'][0]['_source']['source']
 
                         if source not in nodes:
                               nodes[source]=1
@@ -1141,12 +1141,12 @@ class DataGraph(Resource):
                         else:
                             nodes[source]+=1
 
-                        if link['fields']['hits']['hits'][0]['author'] not in nodes:
-                              nodes[link['fields']['hits']['hits'][0]['author']]=1
-                              node={ "id":link['fields']['hits']['hits'][0]['author'], "label":link['fields']['hits']['hits'][0]['author'], "size": 3, "type": "square", "metadata": { "category": "author"}}
+                        if link['fields']['hits']['hits'][0]['_source']['author'] not in nodes:
+                              nodes[link['fields']['hits']['hits'][0]['_source']['author']]=1
+                              node={ "id":link['fields']['hits']['hits'][0]['_source']['author'], "label":link['fields']['hits']['hits'][0]['_source']['author'], "size": 3, "type": "square", "metadata": { "category": "author"}}
                               result['nodes'].append(node)
                         else:
-                            nodes[link['fields']['hits']['hits'][0]['author']]+=1
+                            nodes[link['fields']['hits']['hits'][0]['_source']['author']]+=1
 
                         if source+"_"+author not in edges:
                           edge={ "id": source+"_"+author, "source": source, "target": author }
