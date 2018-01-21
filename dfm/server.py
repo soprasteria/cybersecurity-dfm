@@ -1177,8 +1177,8 @@ class DataGraph(Resource):
                               nodes[author]=1
                               node={ "id":author, "label":author, "size": 3, "type": "square", "metadata": { "category": "author"}}
                               result['nodes'].append(node)
-                        else:
-                            nodes[author]+=1
+                        elif author is not None:
+                              nodes[author]+=1
 
                         if source+"_"+author not in edges:
                           edge={ "id": source+"_"+author, "source": source, "target": author }
