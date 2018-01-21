@@ -1120,12 +1120,12 @@ class DataGraph(Resource):
                     nodes[tag['key']]+=1
 
                 for link in tag['linked_links']['links']['buckets']:
-                        if link['_id'] not in nodes:
-                            node={ "id": link['_id'], "label": link['hits']['hits'][0]['title'], "size": 3, "metadata": { "category": link['hits']['hits'][0]['source_type'], "source":link['hits']['hits'][0]['source'], "summary":link['hits']['hits'][0]['summary'], "author":link['hits']['hits'][0]['author'], "url":link['key'] }}
+                        if link['hits']['hits'][0]['_id'] not in nodes:
+                            node={ "id": link['hits']['hits'][0]['_id'], "label": link['hits']['hits'][0]['title'], "size": 3, "metadata": { "category": link['hits']['hits'][0]['source_type'], "source":link['hits']['hits'][0]['source'], "summary":link['hits']['hits'][0]['summary'], "author":link['hits']['hits'][0]['author'], "url":link['key'] }}
                             result['nodes'].append(node)
-                            nodes[link['_id']]=1
+                            nodes[link['hits']['hits'][0]['_id']]=1
                         else:
-                            nodes[link['_id']]+=1
+                            nodes[link['hits']['hits'][0]['_id']]+=1
 
                         m = re.search('https?://([^/]+).*', link['key'])
                         if m:
@@ -1155,12 +1155,12 @@ class DataGraph(Resource):
                         else:
                             edges[source+"_"+author]+=1
 
-                        if author+"_"+link['_id'] not in edges:
-                          edge={ "id": author+"_"+link['_id'], "source": author, "target": link['_id'] }
-                          edges[author+"_"+link['_id']]=1
+                        if author+"_"+link['hits']['hits'][0]['_id'] not in edges:
+                          edge={ "id": author+"_"+link['hits']['hits'][0]['_id'], "source": author, "target": link['hits']['hits'][0]['_id'] }
+                          edges[author+"_"+link['hits']['hits'][0]['_id']]=1
                           result['edges'].append(edge)
                         else:
-                            edges[author+"_"+link['_id']]+=1
+                            edges[author+"_"+link['hits']['hits'][0]['_id']]+=1
 
                         if topic['key']+"_"+tag['key'] not in edges:
                           edge={ "id": topic['key']+"_"+tag['key'], "source": topic['key'], "target": tag['key'] }
@@ -1169,12 +1169,12 @@ class DataGraph(Resource):
                         else:
                             edges[topic['key']+"_"+tag['key']]+=1
 
-                        if tag['key']+"_"+link['_id'] not in edges:
-                          edge={ "id": tag['key']+"_"+link['_id'], "source": tag['key'], "target": link['_id'] }
-                          edges[tag['key']+"_"+link['_id']]=True
+                        if tag['key']+"_"+link['hits']['hits'][0]['_id'] not in edges:
+                          edge={ "id": tag['key']+"_"+link['hits']['hits'][0]['_id'], "source": tag['key'], "target": link['hits']['hits'][0]['_id'] }
+                          edges[tag['key']+"_"+link['hits']['hits'][0]['_id']]=True
                           result['edges'].append(edge)
                         else:
-                            edges[tag['key']+"_"+link['_id']]+=1
+                            edges[tag['key']+"_"+link['hits']['hits'][0]['_id']]+=1
 
         return result
 
