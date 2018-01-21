@@ -1089,6 +1089,95 @@ class TrainingsStatsList(Resource):
 
         return result
 
+class DataGraph(Resource):
+
+    """ Generate Data structure for Parasol Grph """
+
+    def get(self):
+        """ Default method to get data to graph in parasol
+
+        :returns: json structure with nodes, and edges
+        """
+        nodes={}
+        edges={}
+        result={"nodes": [],"edges": []}
+        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "range": { "_timestamp": { "gte": "now-15d/d", "lt": "now/d" } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label" }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags" }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link" }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author" ] } } } } } } } } } } } } } } } } }
+        doc_results=storage.query(current_tag_doc_query)[0]['aggregations']
+        for topic in doc_results['graph']['topics']['buckets']:
+            if topic['key'] not in nodes:
+                node={ "id": topic['key'], "label": topic['key'], "size": 3, "metadata": { "category": "topic"}}
+                result["nodes"].append(node)
+                nodes[topic['key']]=1
+            else:
+                nodes[topic['key']]+=1
+
+            for tag in topic['linked_tags']['tags']['buckets']:
+                if tag['key'] not in nodes:
+                    node=node={ "id": tag['key'], "label": tag['key'], "size": 3, "metadata": { "category": "tag" }}
+                    result['nodes'].append(node)
+                    nodes[tag['key']]=1
+                else:
+                    nodes[tag['key']]+=1
+
+                for link in tag['linked_links']['links']['buckets']:
+                        if link['_id'] not in nodes:
+                            node={ "id": link['_id'], "label": link['hits']['hits'][0]['title'], "size": 3, "metadata": { "category": link['hits']['hits'][0]['source_type'], "source":link['hits']['hits'][0]['source'], "summary":link['hits']['hits'][0]['summary'], "author":link['hits']['hits'][0]['author'], "url":link['key'] }}
+                            result['nodes'].append(node)
+                            nodes[link['_id']]=1
+                        else:
+                            nodes[link['_id']]+=1
+
+                        m = re.search('https?://([^/]+).*', link['key'])
+                        if m:
+                              found = m.group(1)
+                              source=found
+                        else:
+                              source=link['hits']['hits'][0]['source']
+
+                        if source not in nodes:
+                              nodes[source]=1
+                              node={ "id":source, "label":source, "size": 3, "type": "diamond", "metadata": { "category": "source"}}
+                              result['nodes'].append(node)
+                        else:
+                            nodes[source]+=1
+
+                        if link['hits']['hits'][0]['author'] not in nodes:
+                              nodes[link['hits']['hits'][0]['author']]=1
+                              node={ "id":link['hits']['hits'][0]['author'], "label":link['hits']['hits'][0]['author'], "size": 3, "type": "square", "metadata": { "category": "author"}}
+                              result['nodes'].append(node)
+                        else:
+                            nodes[link['hits']['hits'][0]['author']]+=1
+
+                        if source+"_"+author not in edges:
+                          edge={ "id": source+"_"+author, "source": source, "target": author }
+                          edges[source+"_"+author]=1
+                          result['edges'].append(edge)
+                        else:
+                            edges[source+"_"+author]+=1
+
+                        if author+"_"+link['_id'] not in edges:
+                          edge={ "id": author+"_"+link['_id'], "source": author, "target": link['_id'] }
+                          edges[author+"_"+link['_id']]=1
+                          result['edges'].append(edge)
+                        else:
+                            edges[author+"_"+link['_id']]+=1
+
+                        if topic['key']+"_"+tag['key'] not in edges:
+                          edge={ "id": topic['key']+"_"+tag['key'], "source": topic['key'], "target": tag['key'] }
+                          edges[topic['key']+"_"+tag['key']]=True
+                          result['edges'].append(edge)
+                        else:
+                            edges[topic['key']+"_"+tag['key']]+=1
+
+                        if tag['key']+"_"+link['_id'] not in edges:
+                          edge={ "id": tag['key']+"_"+link['_id'], "source": tag['key'], "target": link['_id'] }
+                          edges[tag['key']+"_"+link['_id']]=True
+                          result['edges'].append(edge)
+                        else:
+                            edges[tag['key']+"_"+link['_id']]+=1
+
+        return result
+
 class ChromePlugin(Resource):
 
     """ No need for it at the moment
@@ -1162,6 +1251,7 @@ api.add_resource(Main, '/api')
 api.add_resource(TagsList, '/api/tags')
 api.add_resource(TopicsList, '/api/topics')
 api.add_resource(ModelsList, '/api/models')
+api.add_resource(DataGraph, '/api/graph')
 api.add_resource(TopicsSettingsList, '/api/topics/config',endpoint='topicssettings')
 api.add_resource(TrainingsStatsList, '/api/trainings',endpoint='trainingsstats')
 api.add_resource(ModelsSettingsList, '/api/models/config',endpoint='modelssettings')
