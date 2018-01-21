@@ -1142,12 +1142,13 @@ class DataGraph(Resource):
                         else:
                             nodes[source]+=1
 
-                        if link['fields']['hits']['hits'][0]['_source']['author'] not in nodes:
-                              nodes[link['fields']['hits']['hits'][0]['_source']['author']]=1
-                              node={ "id":link['fields']['hits']['hits'][0]['_source']['author'], "label":link['fields']['hits']['hits'][0]['_source']['author'], "size": 3, "type": "square", "metadata": { "category": "author"}}
+                        author=link['fields']['hits']['hits'][0]['_source']['author']
+                        if author not in nodes:
+                              nodes[author]=1
+                              node={ "id":author, "label":author, "size": 3, "type": "square", "metadata": { "category": "author"}}
                               result['nodes'].append(node)
                         else:
-                            nodes[link['fields']['hits']['hits'][0]['_source']['author']]+=1
+                            nodes[author]+=1
 
                         if source+"_"+author not in edges:
                           edge={ "id": source+"_"+author, "source": source, "target": author }
