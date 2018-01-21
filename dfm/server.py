@@ -1151,6 +1151,13 @@ class DataGraph(Resource):
                         else:
                             text=""
 
+                        m = re.search('https?://([^/]+).*', url)
+                        if m:
+                              found = m.group(1)
+                              source=found
+                        else:
+                              source=link['_source']['source']
+
 
                         if link_id not in nodes:
                             node={ "id":link_id , "label": title, "size": 3, "metadata": { "category": source_type, "source":source, "summary":summary, "author":author, "url":url }}
@@ -1158,13 +1165,6 @@ class DataGraph(Resource):
                             nodes[link_id]=1
                         else:
                             nodes[link_id]+=1
-
-                        m = re.search('https?://([^/]+).*', url)
-                        if m:
-                              found = m.group(1)
-                              source=found
-                        else:
-                              source=link['_source']['source']
 
                         if source not in nodes:
                               nodes[source]=1
