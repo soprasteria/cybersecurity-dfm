@@ -1180,18 +1180,18 @@ class DataGraph(Resource):
                         elif author is not None:
                               nodes[author]+=1
 
-                        if source+"_"+author not in edges:
+                        if (author is not None) and ( source+"_"+author not in edges ):
                           edge={ "id": source+"_"+author, "source": source, "target": author }
                           edges[source+"_"+author]=1
                           result['edges'].append(edge)
-                        else:
+                        elif author is not None:
                             edges[source+"_"+author]+=1
 
-                        if author+"_"+link_id not in edges:
+                        if ( author is not None ) and ( author+"_"+link_id not in edges ):
                           edge={ "id": author+"_"+link_id, "source": author, "target": link_id }
                           edges[author+"_"+link_id]=1
                           result['edges'].append(edge)
-                        else:
+                        elif author is not None:
                             edges[author+"_"+link_id]+=1
 
                         if topic['key']+"_"+tag['key'] not in edges:
