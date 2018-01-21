@@ -10,6 +10,7 @@ import types
 import errno
 import shutil
 import inspect
+import re
 import resource
 from memory_profiler import profile
 from subprocess import call
