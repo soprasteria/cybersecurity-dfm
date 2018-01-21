@@ -1102,7 +1102,7 @@ class DataGraph(Resource):
         edges={}
         result={"nodes": [],"edges": []}
         query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "range": { "_timestamp": { "gte": "now-15d/d", "lt": "now/d" } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label" }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags" }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link" }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author" ] } } } } } } } } } } } } } } } } }
-        doc_results=storage.query(current_tag_doc_query)[0]['aggregations']
+        doc_results=storage.query(query)[0]['aggregations']
         for topic in doc_results['graph']['topics']['buckets']:
             if topic['key'] not in nodes:
                 node={ "id": topic['key'], "label": topic['key'], "size": 3, "metadata": { "category": "topic"}}
