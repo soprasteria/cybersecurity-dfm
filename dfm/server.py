@@ -1126,9 +1126,9 @@ class DataGraph(Resource):
             lt='now/d'
 
         if request.args.get('size'):
-            size=request.args.get('size')
+            size=int(request.args.get('size'))
         else:
-            size=config['NODES_SIZE']
+            size=int(config['NODES_SIZE'])
 
         nodes={}
         edges={}
