@@ -1203,7 +1203,7 @@ class DataGraph(Resource):
 
                         if source not in nodes:
                               nodes[source]=1
-                              node={ "id":source, "label":source, "size": 3, "type": "diamond", "metadata": { "category": "source"}}
+                              node={ "id":source, "label":source, "size": 1, "type": "diamond", "metadata": { "category": "source"}}
                               result['nodes'].append(node)
                         else:
                             nodes[source]+=1
