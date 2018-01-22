@@ -1236,12 +1236,12 @@ class DataGraph(Resource):
                         elif author is not None:
                             edges[author+"_"+link_id]+=1
 
-                        if topic['key']+"_"+tag['key'] not in edges:
-                          edge={ "id": topic['key']+"_"+tag['key'], "source": topic['key'], "target": tag['key'] }
-                          edges[topic['key']+"_"+tag['key']]=True
+                        if topic['key']+"_"+link_id not in edges:
+                          edge={ "id": topic['key']+"_"+link_id, "source": topic['key'], "target": link_id }
+                          edges[topic['key']+"_"+link_id]=True
                           result['edges'].append(edge)
                         else:
-                            edges[topic['key']+"_"+tag['key']]+=1
+                            edges[topic['key']+"_"+link_id]+=1
 
                         if tag['key']+"_"+link_id not in edges:
                           edge={ "id": tag['key']+"_"+link_id, "source": tag['key'], "target": link_id }
