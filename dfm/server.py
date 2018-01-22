@@ -166,6 +166,10 @@ def home():
 def sources():
     return render_template('sources.html',content=None)
 
+@app.route('/explore')
+def explore():
+    return render_template('explore.html', content=None)
+
 @app.route('/securitywatch')
 def securitywatch():
     return render_template('securitywatch.html', content=None)
