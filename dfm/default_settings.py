@@ -95,6 +95,8 @@ class Config(object):
     """ DFM is multi-threaded is True """
     ATOM_SIZE='4000'
     """ RSS ATOM Generated feed number of max news presented """
+    NODES_SIZE='14'
+    """ GRAPH Generated size by type of nodes """
     OVERALL_SCORE_THRESHOLD=0.1
     """ News rank threshold for RSS ATOM Generated feed """
     OVERALL_SCORE_CALCULATION="es_score*(sum(topics_scores)/len(topics_scores))"

@@ -1092,17 +1092,49 @@ class TrainingsStatsList(Resource):
 
 class DataGraph(Resource):
 
-    """ Generate Data structure for Parasol Grph """
-
+    """ Generate Data structure for Parasol Graph http://github.com/alx/parasol
+    """
     def get(self):
-        """ Default method to get data to graph in parasol
+    """ Get Data structure for Parasol Graph http://github.com/alx/parasol
+        :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
+        :param str gte: greater date (default now-7d)
+        :param str lte: liter date (default now)
+        :param int size: number of news to retrieve (default settings ATOM_SIZE)
+        :returns: sigma.js data nodes and edges in json format
+    """
 
-        :returns: json structure with nodes, and edges
-        """
+        if request.args.get('topic'):
+            req_topic=request.args.get('topic')
+        else:
+            topic=None
+
+        if request.args.get('q'):
+            q=request.args.get('q')
+        else:
+            q=None
+
+        if request.args.get('gte'):
+            gte=request.args.get('gte')
+        else:
+            gte='now-15d/d'
+
+        if request.args.get('lt'):
+            lt=request.args.get('lt')
+        else:
+            lt='now/d'
+
+        if request.args.get('size'):
+            size=request.args.get('size')
+        else:
+            size=config['NODES_SIZE']
+
         nodes={}
         edges={}
         result={"nodes": [],"edges": []}
-        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "range": { "_timestamp": { "gte": "now-15d/d", "lt": "now/d" } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label" }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags" }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link" }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text" ] } } } } } } } } } } } } } } } } }
+        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "range": { "_timestamp": { "gte": gte, "lt": lt } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":size }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":size }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":size }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text" ] } } } } } } } } } } } } } } } } }
+        if q is not None:
+            query['query']['bool']['must'].append({"simple_query_string" : {
+           "query" : q})
         doc_results=storage.query(query)[0]['aggregations']
         for topic in doc_results['graph']['topics']['buckets']:
             if topic['key'] not in nodes:
