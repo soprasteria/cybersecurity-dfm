@@ -1092,17 +1092,15 @@ class TrainingsStatsList(Resource):
 
 class DataGraph(Resource):
 
-    """ Generate Data structure for Parasol Graph http://github.com/alx/parasol
-    """
+    """ Generate Data structure for Parasol Graph http://github.com/alx/parasol"""
     def get(self):
-    """ Get Data structure for Parasol Graph http://github.com/alx/parasol
-        :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
-        :param str gte: greater date (default now-7d)
-        :param str lte: liter date (default now)
-        :param int size: number of news to retrieve (default settings ATOM_SIZE)
-        :returns: sigma.js data nodes and edges in json format
-    """
-
+        """ Get Data structure for Parasol Graph http://github.com/alx/parasol
+            :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
+            :param str gte: greater date (default now-7d)
+            :param str lte: liter date (default now)
+            :param int size: number of news to retrieve (default settings ATOM_SIZE)
+            :returns: sigma.js data nodes and edges in json format
+        """
         if request.args.get('topic'):
             req_topic=request.args.get('topic')
         else:
