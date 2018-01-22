@@ -1135,7 +1135,7 @@ class DataGraph(Resource):
         doc_results=storage.query(query)[0]['aggregations']
         for topic in doc_results['graph']['topics']['buckets']:
             if topic['key'] not in nodes:
-                node={ "id": topic['key'], "label": topic['key'], "type": "star", "size": 2, "metadata": { "category": "topic"}}
+                node={ "id": topic['key'], "label": topic['key'], "type": "star", "size": 3, "metadata": { "category": "topic"}}
                 result["nodes"].append(node)
                 nodes[topic['key']]=1
             else:
@@ -1143,7 +1143,7 @@ class DataGraph(Resource):
 
             for tag in topic['linked_tags']['tags']['buckets']:
                 if tag['key'] not in nodes:
-                    node=node={ "id": tag['key'], "label": tag['key'], "type": "cross","size": 1, "metadata": { "category": "tag" }}
+                    node=node={ "id": tag['key'], "label": tag['key'], "type": "cross","size": 2, "metadata": { "category": "tag" }}
                     result['nodes'].append(node)
                     nodes[tag['key']]=1
                 else:
@@ -1191,7 +1191,7 @@ class DataGraph(Resource):
 
 
                         if link_id not in nodes:
-                            node={ "id":link_id , "label": title, "size": 3, "metadata": { "category": source_type, "source":source, "summary":summary, "author":author, "url":url }}
+                            node={ "id":link_id , "label": title, "size": 1, "metadata": { "category": source_type, "source":source, "summary":summary, "author":author, "url":url }}
                             result['nodes'].append(node)
                             nodes[link_id]=1
                         else:
@@ -1199,14 +1199,14 @@ class DataGraph(Resource):
 
                         if source not in nodes:
                               nodes[source]=1
-                              node={ "id":source, "label":source, "size": 2, "type": "diamond", "metadata": { "category": "source"}}
+                              node={ "id":source, "label":source, "size": 3, "type": "diamond", "metadata": { "category": "source"}}
                               result['nodes'].append(node)
                         else:
                             nodes[source]+=1
 
                         if ( author is not None ) and ( author not in nodes )  :
                               nodes[author]=1
-                              node={ "id":author, "label":author, "size": 1, "type": "square", "metadata": { "category": "author"}}
+                              node={ "id":author, "label":author, "size": 2, "type": "square", "metadata": { "category": "author"}}
                               result['nodes'].append(node)
                         elif author is not None:
                               nodes[author]+=1
