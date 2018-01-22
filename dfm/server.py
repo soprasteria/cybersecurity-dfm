@@ -1152,6 +1152,7 @@ class DataGraph(Resource):
                 for link in tag['linked_links']['links']['buckets']:
 
                         url=link['key']
+                        link_id=url
 
                         link=link['fields']['hits']['hits'][0]
 
@@ -1161,6 +1162,7 @@ class DataGraph(Resource):
                             link_id=None
                         if 'title' in link['_source']:
                             title=link['_source']['title']
+                            link_id=title
                         else:
                             title=link_id
                         if 'source_type' in link['_source']:
@@ -1215,6 +1217,10 @@ class DataGraph(Resource):
                           result['edges'].append(edge)
                         elif author is not None:
                             edges[source+"_"+author]+=1
+                        else:
+                          edge={ "id": source+"_"+link_id, "source": source, "target": link_id }
+                          edges[source+"_"+link_id]=1
+                          result['edges'].append(edge)
 
                         if ( author is not None ) and ( author+"_"+link_id not in edges ):
                           edge={ "id": author+"_"+link_id, "source": author, "target": link_id }
