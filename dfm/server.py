@@ -1147,7 +1147,7 @@ class DataGraph(Resource):
 
             for tag in topic['linked_tags']['tags']['buckets']:
                 if tag['key'] not in nodes:
-                    node=node={ "id": tag['key'], "label": tag['key'], "type": "cross","size": 2, "metadata": { "category": "tag" }}
+                    node=node={ "id": tag['key'], "label": tag['key'], "type": "cross","size": 1, "metadata": { "category": "tag" }}
                     result['nodes'].append(node)
                     nodes[tag['key']]=1
                 else:
@@ -1195,7 +1195,7 @@ class DataGraph(Resource):
 
 
                         if link_id not in nodes:
-                            node={ "id":link_id , "label": title, "size": 1, "metadata": { "category": source_type, "source":source, "summary":summary, "author":author, "url":url }}
+                            node={ "id":link_id , "label": title, "size": 2, "metadata": { "category": source_type, "source":source, "summary":summary, "author":author, "url":url }}
                             result['nodes'].append(node)
                             nodes[link_id]=1
                         else:
@@ -1210,7 +1210,7 @@ class DataGraph(Resource):
 
                         if ( author is not None ) and ( author not in nodes )  :
                               nodes[author]=1
-                              node={ "id":author, "label":author, "size": 2, "type": "square", "metadata": { "category": "author"}}
+                              node={ "id":author, "label":author, "size": 1, "type": "square", "metadata": { "category": "author"}}
                               result['nodes'].append(node)
                         elif author is not None:
                               nodes[author]+=1
