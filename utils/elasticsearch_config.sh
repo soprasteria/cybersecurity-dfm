@@ -1,5 +1,5 @@
 #!/bin/bash
-curl -PUT http://localhost:9200/watch -d '{
+curl -XPUT http://localhost:9200/watch -d '{
  "settings": {
    "analysis": {
      "char_filter": {
