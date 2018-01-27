@@ -8,6 +8,9 @@ do
     echo ${full_path}/${dir##*/}
     echo $nb_classes
     curl -X DELETE "http://localhost:8080/services/$dir"
+    #test set for xgboost
     curl -X PUT "http://localhost:8080/services/$dir" -d "{\"mllib\":\"xgboost\",\"description\":\"$dir\",\"type\":\"supervised\",\"parameters\":{\"input\":{\"connector\":\"txt\"},\"mllib\":{\"nclasses\":$nb_classes}},\"model\":{\"repository\":\"$full_path/$dir\"}}"
+    #test set for caffe
+    curl -XPUT "http://localhost:8080/services/$dir" -d "{\"mllib\":\"caffe\",\"db\":true,\"description\":\"$dir\",\"type\":\"supervised\",\"parameters\":{\"input\":{\"connector\":\"txt\"},\"mllib\":{\"nclasses\":$nb_classes}},\"model\":{\"repository\":\"$full_path/$dir\"}}"
 
 done
