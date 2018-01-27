@@ -266,7 +266,7 @@ def recent_feed():
     app.logger.debug("ATOM RSS Feed parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
 
     #query by default
-    time_range_query={ "sort" : [ { "topics.score" : { "order" : "dsc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }] } }}
+    time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }] } }}
 
     if model or topic:
         model_query={"query" : { "constant_score" : { "filter" : { "bool" : { "must":[{ "type":{ "value":"model" } }] } } } } }
@@ -438,7 +438,7 @@ class DocList(Resource):
         offset=self.args['offset']
         size=self.args['size']
         app.logger.debug("parameters: \r\nid source: "+src_id+"\r\ngte: "+gte+"\r\nlte: "+lte+"\r\noffset: "+offset+"\r\nsize: "+size)
-        time_range_query={ "sort" : [ { "topics.score" : { "order" : "dsc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } }}] } } }
+        time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } }}] } } }
         if int(offset)>0:
             time_range_query['from']=offset
         if int(size)>-1:
