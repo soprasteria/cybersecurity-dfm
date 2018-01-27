@@ -898,7 +898,7 @@ class Schedule(Resource):
 
         elif src_id=="contents_crawl":
             app.logger.debug("contents crawl:"+src_id)
-            query={ "query":{ "bool": { "must": [ {"missing" : { "field" : "text" } }, {"type":{"value":"doc"}} ]}}}
+            query={ "query":{ "bool": { "must_not": [{"exists" : { "field" : "text" } }],"must": [ {"type":{"value":"doc"}} ]}}}
             if request.args.get('id')!=None:
                 query['query']['bool']['must'].append({"ids":{"type":"doc","values":self.args.get('id').split(',')}})
             if request.args.get('size')!=None:
