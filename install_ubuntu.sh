@@ -40,8 +40,8 @@
 #VERSION=`uname -r`
 
 # script variables
- ES_VERSION="2.3.4"
- KB_VERSION="4.5.3"
+ ES_VERSION="5.6.6"
+ KB_VERSION="5.6.6"
  # ES 2 can not work with JAVA 9 please check https://github.com/elastic/elasticsearch/issues/18761
  JAVA_VERSION="8"
  INSTALL_PATH=`pwd`
@@ -215,8 +215,9 @@ runCMD "chown -Rf $DFM_USER elasticsearch*"
 runCMD "cp -bf --suffix=.backup utils/supervisor/es.conf /etc/supervisor/conf.d/es.conf"
 sed -i.default 's@dfm_path@'$INSTALL_PATH'@g' /etc/supervisor/conf.d/es.conf
 
-echo "#half of the memory dedicated to ES see https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html">>/etc/supervisor/conf.d/es.conf
-head -n 1 /proc/meminfo |sed 's/[^ ]\+ \+\([^ ]\+\) .*/numfmt --from-unit=512 --to=iec --padding=7 \1/'|bash| awk '{print "environment=ES_HEAP_SIZE="$1}'>>/etc/supervisor/conf.d/es.conf
+# deprecated in elasticsearch 5.6.6
+#echo "#half of the memory dedicated to ES see https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html">>/etc/supervisor/conf.d/es.conf
+#head -n 1 /proc/meminfo |sed 's/[^ ]\+ \+\([^ ]\+\) .*/numfmt --from-unit=512 --to=iec --padding=7 \1/'|bash| awk '{print "environment=ES_HEAP_SIZE="$1}'>>/etc/supervisor/conf.d/es.conf
 
 runCMD "supervisorctl reread"
 runCMD "supervisorctl reload"
