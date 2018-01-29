@@ -257,12 +257,12 @@ class Storage:
          # Issue opened https://github.com/elastic/elasticsearch-py/issues/466
          self.logger.debug("storage.query es.search:"+json.dumps(criteria))
          if query_size<limit or ("topics.score" in json.dumps(criteria)):
-             results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout,size=query_size)
+             results=self.es.search(index=self.index,doc_type="_all",body=criteria,request_timeout=self.timeout,size=query_size)
              global_results.set_total(1)
              global_results.add_success(criteria)
          else:
              self.logger.debug("storage.query helpers.scan:"+json.dumps(criteria))
-             results_gen=helpers.scan(self.es,query=criteria,scroll=self.config['ES_SEARCH_CACHING_DELAY'],preserve_order=True,request_timeout=self.timeout)
+             results_gen=helpers.scan(self.es,doc_type="_all",query=criteria,scroll=self.config['ES_SEARCH_CACHING_DELAY'],preserve_order=True,request_timeout=self.timeout)
              global_results.add_success(criteria)
 
 #             for result in results_gen:

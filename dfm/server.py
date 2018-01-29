@@ -1133,7 +1133,7 @@ class DataGraph(Resource):
         nodes={}
         edges={}
         result={"nodes": [],"edges": []}
-        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "range": { "_timestamp": { "gte": gte, "lt": lt } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":size }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":size }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":size }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
+        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "_timestamp": { "gte": gte, "lt": lt } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":size }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":size }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":size }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
         if q is not None:
             query['query']['bool']['must'].append({"simple_query_string" : {"query" : q}})
         doc_results=storage.query(query)[0]['aggregations']
