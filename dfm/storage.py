@@ -237,12 +237,7 @@ class Storage:
 
          header_criteria=criteria.copy()
          header_criteria['size']=0
-         #workaround for elasticsearch 5.5 it seems that aggs doesn't work when index is given empty string required in order to perform the agg at root level
-         if "aggs" in header_criteria:
-             self.logger.debug("Aggregation detected")
-             results=self.es.search(index="",body=header_criteria,request_timeout=self.timeout)
-         else:
-             results=self.es.search(index=self.index,body=header_criteria,request_timeout=self.timeout)
+         results=self.es.search(index=self.index,body=header_criteria,request_timeout=self.timeout)
 
          if "size" in criteria:
              query_size=criteria["size"]
@@ -262,12 +257,7 @@ class Storage:
          # Issue opened https://github.com/elastic/elasticsearch-py/issues/466
          self.logger.debug("storage.query es.search:"+json.dumps(criteria))
          if query_size<limit or ("topics.score" in json.dumps(criteria)):
-              #workaround for elasticsearch 5.5 it seems that aggs doesn't work when index is given empty string required in order to perform the agg at root level
-             if "aggs" in criteria:
-                  self.logger.debug("aggregation detected")
-                  results=self.es.search(index="",body=criteria,request_timeout=self.timeout)
-             else:
-                  results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout,size=query_size)
+             results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout,size=query_size)
              global_results.set_total(1)
              global_results.add_success(criteria)
          else:

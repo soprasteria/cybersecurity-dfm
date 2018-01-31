@@ -1133,7 +1133,7 @@ class DataGraph(Resource):
         nodes={}
         edges={}
         result={"nodes": [],"edges": []}
-        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "_timestamp": { "gte": gte, "lt": lt } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":size }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":size }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":size }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
+        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "updated": { "gte": gte, "lt": lt } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":size }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":size }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":size }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
         if q is not None:
             query['query']['bool']['must'].append({"simple_query_string" : {"query" : q}})
         doc_results=storage.query(query)[0]['aggregations']
@@ -1345,4 +1345,10 @@ if __name__ == '__main__':
     handler = RotatingFileHandler(config['LOG_PATH'], maxBytes=10000, backupCount=1)
     handler.setLevel(logging.DEBUG)
     app.logger.addHandler(handler)
+    if config['DEBUG']:
+        es_logger=logging.getLogger('elasticsearch.trace')
+        es_logger.setLevel(logging.INFO)
+        es_logger.addHandler(handler)
+        #self.es_logger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    app.logger.Formatter('%(asctime)s %(levelname)s:%(message)s')
     app.run(threaded=config['THREADED'],host=config['LISTEN_MASK'],port=config['LISTEN_PORT'])
