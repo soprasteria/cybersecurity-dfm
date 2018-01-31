@@ -1350,5 +1350,5 @@ if __name__ == '__main__':
         es_logger.setLevel(logging.INFO)
         es_logger.addHandler(handler)
         #self.es_logger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    app.logger.Formatter('%(asctime)s %(levelname)s:%(message)s')
+    #app.logger.Formatter('%(asctime)s %(levelname)s:%(message)s')
     app.run(threaded=config['THREADED'],host=config['LISTEN_MASK'],port=config['LISTEN_PORT'])
