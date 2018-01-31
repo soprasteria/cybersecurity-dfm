@@ -15,7 +15,6 @@ from results import Results
 from flask import Flask
 import urllib,urlparse
 import time
-import logging
 
 class ProxiesConnection(RequestsHttpConnection):
      def __init__(self, *args, **kwargs):
@@ -39,10 +38,6 @@ class Storage:
             self.es=Elasticsearch(self.config['ES_URIS'],timeout=self.config['ES_TIMEOUT'])
          self.index=self.config['ES_INDEX']
          self.logger=logger
-         if self.config['DEBUG']:
-            self.es_logger=logging.getLogger('elasticsearch.trace')
-            self.es_logger.setLevel(logging.INFO)
-            #self.es_logger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
          self.serializer=CustomSerializer(logger)
          self.timeout=self.config['ES_TIMEOUT']
          self.limit=self.config['ES_BATCH_SIZE']
