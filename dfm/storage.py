@@ -39,7 +39,7 @@ class Storage:
          self.index=self.config['ES_INDEX']
          self.logger=logger
          if self.config['DEBUG']:
-            self.es_logger=logging.getLogger('elasticsearch.trace')
+            self.es_logger=self.logger.getLogger('elasticsearch.trace')
             self.es_logger.setLevel(logging.INFO)
             self.es_logger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
          self.serializer=CustomSerializer(logger)
