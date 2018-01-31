@@ -237,12 +237,16 @@ class Storage:
 
          header_criteria=criteria.copy()
          header_criteria['size']=0
-         results=self.es.search(index=self.index,body=header_criteria,request_timeout=self.timeout)
+         #workaround for elasticsearch 5.5 it seems that aggs doesn't work when index is given
+         if "aggs" in header_criteria:
+             results=self.es.search(index="_all",body=header_criteria,request_timeout=self.timeout)
+        else:
+             results=self.es.search(index=self.index,body=header_criteria,request_timeout=self.timeout)
 
          if "size" in criteria:
              query_size=criteria["size"]
          else:
-              query_size=results['hits']['total']
+             query_size=results['hits']['total']
 
          global_results.set_total(query_size)
 
@@ -257,7 +261,11 @@ class Storage:
          # Issue opened https://github.com/elastic/elasticsearch-py/issues/466
          self.logger.debug("storage.query es.search:"+json.dumps(criteria))
          if query_size<limit or ("topics.score" in json.dumps(criteria)):
-             results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout,size=query_size)
+              #workaround for elasticsearch 5.5 it seems that aggs doesn't work when index is given
+              if "aggs" in criteria:
+                 results=self.es.search(index="_all",body=criteria,request_timeout=self.timeout)
+             else:
+                 results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout,size=query_size)
              global_results.set_total(1)
              global_results.add_success(criteria)
          else:
