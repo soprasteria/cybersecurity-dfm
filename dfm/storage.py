@@ -42,7 +42,7 @@ class Storage:
          if self.config['DEBUG']:
             self.es_logger=logging.getLogger('elasticsearch.trace')
             self.es_logger.setLevel(logging.INFO)
-            self.es_logger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            #self.es_logger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
          self.serializer=CustomSerializer(logger)
          self.timeout=self.config['ES_TIMEOUT']
          self.limit=self.config['ES_BATCH_SIZE']
