@@ -262,9 +262,9 @@ class Storage:
          self.logger.debug("storage.query es.search:"+json.dumps(criteria))
          if query_size<limit or ("topics.score" in json.dumps(criteria)):
               #workaround for elasticsearch 5.5 it seems that aggs doesn't work when index is given
-              if "aggs" in criteria:
+             if "aggs" in criteria:
                   results=self.es.search(index="_all",body=criteria,request_timeout=self.timeout)
-              else:
+             else:
                   results=self.es.search(index=self.index,body=criteria,request_timeout=self.timeout,size=query_size)
              global_results.set_total(1)
              global_results.add_success(criteria)
