@@ -294,7 +294,7 @@ def recent_feed():
                     topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : curr_topic } })
 
         app.logger.debug("Topics query: "+json.dumps(topics_query))
-        time_range_query["query"]["bool"]["should"]=[topics_query]
+        time_range_query["query"]["bool"]["must"]=[topics_query]
 
     if q:
         app.logger.debug("Q query: "+json.dumps(q))
