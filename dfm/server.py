@@ -155,7 +155,7 @@ def home(size=config['NODES_SIZE']):
         dic_source[source['_id']]=source['_source']['title']
 
     #size is required now for aggregations on ES >5.5  https://www.elastic.co/guide/en/elasticsearch/reference/5.5/breaking_50_aggregations_changes.html#_literal_size_0_literal_on_terms_significant_terms_and_geohash_grid_aggregations
-    sources_topics_stats=storage.query({ "size":size, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label" }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } })[0]
+    sources_topics_stats=storage.query({ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "origin" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label" }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } })[0]
     app.logger.debug("API: Prediction Summary:"+json.dumps(sources_topics_stats))
     i=0
     for sources in sources_topics_stats['aggregations']['sources']['buckets']:
