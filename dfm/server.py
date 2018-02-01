@@ -1001,8 +1001,9 @@ class TopicsList(Resource):
     """ Return list of topics predicted by Deep Detect """
     def __init__(self):
         super(Resource, self).__init__()
+        default_size=storage.query({"size":0, "query": { "type" : { "value" : "source" } } })[0]["hits"]["total"]
         self.parser = reqparse.RequestParser()
-        self.parser.add_argument('size',default="10")
+        self.parser.add_argument('size',default=default_size)
         self.args = self.parser.parse_args()
 
     def get(self):
