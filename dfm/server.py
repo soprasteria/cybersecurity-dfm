@@ -952,7 +952,7 @@ class TagsList(Resource):
         result_size=self.args['size']
         #tags with topics required query
         #query={ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "group_by_state": { "terms" : { "field" : "tags", "size" : result_size } } } } } }
-        query={ "size":result_size, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } } ] } }, "aggs":{ "group_by_state": { "terms" : { "field" : "tags", "size" : result_size } } } }
+        query={ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } } ] } }, "aggs":{ "group_by_state": { "terms" : { "field" : "tags", "size" : result_size } } } }
         return storage.query(query)[0]
 
 class TopicsSettingsList(Resource):
