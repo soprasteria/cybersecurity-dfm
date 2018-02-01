@@ -272,13 +272,15 @@ def recent_feed():
     time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }] } }}
 
     if model or topic:
+        topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[] } } } }
+        if topic:
+            topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : topic } })
         model_query={"query" : { "constant_score" : { "filter" : { "bool" : { "must":[{ "type":{ "value":"model" } }] } } } } }
         if model:
             model_query["query"]["constant_score" ]["filter"]["bool"]["must"].append({ "term" : { "title" : model.lower() } })
         app.logger.debug("Models query: "+json.dumps(model_query))
         models=storage.query(model_query)[0]
         app.logger.debug("API: Prediction Models List:"+json.dumps(models))
-        topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[] } } } }
         for curr_model in models["hits"]["hits"]:
             app.logger.debug("Current Model: "+json.dumps(curr_model))
             for curr_topic in curr_model["_source"]["related_topics"]:
