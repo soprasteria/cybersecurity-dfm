@@ -272,9 +272,9 @@ def recent_feed():
     time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }] } }}
 
     if model or topic:
-        topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[] } } } }
+        topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[],"must":[] } } } }
         if topic:
-            topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : topic } })
+            topics_query["nested"]["query"]["bool"]["must"].append({ "term" : { "topics.label" : topic } })
         model_query={"query" : { "constant_score" : { "filter" : { "bool" : { "must":[{ "type":{ "value":"model" } }] } } } } }
         if model:
             model_query["query"]["constant_score" ]["filter"]["bool"]["must"].append({ "term" : { "title" : model.lower() } })
