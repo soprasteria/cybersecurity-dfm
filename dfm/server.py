@@ -144,7 +144,7 @@ storage=Storage(app.logger,config)
 #display = Display(visible=0, size=(800, 600))
 #display.start()
 
-
+@app.route('/', defaults={'size': config['NODES_SIZE']})
 @app.route('/<int:size>')
 def home(size=config['NODES_SIZE']):
     sources=storage.query({"query":{"type":{"value":"source"}}})[0]
