@@ -1014,7 +1014,7 @@ class TopicsList(Resource):
         :returns: json return result
         """
         result_size=self.args['size']
-        query={ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label", "size" : result_size }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } }
+        query={ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "origin" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label", "size" : result_size }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } }
         return storage.query(query)[0]
 
 class ModelsList(Resource):
