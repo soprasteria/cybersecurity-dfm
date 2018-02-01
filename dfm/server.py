@@ -145,14 +145,17 @@ storage=Storage(app.logger,config)
 #display.start()
 
 
-@app.route('/')
-def home():
+@app.route('/<int:size>')
+def home(size=config['NODES_SIZE']):
     sources=storage.query({"query":{"type":{"value":"source"}}})[0]
     app.logger.debug("API: Sources List:"+json.dumps(sources))
     dic_source={}
+
     for source in sources['hits']['hits']:
         dic_source[source['_id']]=source['_source']['title']
-    sources_topics_stats=storage.query({ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label" }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } })[0]
+
+    #size is required now for aggregations on ES >5.5  https://www.elastic.co/guide/en/elasticsearch/reference/5.5/breaking_50_aggregations_changes.html#_literal_size_0_literal_on_terms_significant_terms_and_geohash_grid_aggregations
+    sources_topics_stats=storage.query({ "size":size, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label" }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } })[0]
     app.logger.debug("API: Prediction Summary:"+json.dumps(sources_topics_stats))
     i=0
     for sources in sources_topics_stats['aggregations']['sources']['buckets']:
@@ -949,7 +952,7 @@ class TagsList(Resource):
         result_size=self.args['size']
         #tags with topics required query
         #query={ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "group_by_state": { "terms" : { "field" : "tags", "size" : result_size } } } } } }
-        query={ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } } ] } }, "aggs":{ "group_by_state": { "terms" : { "field" : "tags", "size" : result_size } } } }
+        query={ "size":result_size, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } } ] } }, "aggs":{ "group_by_state": { "terms" : { "field" : "tags", "size" : result_size } } } }
         return storage.query(query)[0]
 
 class TopicsSettingsList(Resource):
@@ -1011,7 +1014,7 @@ class TopicsList(Resource):
         :returns: json return result
         """
         result_size=self.args['size']
-        query={ "size":0, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label", "size" : result_size }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } }
+        query={ "size":result_size, "query": { "bool" : { "must":[ { "type" : { "value" : "doc" } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }, "aggs":{ "sources": { "terms" : { "field" : "_parent" }, "aggs" : { "topics" : { "nested" : { "path" : "topics" }, "aggs" : { "group_by_state": { "terms" : { "field" : "topics.label", "size" : result_size }, "aggs": { "average_score": { "avg": { "field": "topics.score" } } } } } } } } } }
         return storage.query(query)[0]
 
 class ModelsList(Resource):
@@ -1133,7 +1136,7 @@ class DataGraph(Resource):
         nodes={}
         edges={}
         result={"nodes": [],"edges": []}
-        query={ "size": 0, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "updated": { "gte": gte, "lt": lt } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":size }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":size }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":size }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
+        query={ "size": size, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "updated": { "gte": gte, "lt": lt } } } ] } }, "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":size }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":size }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":size }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
         if q is not None:
             query['query']['bool']['must'].append({"simple_query_string" : {"query" : q}})
         doc_results=storage.query(query)[0]['aggregations']
