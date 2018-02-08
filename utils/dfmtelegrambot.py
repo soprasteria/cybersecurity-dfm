@@ -232,33 +232,30 @@ def handle(msg):
                         results = submitUrl(url,msg,keywords)
                         if results != None:
                             if "text" in results["_source"]:
-                                bot.sendMessage(chat_id,"News first lines "+msg['from']['first_name']+":\n\""+" ".join(results["_source"]["text"][0:250].strip().splitlines())+"...\"")
+
+                                tags_message=""
+                                topics_message=""
+
+                                if "tags" in results["_source"]:
+                                    if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
+                                        for tag in results["_source"]["tags"]:
+                                            tags_message=tags_message+tag+" #"
+                                        tags_message=tags_message[:-5]
+
+                                if "topics" in results["_source"]:
+                                    topics_scores=[]
+                                    for topic in results["_source"]["topics"]:
+                                        topics_message=topics_message+topic["label"]+" and "
+                                        topics_scores.append(topic["score"])
+                                    average_score=sum(topics_scores)/len(topics_scores)
+                                    topics_message=topics_message[:-5]
+
+                                bot.sendMessage(chat_id,"["+results["_source"]["title"]+"]("+results["_source"]["link"]+")\n\n".join(results["_source"]["text"][0:250].strip().splitlines())+"...\n"+tags_message+"\n posted by: ["+msg['from']['username']]+"](tg://user?id="+msg['from']['id']+") topic: #"+topics_message+"  score:"+str(average_score),parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'])
+
                             else:
                                 bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
                         else:
                             bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
-
-                        if "tags" in results["_source"]:
-                            if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
-                                tags_message="Human tagged this news with: "
-                                for tag in results["_source"]["tags"]:
-                                    tags_message=tags_message+tag+" and "
-                                tags_message=tags_message[:-5]
-                                bot.sendMessage(chat_id,tags_message+" "+msg['from']['first_name']+".")
-                        if "topics" in results["_source"]:
-                            topics_message="Your news seems to talk about "
-                            topics_scores=[]
-                            for topic in results["_source"]["topics"]:
-                                topics_message=topics_message+topic["label"]+" and "
-                                topics_scores.append(topic["score"])
-                            average_score=sum(topics_scores)/len(topics_scores)
-                            topics_message=topics_message[:-5]
-                            if average_score<45:
-                                bot.sendMessage(chat_id,topics_message+" "+msg['from']['first_name']+" but i clearly doubt on this.")
-                            else:
-                                bot.sendMessage(chat_id,topics_message+" "+msg['from']['first_name']+" for sure.")
-                        else:
-                            bot.sendMessage(chat_id,"I have no idea what is it talking about "+msg['from']['first_name']+".")
 
                     elif command=="subscribe":
                         print "Subscribing"
