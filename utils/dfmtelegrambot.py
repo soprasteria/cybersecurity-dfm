@@ -250,7 +250,7 @@ def handle(msg):
                                     average_score=sum(topics_scores)/len(topics_scores)
                                     topics_message=topics_message[:-5]
 
-                                bot.sendMessage(chat_id,"["+results["_source"]["title"]+"]("+results["_source"]["link"]+")\n\n".join(results["_source"]["text"][0:250].strip().splitlines())+"...\n"+tags_message+"\n posted by: ["+msg['from']['username']+"](tg://user?id="+msg['from']['id']+") topic: #"+topics_message+"  score:"+str(average_score),parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'])
+                                bot.sendMessage(chat_id,"["+results["_source"]["title"]+"]("+results["_source"]["link"]+")\n\n".join(results["_source"]["text"][0:250].strip().splitlines())+"...\n"+tags_message+"\n posted by: ["+msg['from']['firstname']+"](tg://user?id="+msg['from']['id']+") topic: #"+topics_message+"  score:"+str(average_score),parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'])
 
                             else:
                                 bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
