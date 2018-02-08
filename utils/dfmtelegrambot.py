@@ -17,7 +17,7 @@ import os
 
 import telepot
 from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
-from urllib.parse import urlencode
+from urllib import urlencode
 
 dfm_api_base='http://localhost:12345/api/'
 dfm_feed='http://localhost:12345/atom.xml?size=10'
