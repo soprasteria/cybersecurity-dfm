@@ -250,7 +250,7 @@ def handle(msg):
                                         topics_scores.append(topic["score"])
                                     average_score=sum(topics_scores)/len(topics_scores)
                                     topics_message=topics_message[:-5]
-                                extract=" ".join(results["_source"]["text"][0:250].strip().splitlines().replace('[','').replace(']',''))
+                                extract=" ".join(results["_source"]["text"][0:250].strip().replace('[','').replace(']','').splitlines())
                                 built_message="["+results["_source"]["title"]+"]("+results["_source"]["link"]+")\n\n"
                                 built_message+="```"+extract+"...```\n\n"
                                 built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
