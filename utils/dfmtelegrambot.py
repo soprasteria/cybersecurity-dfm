@@ -241,6 +241,7 @@ def handle(msg):
                                         for tag in results["_source"]["tags"]:
                                             tags_message=tags_message+tag+" #"
                                         tags_message=tags_message[:-5]
+                                        tags_message_list=tags_message.split(" ")
 
                                 if "topics" in results["_source"]:
                                     topics_scores=[]
@@ -253,7 +254,9 @@ def handle(msg):
                                 built_message="["+results["_source"]["title"]+"]("+results["_source"]["link"]+")\n\n"
                                 built_message+=extract+"...\n\n"
                                 built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-                                built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+results["_source"]["title"]+"%20"+results["_source"]["link"]+") [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+extract+") [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
+                                built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+results["_source"]["title"]+"\n#"+topics_message[:-5]+" "+tags_message_list[0]+" "+tags_message_list[1]+" "+tags_message_list[2]+"\n"+results["_source"]["link"]+")"
+                                built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+extract+"\n#"+topics_message[:-5]+" "+tags_message_list[0]+" "+tags_message_list[1]+" "+tags_message_list[2]+")"
+                                built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
 
                                 bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'])
 
