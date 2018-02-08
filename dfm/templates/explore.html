@@ -10,42 +10,8 @@
     <div
       class="parasol"
       data-settings='{
-        "networks": [
-          {
-            "url": "/api/graph",
-            "name": "Digital Watch",
-            "options": {
-              "layout": "forcelink",
-              "loader": {
-                "name": "json"
-              }
-            }
-          }
-        ],
-        "ui": {
-          "muiTheme": "dark",
-          "drawers": [
-            { "id": "left",
-              "open": true,
-              "components": [
-                {"name": "AppBar"},
-                {"name": "NetworkList"},
-                {"name": "Divider"},
-                {"name": "ForceLinkSettings"},
-                {"name": "Divider"},
-                {"name": "Legend"}
-              ]
-            },
-            { "id": "right",
-              "open": true,
-              "openSecondary": true,
-              "components": [
-                {"name": "SearchInput"},
-                {"name": "SelectedNode"}
-              ]
-            }
-          ]
-        }
+        "networks": [ { "url": "/api/graph", "name": "Digital Watch", "options": { "layout": "forcelink", "loader": { "name": "json" } } } ],
+        "ui": { "muiTheme": "dark" }
       }'
     />
 
