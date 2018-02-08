@@ -233,7 +233,7 @@ def handle(msg):
                         if results != None:
                             if "text" in results["_source"]:
 
-                                tags_message=""
+                                tags_message="#"
                                 topics_message=""
 
                                 if "tags" in results["_source"]:
