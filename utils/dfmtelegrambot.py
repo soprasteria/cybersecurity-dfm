@@ -235,13 +235,15 @@ def handle(msg):
 
                                 tags_message=""
                                 topics_message=""
-
+                                tags_message_list=[]
                                 if "tags" in results["_source"]:
                                     if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
                                         for tag in results["_source"]["tags"]:
                                             tags_message=tags_message+" #"+tag
                                         tags_message=tags_message
                                         tags_message_list=tags_message.split(" ")
+                                else:
+                                    tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
 
                                 if "topics" in results["_source"]:
                                     topics_scores=[]
