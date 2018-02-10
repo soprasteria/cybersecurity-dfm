@@ -1258,6 +1258,99 @@ class DataGraph(Resource):
 
         return result
 
+
+class Recent(Resource):
+
+    """ Return most recent doc"""
+    def get(self):
+        """ Get most recent doc
+        :param str model: news source identifier
+        :param str topic: topic in the model
+        :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
+        :param str gte: greater date (default now-7d)
+        :param str lte: liter date (default now)
+        :param int offset: offset of news result (default 0)
+        :param int size: number of news to retrieve (default settings ATOM_SIZE)
+        :returns: atom rss feed
+        """
+        if request.args.get('model'):
+            model=request.args.get('model').lower()
+        else:
+            model=None
+
+        if request.args.get('topic'):
+            topic=request.args.get('topic')
+        else:
+            topic=None
+
+        if request.args.get('q'):
+            q=request.args.get('q')
+        else:
+            q=None
+
+        if request.args.get('gte'):
+            gte=request.args.get('gte')
+        else:
+            gte='now-7d'
+
+        if request.args.get('lte'):
+            lte=request.args.get('lte')
+        else:
+            lte='now'
+
+        if request.args.get('offset'):
+            offset=request.args.get('offset')
+        else:
+            offset=0
+
+        if request.args.get('size'):
+            size=request.args.get('size')
+        else:
+            size=1
+
+        app.logger.debug("Recent docs parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
+
+        #query by default
+        time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, { "_score" : { "order" : "desc" } } ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }, { "exists": { "field":"text" } }] } }}
+
+        if model or topic:
+            topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[],"must":[] } } } }
+            if topic:
+                topics_query["nested"]["query"]["bool"]["must"].append({ "term" : { "topics.label" : topic } })
+            model_query={"query" : { "constant_score" : { "filter" : { "bool" : { "must":[{ "type":{ "value":"model" } }] } } } } }
+            if model:
+                model_query["query"]["constant_score" ]["filter"]["bool"]["must"].append({ "term" : { "title" : model.lower() } })
+            app.logger.debug("Models query: "+json.dumps(model_query))
+            models=storage.query(model_query)[0]
+            app.logger.debug("API: Prediction Models List:"+json.dumps(models))
+            for curr_model in models["hits"]["hits"]:
+                app.logger.debug("Current Model: "+json.dumps(curr_model))
+                for curr_topic in curr_model["_source"]["related_topics"]:
+                    app.logger.debug("Current Topic: "+curr_topic)
+                    if topic:
+                        app.logger.debug("Topic as parameter: "+topic)
+                        if curr_topic.lower()==topic.lower():
+                            app.logger.debug("Topic match")
+                            topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : curr_topic } })
+                    else:
+                        topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : curr_topic } })
+
+            app.logger.debug("Topics query: "+json.dumps(topics_query))
+            time_range_query["query"]["bool"]["must"]=[topics_query]
+
+        if q:
+            app.logger.debug("Q query: "+json.dumps(q))
+            time_range_query["query"]["bool"]["must"].append({"query_string" : {"query" : q}})
+
+        if int(offset)>0:
+            time_range_query['from']=offset
+        if int(size)>-1:
+            time_range_query['size']=size
+        app.logger.debug(time_range_query)
+
+        return storage.query(time_range_query)[0]['hits']['hits']
+
+
 class ChromePlugin(Resource):
 
     """ No need for it at the moment
@@ -1326,12 +1419,14 @@ class ChromePlugin(Resource):
                 result_doc['_source'].pop('html')
         return result_doc
 
+
 #Class attachments to API URIs
 api.add_resource(Main, '/api')
 api.add_resource(TagsList, '/api/tags')
 api.add_resource(TopicsList, '/api/topics')
 api.add_resource(ModelsList, '/api/models')
 api.add_resource(DataGraph, '/api/graph')
+api.add_resource(Recent, '/api/recent')
 api.add_resource(TopicsSettingsList, '/api/topics/config',endpoint='topicssettings')
 api.add_resource(TrainingsStatsList, '/api/trainings',endpoint='trainingsstats')
 api.add_resource(ModelsSettingsList, '/api/models/config',endpoint='modelssettings')
