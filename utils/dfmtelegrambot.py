@@ -12,6 +12,7 @@ import urlparse
 import urllib,urllib3
 import json
 import feedparser
+import schedule
 
 import os
 
@@ -29,6 +30,8 @@ if os.path.isfile(os.path.dirname(os.path.abspath(__file__)) + '/telegrambot.cfg
     config.read(os.path.dirname(os.path.abspath(__file__)) + '/telegrambot.cfg')
 else:
     print("can't find telegrambot.cfg")
+
+bot = telepot.Bot(config.get('variables', 'BOT_TOKEN'))
 
 def generate_uuid(data):
      """ Generate UUID for any entry in ElasticSearch
@@ -287,37 +290,7 @@ def handle(msg):
                         link=msg['text'][entity['offset']:entity['offset']+entity['length']]
                         bot.sendMessage(chat_id,"Source subscription result for "+msg['from']['first_name']+":\n"+json.dumps(submitSource(link,"rss",msg)))
 
-
-
-
-
-#bot = telepot.Bot(TOKEN)
-#bot.message_loop(handle)
-#print ('Listening ...')
-
-# def on_inline_query(msg):
-#     query_id, from_id, query_string = telepot.glance(msg, flavor='inline_query')
-#     print ('Inline Query:', query_id, from_id, query_string)
-#
-#     articles = [InlineQueryResultArticle(
-#                     id='abc',
-#                     title='ABC',
-#                     input_message_content=InputTextMessageContent(
-#                         message_text='Hello'
-#                     )
-#                )]
-#
-#     bot.answerInlineQuery(query_id, articles)
-#
-# def on_chosen_inline_result(msg):
-#     result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
-#     print ('Chosen Inline Result:', result_id, from_id, query_string)
-
-bot = telepot.Bot(config.get('variables', 'BOT_TOKEN'))
-bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
-# Keep the program running.
-while 1:
-    time.sleep(10)
+def postRecent():
     results=getDoc()
     if results != None:
         if "text" in results["_source"]:
@@ -354,6 +327,36 @@ while 1:
             built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
             built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
             built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
-
+            #After being added as an administrator to a channel, the bot can send messages to the channel
             bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN")
             print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
+
+
+
+#bot = telepot.Bot(TOKEN)
+#bot.message_loop(handle)
+#print ('Listening ...')
+
+# def on_inline_query(msg):
+#     query_id, from_id, query_string = telepot.glance(msg, flavor='inline_query')
+#     print ('Inline Query:', query_id, from_id, query_string)
+#
+#     articles = [InlineQueryResultArticle(
+#                     id='abc',
+#                     title='ABC',
+#                     input_message_content=InputTextMessageContent(
+#                         message_text='Hello'
+#                     )
+#                )]
+#
+#     bot.answerInlineQuery(query_id, articles)
+#
+# def on_chosen_inline_result(msg):
+#     result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
+#     print ('Chosen Inline Result:', result_id, from_id, query_string)
+schedule.every().hour.do(postRecent)
+
+bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
+# Keep the program running.
+while 1:
+    time.sleep(10)
