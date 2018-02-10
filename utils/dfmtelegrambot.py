@@ -356,3 +356,4 @@ while 1:
             built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
 
             bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN")
+            print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
