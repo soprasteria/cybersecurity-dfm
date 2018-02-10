@@ -21,7 +21,7 @@ from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
 dfm_api_base='http://localhost:12345/api/'
 dfm_feed='http://localhost:12345/atom.xml?size=10'
 telegram_dfm_id="/api/telegram"
-
+recent_id=""
 http=urllib3.PoolManager(num_pools=3,timeout=urllib3.Timeout(connect=10, read=10),retries=urllib3.Retry(3, redirect=1))
 
 config = ConfigParser.ConfigParser()
@@ -51,6 +51,15 @@ def generate_uuid(data):
      item_id=hasher.hexdigest()
      print "ES creation generated ID:"+item_id+"\r\nfor: "+to_hash_uri
      return item_id
+
+def getDoc():
+    response = http.request('GET',dfm_api_base+"/recent/")
+    print "GET "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status)
+    result_doc=json.loads(response.data)
+    if recent_id == result_doc["id"]:
+        return None
+    else:
+        return result_doc
 
 def submitUrl(url,body,keywords=[]):
     source_uuid=generate_uuid({"link":telegram_dfm_id})
@@ -309,3 +318,41 @@ bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': 
 # Keep the program running.
 while 1:
     time.sleep(10)
+    results=getDoc()
+    if results != None:
+        if "text" in results["_source"]:
+
+            tags_message=""
+            topics_message=""
+            tags_message_list=[]
+            if "tags" in results["_source"]:
+                if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
+                    for tag in results["_source"]["tags"]:
+                        tags_message=tags_message+" #"+tag
+                    tags_message=tags_message
+                    tags_message_list=tags_message.split(" ")
+            else:
+                tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
+
+            if "topics" in results["_source"]:
+                topics_scores=[]
+                for topic in results["_source"]["topics"]:
+                    topics_message=topics_message+topic["label"]+" and "
+                    topics_scores.append(topic["score"])
+                average_score=sum(topics_scores)/len(topics_scores)
+                topics_message=topics_message[:-5]
+
+            if "title" not in results["_source"]:
+                title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+            else:
+                title=results["_source"]["title"]
+
+            extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+            built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
+            built_message+="```"+extract+"...```\n\n"
+            built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
+            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+            built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
+
+            bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN")
