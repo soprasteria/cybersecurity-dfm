@@ -65,6 +65,7 @@ def getDoc():
     if recent_id == result_doc["id"]:
         return None
     else:
+        recent_id=result_doc["id"]
         return result_doc
 
 def submitUrl(url,body,keywords=[]):
