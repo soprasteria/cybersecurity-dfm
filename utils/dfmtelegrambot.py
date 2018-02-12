@@ -13,6 +13,7 @@ import urllib,urllib3
 import json
 import feedparser
 import schedule
+import threading
 
 import os
 
@@ -291,45 +292,47 @@ def handle(msg):
                         bot.sendMessage(chat_id,"Source subscription result for "+msg['from']['first_name']+":\n"+json.dumps(submitSource(link,"rss",msg)))
 
 def postRecent():
-    results=getDoc()
-    if results != None:
-        if "text" in results["_source"]:
+    while 1:
+        time.sleep(60)
+        results=getDoc()
+        if results != None:
+            if "text" in results["_source"]:
 
-            tags_message=""
-            topics_message=""
-            tags_message_list=[]
-            if "tags" in results["_source"]:
-                if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
-                    for tag in results["_source"]["tags"]:
-                        tags_message=tags_message+" #"+tag
-                    tags_message=tags_message
-                    tags_message_list=tags_message.split(" ")
-            else:
-                tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
+                tags_message=""
+                topics_message=""
+                tags_message_list=[]
+                if "tags" in results["_source"]:
+                    if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
+                        for tag in results["_source"]["tags"]:
+                            tags_message=tags_message+" #"+tag
+                        tags_message=tags_message
+                        tags_message_list=tags_message.split(" ")
+                else:
+                    tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
 
-            if "topics" in results["_source"]:
-                topics_scores=[]
-                for topic in results["_source"]["topics"]:
-                    topics_message=topics_message+topic["label"]+" and "
-                    topics_scores.append(topic["score"])
-                average_score=sum(topics_scores)/len(topics_scores)
-                topics_message=topics_message[:-5]
+                if "topics" in results["_source"]:
+                    topics_scores=[]
+                    for topic in results["_source"]["topics"]:
+                        topics_message=topics_message+topic["label"]+" and "
+                        topics_scores.append(topic["score"])
+                    average_score=sum(topics_scores)/len(topics_scores)
+                    topics_message=topics_message[:-5]
 
-            if "title" not in results["_source"]:
-                title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-            else:
-                title=results["_source"]["title"]
+                if "title" not in results["_source"]:
+                    title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+                else:
+                    title=results["_source"]["title"]
 
-            extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-            built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
-            built_message+="```"+extract+"...```\n\n"
-            built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
-            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-            built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
-            #After being added as an administrator to a channel, the bot can send messages to the channel
-            bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN")
-            print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
+                extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+                built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
+                built_message+="```"+extract+"...```\n\n"
+                built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+                built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
+                built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+                built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
+                #After being added as an administrator to a channel, the bot can send messages to the channel
+                bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN")
+                print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
 
 
 
@@ -354,7 +357,8 @@ def postRecent():
 # def on_chosen_inline_result(msg):
 #     result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
 #     print ('Chosen Inline Result:', result_id, from_id, query_string)
-schedule.every().hour.do(postRecent)
+t = threading.Thread(target=postRecent)
+t.start()
 
 bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
 # Keep the program running.
