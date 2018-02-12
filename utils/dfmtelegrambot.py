@@ -58,7 +58,7 @@ def generate_uuid(data):
 
 def getDoc():
     response = http.request('GET',dfm_api_base+"/recent")
-    #print "GET "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status)
+    print "GET "+dfm_api_base+"/recent"+" status:"+str(response.status)
     print "Scheduled post:"
     print response.data
     result_doc=json.loads(response.data)
