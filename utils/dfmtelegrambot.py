@@ -56,17 +56,15 @@ def generate_uuid(data):
      print "ES creation generated ID:"+item_id+"\r\nfor: "+to_hash_uri
      return item_id
 
-def getDoc():
+def getDoc(recent_id=""):
     response = http.request('GET',dfm_api_base+"recent")
     print "GET "+dfm_api_base+"/recent"+" status:"+str(response.status)
     print "Scheduled post:"
     print response.data
-    recent_id = ""
     result_doc=json.loads(response.data)
     if recent_id == result_doc["id"]:
         return None
     else:
-        recent_id=result_doc["id"]
         return result_doc
 
 def submitUrl(url,body,keywords=[]):
@@ -296,10 +294,13 @@ def handle(msg):
                         bot.sendMessage(chat_id,"Source subscription result for "+msg['from']['first_name']+":\n"+json.dumps(submitSource(link,"rss",msg)))
 
 def postRecent():
+    recent_id=""
     while 1:
         time.sleep(60)
-        results=getDoc()
+        results=getDoc(recent_id)
+
         if results != None:
+            recent_id=results["id"]
             if "text" in results["_source"]:
 
                 tags_message=""
