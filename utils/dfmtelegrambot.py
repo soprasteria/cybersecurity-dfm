@@ -2,7 +2,6 @@
 
 import sys
 import time
-
 import ConfigParser
 import datetime
 import imp
@@ -12,13 +11,15 @@ import urlparse
 import urllib,urllib3
 import json
 import feedparser
-import schedule
 import threading
 
 import os
 
 import telepot
 from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
+from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, ForceReply
+from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
+from telepot.namedtuple import InlineQueryResultArticle, InlineQueryResultPhoto, InputTextMessageContent
 
 dfm_api_base='http://localhost:12345/api/'
 dfm_feed='http://localhost:12345/atom.xml?size=10'
@@ -296,11 +297,13 @@ def handle(msg):
 def postRecent():
     recent_id=""
     while 1:
-        time.sleep(config.get('variables', 'POST_PERIOD'))
-        results=getDoc(recent_id)[0]
+        time.sleep(float(config.get('variables', 'POST_PERIOD')))
+        results=getDoc(recent_id)
 
         if results != None:
-            recent_id=results["_id"]
+            recent_id=results[0]["_id"]
+            recent_parent=results[0]["_parent"]
+            results=results[0]
             if "text" in results["_source"]:
 
                 tags_message=""
@@ -327,14 +330,12 @@ def postRecent():
                     title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
                 else:
                     title=results["_source"]["title"]
-
-                 markup = InlineKeyboardMarkup(inline_keyboard=[
-                     [dict(text='Telegram URL', url='https://core.telegram.org/')],
-                     [InlineKeyboardButton(text='Callback - show notification', callback_data='notification')],
-                     [dict(text='Callback - show alert', callback_data='alert')],
-                     [InlineKeyboardButton(text='Callback - edit message', callback_data='edit')],
-                     [dict(text='Switch to using bot inline', switch_inline_query='initial query')],
-                 ])
+                cb_uri=recent_parent+'/'+recent_id
+                markup = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text=u'\u274c', callback_data=0)],
+                [InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1)],
+                [InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
+                ])
 
                 extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
                 built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
@@ -342,10 +343,15 @@ def postRecent():
                 built_message+=tags_message+"\n\n topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
                 built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
                 built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-                built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
+                built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")\n\n Ranke it:"
                 #After being added as an administrator to a channel, the bot can send messages to the channel
-                bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN")
+                bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN",reply_markup=markup,disable_notification=True)
                 print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
+
+def on_callback_query(msg):
+    query_id, from_id, data = telepot.glance(msg, flavor='callback_query')
+    print('Callback query:', query_id, from_id, data)
+    print('Data: '+generate_uuid({"link":msg['message']['entities'][0]['url']})+" "+str(msg['from']['id'])+" "+msg['data'])
 
 
 
@@ -375,7 +381,7 @@ t = threading.Thread(target=postRecent)
 t.start()
 
 print "entering reception message loop..."
-bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
+bot.message_loop({'chat': handle, 'callback_query': on_callback_query},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
 # Keep the program running.
 while 1:
     time.sleep(10)
