@@ -61,7 +61,7 @@ def getDoc():
     print "GET "+dfm_api_base+"/recent"+" status:"+str(response.status)
     print "Scheduled post:"
     print response.data
-    recent_id = 0
+    recent_id = ""
     result_doc=json.loads(response.data)
     if recent_id == result_doc["id"]:
         return None
