@@ -62,7 +62,7 @@ def getDoc(recent_id=""):
     print "Scheduled post:"
     print response.data
     result_doc=json.loads(response.data)
-    if recent_id == result_doc["id"]:
+    if recent_id == result_doc["_id"]:
         return None
     else:
         return result_doc
@@ -300,7 +300,7 @@ def postRecent():
         results=getDoc(recent_id)
 
         if results != None:
-            recent_id=results["id"]
+            recent_id=results["_id"]
             if "text" in results["_source"]:
 
                 tags_message=""
