@@ -360,9 +360,11 @@ def postRecent():
 # def on_chosen_inline_result(msg):
 #     result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
 #     print ('Chosen Inline Result:', result_id, from_id, query_string)
+print "starting post thread..."
 t = threading.Thread(target=postRecent)
 t.start()
 
+print "entering reception message loop..."
 bot.message_loop({'chat': handle},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
 # Keep the program running.
 while 1:
