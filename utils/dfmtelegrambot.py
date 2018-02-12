@@ -62,7 +62,7 @@ def getDoc(recent_id=""):
     print "Scheduled post:"
     print response.data
     result_doc=json.loads(response.data)
-    if recent_id == result_doc["_id"]:
+    if recent_id == result_doc[0]["_id"]:
         return None
     else:
         return result_doc
