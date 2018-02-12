@@ -296,7 +296,7 @@ def handle(msg):
 def postRecent():
     recent_id=""
     while 1:
-        time.sleep(60)
+        time.sleep(config.get('variables', 'POST_PERIOD'))
         results=getDoc(recent_id)[0]
 
         if results != None:
@@ -327,6 +327,14 @@ def postRecent():
                     title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
                 else:
                     title=results["_source"]["title"]
+
+                 markup = InlineKeyboardMarkup(inline_keyboard=[
+                     [dict(text='Telegram URL', url='https://core.telegram.org/')],
+                     [InlineKeyboardButton(text='Callback - show notification', callback_data='notification')],
+                     [dict(text='Callback - show alert', callback_data='alert')],
+                     [InlineKeyboardButton(text='Callback - edit message', callback_data='edit')],
+                     [dict(text='Switch to using bot inline', switch_inline_query='initial query')],
+                 ])
 
                 extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
                 built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
