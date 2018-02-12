@@ -297,7 +297,7 @@ def postRecent():
     recent_id=""
     while 1:
         time.sleep(60)
-        results=getDoc(recent_id)
+        results=getDoc(recent_id)[0]
 
         if results != None:
             recent_id=results["_id"]
