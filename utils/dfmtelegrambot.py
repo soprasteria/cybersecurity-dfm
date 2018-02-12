@@ -57,7 +57,7 @@ def generate_uuid(data):
      return item_id
 
 def getDoc():
-    response = http.request('GET',dfm_api_base+"/recent")
+    response = http.request('GET',dfm_api_base+"recent")
     print "GET "+dfm_api_base+"/recent"+" status:"+str(response.status)
     print "Scheduled post:"
     print response.data
