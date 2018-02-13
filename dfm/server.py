@@ -1291,7 +1291,7 @@ class Recent(Resource):
         if request.args.get('gte'):
             gte=request.args.get('gte')
         else:
-            gte='now-1h'
+            gte='now-4h'
 
         if request.args.get('lte'):
             lte=request.args.get('lte')
