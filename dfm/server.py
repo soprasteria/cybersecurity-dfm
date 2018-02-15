@@ -1371,9 +1371,9 @@ class Rank(Resource):
                     data["_source"]["votes"][voter]={"name":name,"score":score,"id":voter}
                     update_data={"votes":data["_source"]["votes"]}
                 else:
-                    update_data={voter:{"name":name,"score":score,"id":voter}}
+                    data["_source"]["votes"]={voter:{"name":name,"score":score,"id":voter}}
 
-                storage.update(self,update_data,data["_id"],parent=data["_parent"])
+                storage.update(self,data=data,item_id=data["_id"],parent=data["_parent"])
                 return {    "_shards": { "failed": 0, "skipped": 0, "successful": 0, "total": 0 }}
             else:
                 return {    "_shards": { "failed": 1, "skipped": 0, "successful": 0, "total": 0 }}
