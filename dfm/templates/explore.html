@@ -16,13 +16,28 @@
   <body>
     <div
       class="parasol"
-      data-settings='{
-        "networks": [ { "url": "/api/graph", "name": "Digital Watch", "fetchOptions": {"credentials": "include"}, "options": { "layout": "forcelink", "loader": { "name": "json" } } } ],
-        "ui": { "drawers": [ { "id": "left", "open": true, "components": [ {"name": "Legend"}, {"name": "Divider"}, {"name": "SearchInput"}, {"name": "NetworkList"}, {"name": "Divider"}, {"name": "ForceLinkSettings"} ] }, { "id": "right", "open": true, "openSecondary": true, "components": [ {"name": "AppBar"}, {"name": "Divider"}, {"name": "SelectedNode"} ] } ] }
-      }'
+      data-settings='{ "networks": [ { "url": "/api/graph", "name": "Digital Watch", "fetchOptions": {"credentials": "include"}, "options": { "layout": "forcelink", "loader": { "name": "json" } } } ], "ui": { "drawers": [ { "id": "left", "open": true, "components": [ {"name":
+"Legend"}, {"name": "Divider"}, {"name": "SearchInput"}, {"name": "NetworkList"}, {"name": "Divider"}, {"name": "ForceLinkSettings"} ] }, { "id": "right", "open": true, "openSecondary": true, "components": [ {"name": "AppBar"}, {"name": "Divider"}, {"name":
+"SelectedNode"} ] } ] } }'
     />
 
   </body>
+  <div class="container-narrow">
+    <ul class="nav nav-pills pull-right">
+      <li class="active"><a href="#">HOME</a></li>
+      <li ><a href="/sources">SOURCES</a></li>
+      <li ><a href="/topics">TOPICS</a></li>
+      <li ><a href="/models">MODELS</a></li>
+      <li ><a href="/explore">EXPLORE</a></li>
+      <li ><a href="/kibana/">ANALYZE</a></li>
+      <li><a href="/doc">DOC</a></li>
+      <li><a href="/api">API</a></li>
+      <li><a href="/doc/license.html">LICENSE</a></li>
+    </ul>
+    <h3><span class="glyphicon glyphicon-asterisk" style="color:#5cb85c"></span>Data Feed Manager</h3>
+
+    <hr>
+  </div>
   <div id="root"></div>
   <script src="static/js/lib/parasol.js" type="text/javascript"></script>
 </html>
