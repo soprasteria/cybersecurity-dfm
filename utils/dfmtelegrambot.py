@@ -361,8 +361,8 @@ def postJob():
         time.sleep(1)
 
 def postVote(news_id,voter_id,name,score):
-    #response = http.request('GET',dfm_api_base+"rank?id="+news_uuid) #auth=('user', 'password'))
-    print "GET "+dfm_api_base+"rank?id="+str(news_id)+"&voter="+str(voter_id)+"&name="+str(name)+"&score="+str(score)
+    response = http.request('GET',dfm_api_base+"rank?id="+str(news_id)+"&voter="+str(voter_id)+"&name="+str(name)+"&score="+str(score)) #auth=('user', 'password'))
+    print "GET "+dfm_api_base+"rank?id="+str(news_id)+"&voter="+str(voter_id)+"&name="+str(name)+"&score="+str(score)+" status:"+str(response.status)
 
 
 def on_callback_query(msg):
