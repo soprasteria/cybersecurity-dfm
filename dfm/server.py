@@ -1223,7 +1223,6 @@ class DataGraph(Resource):
 
                         if (author is not None) and ( source+"_"+author not in edges ):
                           edges[source+"_"+author]={"id":source+"_"+author,"source":source,"target":author,"weight":1}
-                          result['edges'].append(edge)
                         elif author is not None:
                             edges[source+"_"+author]["weight"]+=1
                         else:
