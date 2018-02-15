@@ -1246,7 +1246,7 @@ class DataGraph(Resource):
                         else:
                             edges[tag['key']+"_"+link_id]["weight"]+=1
 
-        for key,val in edges:
+        for key,val in edges.iteritems():
             result['edges'].append(val)
 
         return result
