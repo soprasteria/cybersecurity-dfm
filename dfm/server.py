@@ -1222,31 +1222,31 @@ class DataGraph(Resource):
                               nodes[author]+=1
 
                         if (author is not None) and ( source+"_"+author not in edges ):
-                          edges[source+"_"+author]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
+                          edges[source+"_"+author]={"id":source+"_"+author,"source":source,"target":author,"weight":1}
                           result['edges'].append(edge)
                         elif author is not None:
                             edges[source+"_"+author]["weight"]+=1
                         else:
                           if source+"_"+link_id not in edges:
-                              edges[source+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
+                              edges[source+"_"+link_id]={"id":source+"_"+link_id,"source":source,"target":link_id,"weight":1}
                               result['edges'].append(edge)
                           else:
                               edges[source+"_"+link_id]["weight"]+=1
 
                         if ( author is not None ) and ( author+"_"+link_id not in edges ):
-                          edges[author+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
+                          edges[author+"_"+link_id]={"id":author+"_"+link_id,"source":author,"target":link_id,"weight":1}
                           result['edges'].append(edge)
                         elif author is not None:
                             edges[author+"_"+link_id]["weight"]+=1
 
                         if topic['key']+"_"+link_id not in edges:
-                          edges[topic['key']+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
+                          edges[topic['key']+"_"+link_id]={"id":topic['key']+"_"+link_id,"source":topic['key'],"target":link_id,"weight":1}
                           result['edges'].append(edge)
                         else:
                             edges[topic['key']+"_"+link_id]["weight"]+=1
 
                         if tag['key']+"_"+link_id not in edges:
-                          edges[tag['key']+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
+                          edges[tag['key']+"_"+link_id]={"id":tag['key']+"_"+link_id,"source":tag['key'],"target":link_id,"weight":1}
                         else:
                             edges[tag['key']+"_"+link_id]["weight"]+=1
 
