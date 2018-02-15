@@ -1373,7 +1373,8 @@ class Rank(Resource):
                 else:
                     data["_source"]["votes"]={voter:{"name":name,"score":score,"id":voter}}
 
-                storage.update(self,data=data,item_id=data["_id"],parent=data["_parent"])
+                update_data=data
+                storage.update(self,data=update_data,item_id=data["_id"],parent=data["_parent"])
                 return {    "_shards": { "failed": 0, "skipped": 0, "successful": 0, "total": 0 }}
             else:
                 return {    "_shards": { "failed": 1, "skipped": 0, "successful": 0, "total": 0 }}
