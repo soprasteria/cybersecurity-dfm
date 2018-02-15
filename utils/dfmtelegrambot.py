@@ -171,6 +171,7 @@ def submitSource(link,stype,msg):
 
 def handle(msg):
     content_type, chat_type, chat_id = telepot.glance(msg)
+    average_score=0
 
     print(content_type, chat_type, chat_id, msg)
 
@@ -298,6 +299,7 @@ def handle(msg):
 
 def postRecent():
     recent_id=""
+    average_score=0
     while 1:
         time.sleep(float(config.get('variables', 'POST_PERIOD')))
         results=getDoc(recent_id)
