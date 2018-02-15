@@ -14,6 +14,7 @@ import feedparser
 import threading
 
 import os
+import random
 
 import telepot
 from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
@@ -58,7 +59,8 @@ def generate_uuid(data):
      return item_id
 
 def getDoc(recent_id=""):
-    response = http.request('GET',dfm_api_base+"recent")
+    # pick random doc in top 10 of the day
+    response = http.request('GET',dfm_api_base+"recent?gte=now-1d&offset="+str(random.randint(1, 10)))
     print "GET "+dfm_api_base+"/recent"+" status:"+str(response.status)
     print "Scheduled post:"
     print response.data
