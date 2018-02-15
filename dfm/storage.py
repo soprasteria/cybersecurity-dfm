@@ -106,14 +106,14 @@ class Storage:
          """ Update existing object
          :params dic data: object data to update
          :params string item_id: id of object to update
-         :params string dtype: objectif type **source** or **doc**
-         :params string parent: parent unique identifier (mandatory for type doc, it's source id)
+         :params string dtype: object type **source** or **doc**
+         :params string parent: parent unic identifier (mandatory for type doc, it's source id)
          :returns: elasticsearch updated object
          """
          results=Results(self.logger,1,str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
          #When you have a parent child relationship, you need to specify the parent in the URL each time you try to access it a child, since routing now depends on the parent.
          #json serialize with special date parser otherwise ES index fail
-         result=self.es.update(index=self.index,doc_type=dtype,id=item_id,consistency="quorum",parent=parent,routing=parent,body=json.dumps(data,default=self.serializer.to_json),ignore=400)
+         result=self.es.update(index=self.index,doc_type=dtype,id=item_id,parent=parent,routing=parent,body=json.dumps(data,default=self.serializer.to_json),ignore=400)
          results.add_success(result)
          return results.results
 
