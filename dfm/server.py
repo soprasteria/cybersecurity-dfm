@@ -1222,39 +1222,36 @@ class DataGraph(Resource):
                               nodes[author]+=1
 
                         if (author is not None) and ( source+"_"+author not in edges ):
-                          edge={ "id": source+"_"+author, "source": source, "target": author }
-                          edges[source+"_"+author]=1
+                          edges[source+"_"+author]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
                           result['edges'].append(edge)
                         elif author is not None:
-                            edges[source+"_"+author]+=1
+                            edges[source+"_"+author]["weight"]+=1
                         else:
                           if source+"_"+link_id not in edges:
-                              edge={ "id": source+"_"+link_id, "source": source, "target": link_id }
-                              edges[source+"_"+link_id]=1
+                              edges[source+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
                               result['edges'].append(edge)
                           else:
-                              edges[source+"_"+link_id]+=1
+                              edges[source+"_"+link_id]["weight"]+=1
 
                         if ( author is not None ) and ( author+"_"+link_id not in edges ):
-                          edge={ "id": author+"_"+link_id, "source": author, "target": link_id }
-                          edges[author+"_"+link_id]=1
+                          edges[author+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
                           result['edges'].append(edge)
                         elif author is not None:
-                            edges[author+"_"+link_id]+=1
+                            edges[author+"_"+link_id]["weight"]+=1
 
                         if topic['key']+"_"+link_id not in edges:
-                          edge={ "id": topic['key']+"_"+link_id, "source": topic['key'], "target": link_id }
-                          edges[topic['key']+"_"+link_id]=True
+                          edges[topic['key']+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
                           result['edges'].append(edge)
                         else:
-                            edges[topic['key']+"_"+link_id]+=1
+                            edges[topic['key']+"_"+link_id]["weight"]+=1
 
                         if tag['key']+"_"+link_id not in edges:
-                          edge={ "id": tag['key']+"_"+link_id, "source": tag['key'], "target": link_id }
-                          edges[tag['key']+"_"+link_id]=True
-                          result['edges'].append(edge)
+                          edges[tag['key']+"_"+link_id]={"id":source+"_"+author,"source":source,"target":target,"weight":1}
                         else:
-                            edges[tag['key']+"_"+link_id]+=1
+                            edges[tag['key']+"_"+link_id]["weight"]+=1
+
+        for key,val in edges:
+            result['edges'].append(val)
 
         return result
 
@@ -1350,6 +1347,32 @@ class Recent(Resource):
 
         return storage.query(time_range_query)[0]['hits']['hits']
 
+class Rank(Resource):
+
+    """ Return most recent doc"""
+    def get(self):
+        """ Get most recent doc
+        :param str id: doc id
+        :param str voter: voter name
+        :param int score:  score given by the voter to the doc
+        :returns: status
+        """
+        if request.args.get('id') and request.args.get('voter') and request.args.get('score') :
+            id_query={ "query": { "ids" : { "type" : "_doc", "values" : [request.args.get('id')] } } }
+            result=storage.query(id_query)
+            if len(result[0]['hits']['hits'])>0:
+                data=result[0]['hits']['hits'][0]
+                if "votes" in data["_source"]:
+                    data["_source"]["votes"].append({"voter":request.args.get('voter'),"score":int(request.args.get('score'))})
+                else:
+                    data["_source"]["votes"]=[{"voter":request.args.get('voter'),"score":int(request.args.get('score'))}]
+
+                return storage.update(self,data,data["_id"],dtype="doc",parent=data["_parent"]
+            else:
+                return {    "_shards": { "failed": 1, "skipped": 0, "successful": 0, "total": 0 }}
+        else:
+            return {    "_shards": { "failed": 1, "skipped": 0, "successful": 0, "total": 0 }}
+
 
 class ChromePlugin(Resource):
 
@@ -1427,6 +1450,7 @@ api.add_resource(TopicsList, '/api/topics')
 api.add_resource(ModelsList, '/api/models')
 api.add_resource(DataGraph, '/api/graph')
 api.add_resource(Recent, '/api/recent')
+api.add_resource(Rank, '/api/rank')
 api.add_resource(TopicsSettingsList, '/api/topics/config',endpoint='topicssettings')
 api.add_resource(TrainingsStatsList, '/api/trainings',endpoint='trainingsstats')
 api.add_resource(ModelsSettingsList, '/api/models/config',endpoint='modelssettings')
