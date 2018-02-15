@@ -1349,19 +1349,24 @@ class Rank(Resource):
     def get(self):
         """ Get most recent doc
         :param str id: doc id
-        :param str voter: voter name
+        :param str voter: voter id
+        :param str name: voter name
         :param int score:  score given by the voter to the doc
         :returns: status
         """
         if request.args.get('id') and request.args.get('voter') and request.args.get('score') :
-            id_query={ "query": { "ids" : { "type" : "_doc", "values" : [request.args.get('id')] } } }
+            if request.args.get('name'):
+                name=request.args.get('name')
+            else:
+                name=request.args.get('id')
+            id_query={ "query": { "ids" : { "type" : "doc", "values" : [request.args.get('id')] } } }
             result=storage.query(id_query)
             if len(result[0]['hits']['hits'])>0:
                 data=result[0]['hits']['hits'][0]
                 if "votes" in data["_source"]:
-                    data["_source"]["votes"].append({"voter":request.args.get('voter'),"score":int(request.args.get('score'))})
+                    data["_source"]["votes"].append({"voter":request.args.get('voter'),"name"=name,"score":int(request.args.get('score'))})
                 else:
-                    data["_source"]["votes"]=[{"voter":request.args.get('voter'),"score":int(request.args.get('score'))}]
+                    data["_source"]["votes"]=[{"voter":request.args.get('voter'),"name"=name,"score":int(request.args.get('score'))}]
                 return storage.update(self,data,data["_id"],dtype="doc",parent=data["_parent"])
             else:
                 return {    "_shards": { "failed": 1, "skipped": 0, "successful": 0, "total": 0 }}
