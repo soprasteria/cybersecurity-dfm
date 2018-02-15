@@ -15,6 +15,7 @@ import threading
 
 import os
 import random
+import schedule
 
 import telepot
 from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
@@ -55,7 +56,7 @@ def generate_uuid(data):
          to_hash_uri=urllib.quote(full_uri)
      hasher.update(to_hash_uri)
      item_id=hasher.hexdigest()
-     print "ES creation generated ID:"+item_id+"\r\nfor: "+to_hash_uri
+     print "UUID generated:"+item_id+"\r\nfor: "+to_hash_uri
      return item_id
 
 def getDoc(recent_id=""):
@@ -300,62 +301,82 @@ def handle(msg):
 def postRecent():
     recent_id=""
     average_score=0
+
+    results=getDoc(recent_id)
+
+    if results != None:
+        recent_id=results[0]["_id"]
+        recent_parent=results[0]["_parent"]
+        results=results[0]
+        if "text" in results["_source"]:
+
+            tags_message=""
+            topics_message=""
+            tags_message_list=[]
+            if "tags" in results["_source"]:
+                if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
+                    for tag in results["_source"]["tags"]:
+                        tags_message=tags_message+" #"+tag
+                    tags_message=tags_message
+                    tags_message_list=tags_message.split(" ")
+            else:
+                tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
+
+            if "topics" in results["_source"]:
+                topics_scores=[]
+                for topic in results["_source"]["topics"]:
+                    topics_message=topics_message+topic["label"]+" and "
+                    topics_scores.append(topic["score"])
+                average_score=sum(topics_scores)/len(topics_scores)
+                topics_message=topics_message[:-5]
+
+            if "title" not in results["_source"]:
+                title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+            else:
+                title=results["_source"]["title"]
+            cb_uri=recent_parent+'/'+recent_id
+            markup = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text=u'\u274c', callback_data=0),
+            InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
+            InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
+            ])
+
+            extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+            built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
+            built_message+="```"+extract+"...```\n\n"
+            built_message+=tags_message+"\n\n topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
+            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+            built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")\n\n Ranke it:"
+            #After being added as an administrator to a channel, the bot can send messages to the channel
+            bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN",reply_markup=markup,disable_notification=True)
+            print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
+
+def postJob():
+    for tm in config.get('variables', 'POST_SCHEDULE').split(","):
+        print(tm)
+        schedule.every().day.at(tm).do(postRecent)
     while 1:
-        time.sleep(float(config.get('variables', 'POST_PERIOD')))
-        results=getDoc(recent_id)
+        schedule.run_pending()
+        time.sleep(1)
 
-        if results != None:
-            recent_id=results[0]["_id"]
-            recent_parent=results[0]["_parent"]
-            results=results[0]
-            if "text" in results["_source"]:
+def postVote(news_id,voter_id,name,score):
+    #response = http.request('GET',dfm_api_base+"rank?id="+news_uuid) #auth=('user', 'password'))
+    print "GET "+dfm_api_base+"rank?id="+str(news_id)+"&voter="+str(voter_id)+"&name="+str(name)+"&score="+str(score)
 
-                tags_message=""
-                topics_message=""
-                tags_message_list=[]
-                if "tags" in results["_source"]:
-                    if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
-                        for tag in results["_source"]["tags"]:
-                            tags_message=tags_message+" #"+tag
-                        tags_message=tags_message
-                        tags_message_list=tags_message.split(" ")
-                else:
-                    tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
-
-                if "topics" in results["_source"]:
-                    topics_scores=[]
-                    for topic in results["_source"]["topics"]:
-                        topics_message=topics_message+topic["label"]+" and "
-                        topics_scores.append(topic["score"])
-                    average_score=sum(topics_scores)/len(topics_scores)
-                    topics_message=topics_message[:-5]
-
-                if "title" not in results["_source"]:
-                    title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-                else:
-                    title=results["_source"]["title"]
-                cb_uri=recent_parent+'/'+recent_id
-                markup = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text=u'\u274c', callback_data=0)],
-                [InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1)],
-                [InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
-                ])
-
-                extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-                built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
-                built_message+="```"+extract+"...```\n\n"
-                built_message+=tags_message+"\n\n topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-                built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
-                built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-                built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")\n\n Ranke it:"
-                #After being added as an administrator to a channel, the bot can send messages to the channel
-                bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN",reply_markup=markup,disable_notification=True)
-                print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
 
 def on_callback_query(msg):
     query_id, from_id, data = telepot.glance(msg, flavor='callback_query')
     print('Callback query:', query_id, from_id, data)
     print('Data: '+generate_uuid({"link":msg['message']['entities'][0]['url']})+" "+str(msg['from']['id'])+" "+msg['data'])
+    print(msg)
+    name=""
+    if msg['from']['last_name']:
+        name=msg['from']['last_name']
+    if msg['from']['first_name']:
+        name+=" "+msg['from']['first_name']
+    postVote(generate_uuid({"link":msg['message']['entities'][0]['url']}),msg['from']['id'],name,msg['data'])
+    bot.answerCallbackQuery(query_id, text='Thank you for your vote')
 
 
 
@@ -381,7 +402,7 @@ def on_callback_query(msg):
 #     result_id, from_id, query_string = telepot.glance(msg, flavor='chosen_inline_result')
 #     print ('Chosen Inline Result:', result_id, from_id, query_string)
 print "starting post thread..."
-t = threading.Thread(target=postRecent)
+t = threading.Thread(target=postJob)
 t.start()
 
 print "entering reception message loop..."
