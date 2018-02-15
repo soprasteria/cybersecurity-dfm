@@ -26,7 +26,7 @@ dfm_feed='http://localhost:12345/atom.xml?size=10'
 telegram_dfm_id="/api/telegram"
 recent_id=""
 http=urllib3.PoolManager(num_pools=3,timeout=urllib3.Timeout(connect=10, read=10),retries=urllib3.Retry(3, redirect=1))
-
+average_score=0
 config = ConfigParser.ConfigParser()
 if os.path.isfile(os.path.dirname(os.path.abspath(__file__)) + '/telegrambot.cfg'):
     config.read(os.path.dirname(os.path.abspath(__file__)) + '/telegrambot.cfg')
