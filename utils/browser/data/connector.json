@@ -1,0 +1,54 @@
+{
+  "name": "ElasticSearch Connector",
+  "parameters": {
+    "input": {
+      "connector": "elasticsearch",
+      "es_params": {
+        "path": "/elasticsearch",
+        "index": "watch",
+        "type": "doc",
+        "protocol": "http",
+        "search": {
+          "size": 100,
+          "terminate_after": 100,
+          "body": {
+             "_source": {"exclude": [ "html" ]}, "query":{ "bool": { "must": [ {"exists" : { "field" : "text" } }, {"type":{"value":"doc"}} ]}}
+          }
+        }
+      }
+    },
+    "processing": {
+      "vizlib": "sigma_graph_api"
+    },
+    "output": {
+      "header": {
+        "brand": "",
+        "filterList": true,
+        "dateRange": true,
+        "sortingMethods": true,
+        "searchInput": true
+      },
+      "cloud": null,
+      "list": {
+        "selected": {
+          "processing":"reactComponent",
+          "componentType":"TtRssComponent"
+        },
+        "tail": {
+          "processing":"reactComponent",
+          "componentType":"TtRssComponent"
+        }
+      },
+      "search": {
+        "active": true,
+        "type": "dom"
+      }
+    }
+  },
+  "data": {},
+  "filters": {},
+  "sorting": [
+    {"name": "date", "description": "by date", "selected": true},
+    {"name": "topic_score", "description": "by topic score", "selected": false}
+  ]
+}
