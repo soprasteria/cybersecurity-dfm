@@ -52824,37 +52824,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var filteredSearchParams = JSON.parse(JSON.stringify(searchParams));
 	      filteredSearchParams.body = {
 	        "_source": { "exclude": ["html"] },
-	        "query": { "filtered": {
-	            "query": filteredSearchParams.body.query,
-	            "filter": {}
+	        "query": { "bool": {
+	            "must": [filteredSearchParams.body.query]
 	          } } };
 
 	      if (_filters['tag']) {
-	        var filteredQuery = filteredSearchParams.body.query.filtered.query.bool.must.concat(_filters['tag'].map(function (tag) {
+	        var filteredQuery = filteredSearchParams.body.query.bool.must.concat(_filters['tag'].map(function (tag) {
 	          return { "match": { "tags": tag } };
 	        }));
-	        filteredSearchParams.body.query.filtered.query.bool.must = filteredQuery;
+	        filteredSearchParams.body.query.bool.must = filteredQuery;
 	      }
 
 	      if (_filters['text']) {
-	        var _filteredQuery = filteredSearchParams.body.query.filtered.query.bool.must.concat(_filters['text'].map(function (text) {
+	        var _filteredQuery = filteredSearchParams.body.query.bool.must.concat(_filters['text'].map(function (text) {
 	          return { "match": { "_all": text } };
 	        }));
-	        filteredSearchParams.body.query.filtered.query.bool.must = _filteredQuery;
+	        filteredSearchParams.body.query.bool.must = _filteredQuery;
 	      }
 
 	      if (_filters['topic']) {
 	        filteredSearchParams.body.query.filtered.filter["nested"] = {
 	          "path": "topics",
-	          "filter": { "bool": { "must": _filters['topic'].map(function (topic) {
-	                return { "term": { "topics.label": topic } };
+	          "filter": {  "terms": { "topics.label":  _filters['topic'].map(function (topic) {
+	                return topic;
 	              })
-	            } }
-	        };
+                   }
+	            } 
+                 };
 	      }
 
 	      if (_filters['range'] && _filters['range'].startDate && _filters['range'].endDate) {
-	        filteredSearchParams.body.query.filtered.query.bool.must.push({
+	        filteredSearchParams.body.query.bool.must.push({
 	          "range": {
 	            "updated": {
 	              "gte": _filters['range'].startDate.format('DD/MM/YYYY'),
