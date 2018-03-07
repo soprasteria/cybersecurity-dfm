@@ -10,7 +10,11 @@ Add a feed source
    :language: bash
    :lines: 2,3
 
+Call shedulable (recurring) tasks
+-----------------
+
 .. literalinclude:: ../tests/callScheduler.sh
    :language: bash
-   :lines: 2,5
+   :lines: 2-10
+
 .. seealso:: :class:`feed`
