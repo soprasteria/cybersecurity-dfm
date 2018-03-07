@@ -23,6 +23,7 @@ import urllib2
 from urlparse import urljoin
 import unicodecsv as csv
 import json
+import types
 from langdetect import detect
 from modeltrainer import ModelTrainer
 
@@ -284,7 +285,8 @@ def recent_feed():
     app.logger.debug("ATOM RSS Feed parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
 
     #query by default
-    time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }] } }}
+    #time_range_query={ "sort" : [ { "topics.score" : { "order" : "dsc", "nested_path" : "topics" } }, { "updated" : { "order" : "dsc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }, { "type":{ "value":"doc" } }] } } }
+    time_range_query={ "sort" : [  { "updated" : { "order" : "dsc","ignore_unmapped" : "true" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } },{ "type":{ "value":"doc" } }] } } }
 
     if model or topic:
         topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[],"must":[] } } } }
@@ -323,8 +325,14 @@ def recent_feed():
     app.logger.debug("rss atom export")
     start_time = time.time()
     feeder = AtomFeed('Recent Articles',feed_url=request.url, url=request.url_root)
-    docs=storage.query(time_range_query)[0]['hits']['hits']
+    docs=storage.query(time_range_query)[0]['hits']['hits'][0]
     for doc in docs:
+        if isinstance(doc,types.GeneratorType):
+            doc=list(doc)
+            if len(doc)==0:
+               news=doc
+               break
+        app.logger.debug(len(doc))
         if isinstance(doc, list):
             doc=doc[0]
         if '_source' in doc:
@@ -346,8 +354,9 @@ def recent_feed():
         if 'tags' in news:
             for tag in news['tags']:
                 topics.append({"term":tag,"label":tag})
-        if len(news['summary']) < 5:
-            news['summary']="No summary"
+        if 'summary' in news:
+            if len(news['summary']) < 5:
+                news['summary']="No summary"
         if 'title' not in news or len(news['title'])<5:
             news['title']=news['summary']
         if 'author' not in news:
