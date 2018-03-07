@@ -39,6 +39,8 @@ class Config(object):
     """ DFM memory limit as ratio of total hardware memory """
     DOC_PATH = os.path.join(os.path.dirname(__file__), "../doc/_build/html")
     """ DFM documentation local path """
+    BROWSER_PATH = os.path.join(os.path.dirname(__file__), "../utils/browser")
+    """ DFM documentation local path """
     LOG_PATH = 'dfm.log'
     """ DFM log file path """
     STATIC_FOLDER = 'static'
