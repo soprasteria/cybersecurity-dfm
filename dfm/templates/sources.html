@@ -12,17 +12,7 @@
   <body>
 
   <div class="container-narrow">
-    <ul class="nav nav-pills pull-right">
-      <li class="active"><a href="#">HOME</a></li>
-      <li ><a href="/sources">SOURCES</a></li>
-      <li ><a href="/topics">TOPICS</a></li>
-      <li ><a href="/models">MODELS</a></li>
-      <li ><a href="/explore">EXPLORE</a></li>
-      <li ><a href="/browser/">BROWSE</a></li>
-      <li><a href="/doc">DOC</a></li>
-      <li><a href="/api">API</a></li>
-      <li><a href="/doc/license.html">LICENSE</a></li>
-    </ul>
+    <div w3-include-html="menubar.html"></div>
     <h3><span class="glyphicon glyphicon-asterisk" style="color:#5cb85c"></span>Data Feed Manager</h3>
 
     <hr>
@@ -174,6 +164,10 @@ function drawRow(rowData) {
     row.append(td_deletion);
     row.append();
 }
+  </script>
+  <script src="static/js/includehtml.js"></script>
+  <script>
+  includeHTML();
   </script>
 
   </body>
