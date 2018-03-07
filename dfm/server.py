@@ -200,6 +200,21 @@ def documentation(path='index.html'):
     else:
         return send_from_directory(config['DOC_PATH'],path)
 
+@app.route('/browser')
+@app.route('/browser/')
+@app.route('/browser/<path:path>')
+def browser(path='index.html'):
+    """ Flask return browser pages via /browser path
+
+    :param str path:
+    :returns: html
+    """
+
+    if request.path == '/browser':
+        return redirect(request.url+'/index.html',code=302)
+    else:
+        return send_from_directory(config['BROWSER_PATH'],path)
+
 def output_xml(data, ):
     resp = Response(data, mimetype='text/xml')
     return resp
@@ -1102,15 +1117,19 @@ class TrainingsStatsList(Resource):
 
 class DataGraph(Resource):
 
-    """ Generate Data structure for Parasol Graph http://github.com/alx/parasol"""
+    """ Generate Data structure for Parasol Graph http://github.com/alx/parasol """
+
     def get(self):
         """ Get Data structure for Parasol Graph http://github.com/alx/parasol
-            :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
-            :param str gte: greater date (default now-7d)
-            :param str lte: liter date (default now)
-            :param int size: number of news to retrieve (default settings ATOM_SIZE)
-            :returns: sigma.js data nodes and edges in json format
+
+        :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
+        :param str gte: greater date (default now-7d)
+        :param str lte: liter date (default now)
+        :param int size: number of news to retrieve (default settings ATOM_SIZE)
+
+        :returns: json sigma.js format data nodes and edges
         """
+
         if request.args.get('topic'):
             req_topic=request.args.get('topic')
         else:
@@ -1124,7 +1143,7 @@ class DataGraph(Resource):
         if request.args.get('gte'):
             gte=request.args.get('gte')
         else:
-            gte='now-15d/d'
+            gte='now-1M/d'
 
         if request.args.get('lt'):
             lt=request.args.get('lt')
@@ -1237,12 +1256,12 @@ class DataGraph(Resource):
                             edges[author+"_"+link_id]["weight"]+=1
 
                         if topic['key']+"_"+link_id not in edges:
-                          edges[topic['key']+"_"+link_id]={"id":topic['key']+"_"+link_id,"source":topic['key'],"target":link_id,"weight":1}
+                          edges[topic['key']+"_"+link_id]={"id":topic['key']+"_"+link_id,"source":topic['key'],"target":link_id,"weight":10}
                         else:
-                            edges[topic['key']+"_"+link_id]["weight"]+=1
+                            edges[topic['key']+"_"+link_id]["weight"]+=10
 
                         if tag['key']+"_"+link_id not in edges:
-                          edges[tag['key']+"_"+link_id]={"id":tag['key']+"_"+link_id,"source":tag['key'],"target":link_id,"weight":1}
+                          edges[tag['key']+"_"+link_id]={"id":tag['key']+"_"+link_id,"source":tag['key'],"target":link_id,"weight":5}
                         else:
                             edges[tag['key']+"_"+link_id]["weight"]+=1
 
@@ -1254,9 +1273,12 @@ class DataGraph(Resource):
 
 class Recent(Resource):
 
-    """ Return most recent doc"""
+    """ Return most recent doc
+    
+    """
     def get(self):
         """ Get most recent doc
+
         :param str model: news source identifier
         :param str topic: topic in the model
         :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
@@ -1264,6 +1286,7 @@ class Recent(Resource):
         :param str lte: liter date (default now)
         :param int offset: offset of news result (default 0)
         :param int size: number of news to retrieve (default settings ATOM_SIZE)
+
         :returns: atom rss feed
         """
         if request.args.get('model'):
@@ -1345,13 +1368,17 @@ class Recent(Resource):
 
 class Rank(Resource):
 
-    """ Return most recent doc"""
+    """ Return most recent doc 
+
+    """
     def get(self):
         """ Get most recent doc
+
         :param str id: doc id
         :param str voter: voter id
         :param str name: voter name
         :param int score:  score given by the voter to the doc
+
         :returns: status
         """
         if request.args.get('id') and request.args.get('voter') and request.args.get('score') :
