@@ -4,4 +4,4 @@ Changelog
 =========
 
 .. git_changelog::
-   :rev-list: --tags
+   :rev-list:tags
