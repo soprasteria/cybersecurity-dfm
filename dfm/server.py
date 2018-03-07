@@ -494,8 +494,17 @@ class DocList(Resource):
                 app.logger.debug("fetch: "+doc['_source']['link'])
                 updated=doc['_source']['updated']
                 link=urllib2.unquote(doc['_source']['link'])
-                title=doc['_source']['title']
-                summary=doc['_source']['summary']
+                
+                if "title" in doc['_source']:
+                   title=doc['_source']['title']
+                else:
+                   title=""
+
+                if "summary" in doc['_source']:
+                   summary=doc['_source']['summary']
+                else:
+                   summary=""
+
                 topics=[]
                 scores=[]
                 overall_scr=0
@@ -513,7 +522,9 @@ class DocList(Resource):
                 app.logger.debug("write row: "+row[1])
                 writer.writerow(row)
             app.logger.debug("csv export duration:"+str(time.time()-start_time))
-            del row,updated,summary,topics,scores,overall_scr,link,gte,lte,offset,size,start_time
+            
+            if 'row' in locals():
+              del row,updated,summary,topics,scores,overall_scr,link,gte,lte,offset,size,start_time
             gc.collect()
             return csv_output.getvalue()
 
