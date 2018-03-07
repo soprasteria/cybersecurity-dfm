@@ -16,10 +16,70 @@
   <body>
     <div
       class="parasol"
-      data-settings='{ "networks": [ { "url": "/api/graph", "name": "Digital Watch", "fetchOptions": {"credentials": "include"}, "options": { "layout": "forcelink", "loader": { "name": "json" } } } ], "ui": { "drawers": [ { "id": "left", "open": true, "components": [ {"name":
-"Legend"}, {"name": "Divider"}, {"name": "SearchInput"}, {"name": "NetworkList"}, {"name": "Divider"}, {"name": "ForceLinkSettings"} ] }, { "id": "right", "open": true, "openSecondary": true, "components": [ {"name": "AppBar"}, {"name": "Divider"}, {"name":
-"SelectedNode"} ] } ] } }'
-    />
+      data-settings='{ 
+"networks": [ 
+  { "url": "/api/graph", "name": "Digital Watch Monthly", "fetchOptions": {"credentials": "include"}, 
+   "options": { 
+     "layout": "forcelink", 
+     "loader": { 
+       "name": "json"
+     }  
+   }
+  },
+  { "url": "/api/graph?gte=now-7d/d", "name": "Digital Watch Weekly", "fetchOptions": {"credentials": "include"}, 
+   "options": { 
+     "layout": "forcelink", 
+     "loader": { 
+       "name": "json"
+     }  
+   }
+  },
+  { "url": "/api/graph?gte=now-1d/d", "name": "Digital Watch Daily", "fetchOptions": {"credentials": "include"}, 
+   "options": { 
+     "layout": "forcelink", 
+     "loader": { 
+       "name": "json"
+     }  
+   }
+  } 
+], 
+"ui": { 
+  "drawers": [
+    {
+      "id": "left",
+      "open": true,
+      "openSecondary": false,
+      "components": [
+        {"name": "AppBar"},
+        {"name": "NetworkInput"},
+        {"name": "NetworkList"},
+        {"name": "Divider"},
+        {"name": "ForceLinkSettings"},
+        {"name": "Divider"},
+        {"name": "Legend"},
+        {"name": "TopicSelector"}
+      ]
+    },
+    {
+      "id": "right",
+      "open": true,
+      "openSecondary": true,
+      "components": [
+        {"name": "SearchInput"},
+        {"name": "NodeSize"},
+        {"name": "EdgeWeight"},
+        {"name": "HideOrphan"},
+        {"name": "Divider"},
+        {"name": "ShowSelected"},
+        {"name": "SelectedNode"},
+        {"name": "Divider"},
+        {"name": "NeighborNodes"}
+      ]
+    }
+  ]
+  }
+}'
+/>
 
   </body>
   <div class="container-narrow">
@@ -29,7 +89,8 @@
       <li ><a href="/topics">TOPICS</a></li>
       <li ><a href="/models">MODELS</a></li>
       <li ><a href="/explore">EXPLORE</a></li>
-      <li ><a href="/kibana/app/kibana#/discover?_g=()&_a=(columns:!(_source),index:AWFPZc7gC1c_lSnTpI-L,interval:auto,query:(match_all:()),sort:!(updated,desc))">ANALYZE</a></li>
+      <li ><a href="/browser/">BROWSE</a></li>
+      <li ><a href="https://digitalwatch.io/kibana/app/kibana#/dashboard/AWFPcxEBC1c_lSnTpI-Q?_g=(refreshInterval%3A(display%3AOff%2Cpause%3A!f%2Cvalue%3A0)%2Ctime%3A(from%3Anow-7d%2Cmode%3Aquick%2Cto%3Anow))">ANALYZE</a></li>
       <li><a href="/doc">DOC</a></li>
       <li><a href="/api">API</a></li>
       <li><a href="/doc/license.html">LICENSE</a></li>
