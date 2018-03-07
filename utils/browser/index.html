@@ -3,25 +3,30 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Browser</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="css/bootstrap.min.css" rel="stylesheet">
-  <link href="css/font-awesome.min.css" rel="stylesheet">
-  <link href="css/style.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="/static/css/main.css" rel="stylesheet" media="screen">
+    <link href="css/browser.css" rel="stylesheet" media="screen">
 </head>
 <body>
   <div id="page-container">
   
-    <div id="header">
+<!--     <div id="header">
       <div id="header-container">
-      </div>
-      <div id="header-navbar">
-        <h3>DFM Browser</h3>
-      </div>
+          <h3>Browser</h3>
+     </div>
+    </div> -->
+
+    <div class="container-narrow">
+      <div w3-include-html="menubar.html"></div>
+      <div class="jumbotron">
+       <h1>Docs Browser</h1>
+    </div>
+    <div class="container">
+      <div id="docs"></div>
+    </div>
     </div>
 
-    <div class="container">
-      <div id="eid-news"></div>
-    </div>
 
 
     <hr>
@@ -37,4 +42,8 @@
 
   <script src="pulmo.js"></script></body>
   <script src="index.js"></script></body>
+  <script src="/static/js/includehtml.js"></script>
+  <script>
+  includeHTML();
+  </script>
 </html>
