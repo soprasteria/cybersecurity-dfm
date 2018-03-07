@@ -42,7 +42,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinxcontrib.autohttp.flask',
     'sphinx.ext.graphviz',
-    'sphinx_pyreverse',
+#    'sphinx_pyreverse',
     'sphinx_git'
 ]
 
@@ -305,3 +305,7 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
+
+
+#ignore missing imports
+autodoc_mock_imports = ['results']
