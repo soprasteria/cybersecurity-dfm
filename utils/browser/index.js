@@ -1,7 +1,7 @@
 var loadJson = function() {
 
-  $.getJSON('data/ied-news.json', function(json) {
-    var pulmo = new Pulmo.default('#eid-news');
+  $.getJSON('data/connector.json', function(json) {
+    var pulmo = new Pulmo.default('#docs');
     pulmo.loadJson(json);
   });
 
