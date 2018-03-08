@@ -286,7 +286,7 @@ def recent_feed():
 
     #query by default
     #time_range_query={ "sort" : [ { "topics.score" : { "order" : "dsc", "nested_path" : "topics" } }, { "updated" : { "order" : "dsc" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }, { "type":{ "value":"doc" } }] } } }
-    time_range_query={ "sort" : [  { "updated" : { "order" : "dsc","ignore_unmapped" : "true" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } },{ "type":{ "value":"doc" } }] } } }
+    time_range_query={ "sort" : [  { "updated" : { "order" : "desc", "unmapped_type": "date" } }, "_score" ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } },{ "type":{ "value":"doc" } }] } } }
 
     if model or topic:
         topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[],"must":[] } } } }
@@ -332,7 +332,7 @@ def recent_feed():
             if len(doc)==0:
                news=doc
                break
-        app.logger.debug(len(doc))
+        #app.logger.debug(len(doc))
         if isinstance(doc, list):
             doc=doc[0]
         if '_source' in doc:

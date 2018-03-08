@@ -212,18 +212,31 @@ def handle(msg):
                             else:
                                 bot.sendMessage(chat_id,"Error: "+msg['from']['first_name']+", please check /help .")
                         elif command=="digest":
-                            dfm_feedparser=feedparser.parse(dfm_feed)
-                            digest="""
-                            <b>Top 10 current news categorization</b>
-                            <b>title summary predictions</b>
-                            """
-                            for dfm_entry in dfm_feedparser.entries:
+                            #dfm_feedparser=feedparser.parse(dfm_feed)
+                            response = http.request('GET',dfm_api_base+"recent?size=5&gte=now-1d/d")
+                            print "GET "+dfm_api_base+"recent"+" status:"+str(response.status)
+                            result_docs=json.loads(response.data)
+                            digest="Top current news categorization:\n\n"
+                            for dfm_entry in result_docs:
+                                if "title" in dfm_entry["_source"]:
+                                   title=dfm_entry["_source"]["title"]
+                                else:
+                                   title=dfm_entry["_source"]["summary"]
+                                link=dfm_entry["_source"]["link"]
                                 tags=""
-                                for tag in dfm_entry.tags:
-                                    tags=tags+tag.label+"&nbsp"
-                                digest=digest+"<a href=\""+dfm_entry['id']+"\">"+dfm_entry['title']+"</a>\n\n"
+                                if "tags" in dfm_entry["_source"]:
+                                    for tag in dfm_entry["_source"]["tags"]:
+                                        tags=tags+"#"+tag+" "
+                                topics=""
+                                if "topics" in dfm_entry["_source"]:
+                                   for topic in dfm_entry["_source"]["topics"]:
+                                       topics=topics+"#"+topic["label"]+" "
 
-                            bot.sendMessage(chat_id, digest,parse_mode="HTML")
+                                digest=digest+"["+title+"]("+link+")\n"
+                                digest=digest+"Tags: "+tags+"\n"
+                                digest=digest+"Topics: "+topics+"\n\n"
+
+                            bot.sendMessage(chat_id, digest,parse_mode="Markdown")
                         elif command=="help":
                             bot.sendMessage(chat_id, """*DFM Bot Commands:*
                             /subscribe _rss feed url_ Subscribe to an rss feed
