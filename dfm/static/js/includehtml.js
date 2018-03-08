@@ -1,4 +1,3 @@
-<script>
 function includeHTML() {
   var z, i, elmnt, file, xhttp;
   /*loop through a collection of all HTML elements:*/
@@ -26,4 +25,3 @@ function includeHTML() {
     }
   }
 }
-</script>

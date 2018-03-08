@@ -730,7 +730,12 @@ class Feed:
         if len(text)>0:
             doc["text"]=text
         if len(tags):
-            doc["tags"]=tags
+            clean_tags=[]
+
+            for tag in tags:
+                tag=tag.strip().lower().replace("news","").replace(" ","_")
+                clean_tags.append(tag)
+            doc["tags"]=clean_tags
 
 
         if len(text)<self.config['NEWS_MIN_TEXT_SIZE'] and not self.config['FAST_CRAWLING_MODE']:
