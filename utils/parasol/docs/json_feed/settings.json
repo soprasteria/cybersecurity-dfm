@@ -1,0 +1,17 @@
+{
+  "networks": [
+    {
+      "url": "feed.json",
+      "name": "alxcast",
+      "options": {
+        "layout": "forcelink",
+        "loader": {
+          "name": "jsonfeed"
+        }
+      }
+    }
+  ],
+  "ui": {
+    "muiTheme": "light"
+  }
+}
