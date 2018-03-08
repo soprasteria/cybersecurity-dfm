@@ -52824,9 +52824,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var filteredSearchParams = JSON.parse(JSON.stringify(searchParams));
 	      filteredSearchParams.body = {
 	        "_source": { "exclude": ["html"] },
-	        "query": { "bool": {
-	            "must": [filteredSearchParams.body.query]
-	          } } };
+	        "query": filteredSearchParams.body.query
+              }
 
 	      if (_filters['tag']) {
 	        var filteredQuery = filteredSearchParams.body.query.bool.must.concat(_filters['tag'].map(function (tag) {
@@ -52842,16 +52841,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        filteredSearchParams.body.query.bool.must = _filteredQuery;
 	      }
 
-	      if (_filters['topic']) {
-	        filteredSearchParams.body.query.filtered.filter["nested"] = {
-	          "path": "topics",
-	          "filter": {  "terms": { "topics.label":  _filters['topic'].map(function (topic) {
-	                return topic;
-	              })
-                   }
-	            } 
-                 };
-	      }
+              if (_filters['topic']) {
+                var filteredQuery = filteredSearchParams.body.query.bool.must.concat(_filters['topic'].map(function (topic) {
+                  return { "nested": { "path":"topics", "query": { "term":{ "topics.label": topic } } } };
+                }));
+                filteredSearchParams.body.query.bool.must = filteredQuery;
+              }
+
 
 	      if (_filters['range'] && _filters['range'].startDate && _filters['range'].endDate) {
 	        filteredSearchParams.body.query.bool.must.push({
