@@ -1,7 +1,0 @@
-node_modules
-npm-debug.log
-.DS_Store
-build/
-.idea/
-.sass-cache
-docs/assets/data/private/
