@@ -16,34 +16,43 @@
   <body>
     <div
       class="parasol"
-      data-settings='{ 
-"networks": [ 
-  { "url": "/api/graph", "name": "Digital Watch Monthly", "fetchOptions": {"credentials": "include"}, 
-   "options": { 
-     "layout": "forcelink", 
-     "loader": { 
+      data-settings='{
+"networks": [
+  { "url": "/api/graph", "name": "Digital Watch Monthly", "fetchOptions": {"credentials": "include"},
+   "options": {
+     "layout": { "params": {"edgeWeightInfluence": 1, "forceLink":true}},
+     "loader": {
        "name": "json"
-     }  
+     }
    }
   },
-  { "url": "/api/graph?gte=now-7d/d", "name": "Digital Watch Weekly", "fetchOptions": {"credentials": "include"}, 
-   "options": { 
-     "layout": "forcelink", 
-     "loader": { 
+  { "url": "/api/graph?gte=now-7d/d", "name": "Digital Watch Weekly", "fetchOptions": {"credentials": "include"},
+   "options": {
+     "layout": { "params": {"edgeWeightInfluence": 1, "forceLink":true}},
+     "loader": {
        "name": "json"
-     }  
+     }
    }
   },
-  { "url": "/api/graph?gte=now-1d/d", "name": "Digital Watch Daily", "fetchOptions": {"credentials": "include"}, 
-   "options": { 
-     "layout": "forcelink", 
-     "loader": { 
+  { "url": "/api/graph?gte=now-1d/d", "name": "Digital Watch Daily", "fetchOptions": {"credentials": "include"},
+   "options": {
+     "layout": { "params": {"edgeWeightInfluence": 1, "forceLink":true}},
+     "loader": {
        "name": "json"
-     }  
+     }
    }
-  } 
-], 
-"ui": { 
+  }
+],
+"ui": {
+  "componentOptions": {
+      "selectedNode": {
+      "content": [
+        {
+          "type": "link",
+          "hrefKey": "metadata.url"
+        }
+      ]
+  },
   "drawers": [
     {
       "id": "left",
