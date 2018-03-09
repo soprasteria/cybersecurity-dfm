@@ -20,7 +20,7 @@
 "networks": [
   { "url": "/api/graph", "name": "Digital Watch Monthly", "fetchOptions": {"credentials": "include"},
    "options": {
-     "layout": { "params": {"edgeWeightInfluence": 1, "forceLink"}},
+     "layout": { "params": {"edgeWeightInfluence": 1}, "forceLink"},
      "loader": {
        "name": "json"
      }
@@ -28,7 +28,7 @@
   },
   { "url": "/api/graph?gte=now-7d/d", "name": "Digital Watch Weekly", "fetchOptions": {"credentials": "include"},
    "options": {
-     "layout": { "params": {"edgeWeightInfluence": 1, "forceLink"}},
+     "layout": { "params": {"edgeWeightInfluence": 1}, "forcelink"},
      "loader": {
        "name": "json"
      }
@@ -36,7 +36,7 @@
   },
   { "url": "/api/graph?gte=now-1d/d", "name": "Digital Watch Daily", "fetchOptions": {"credentials": "include"},
    "options": {
-     "layout": { "params": {"edgeWeightInfluence": 1, "forceLink"}},
+     "layout": { "params": {"edgeWeightInfluence": 1}, "forceLink"},
      "loader": {
        "name": "json"
      }
