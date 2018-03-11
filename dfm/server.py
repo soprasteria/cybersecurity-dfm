@@ -563,7 +563,7 @@ def queueFiller(query,work_queue,done_queue, results):
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=3000:
             app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
-            sleep(10)
+            time.sleep(5)
 
         if isinstance(doc, list):
             for do in doc:
@@ -614,7 +614,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     app.logger.debug("processing filler processes number: "+str(len(processes)))
 
     while work_queue.qsize()<100:
-        sleep(5)
+        time.sleep(5)
 
     #create processing workers
     for w in range(workers):
