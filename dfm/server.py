@@ -604,30 +604,34 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     processes = []
     if size is not None:
         query['size']=size
+    if config['THREADED']:
 
-    #create process to fullfill the queue from the query
-    p = Process(target=queueFiller, args=(query,work_queue,done_queue, results, ))
-    app.logger.debug("processing filler process created: "+str(p))
-    p.start()
-    app.logger.debug("processing filler process started: "+str(p))
-    processes.append(p)
-    app.logger.debug("processing filler processes number: "+str(len(processes)))
-
-    while work_queue.qsize()<100:
-        time.sleep(5)
-
-    #create processing workers
-    for w in range(workers):
-        p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
-        app.logger.debug("processing process created: "+str(p))
+        #create process to fullfill the queue from the query
+        p = Process(target=queueFiller, args=(query,work_queue,done_queue, results, ))
+        app.logger.debug("processing filler process created: "+str(p))
         p.start()
-        app.logger.debug("processing process started: "+str(p))
+        app.logger.debug("processing filler process started: "+str(p))
         processes.append(p)
-        app.logger.debug("processing processes number: "+str(len(processes)))
+        app.logger.debug("processing filler processes number: "+str(len(processes)))
 
-    #wait for end of the processing
-    for p in processes:
-        p.join()
+        while work_queue.qsize()<100:
+            time.sleep(5)
+
+        #create processing workers
+        for w in range(workers):
+            p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
+            app.logger.debug("processing process created: "+str(p))
+            p.start()
+            app.logger.debug("processing process started: "+str(p))
+            processes.append(p)
+            app.logger.debug("processing processes number: "+str(len(processes)))
+
+        #wait for end of the processing
+        for p in processes:
+            p.join()
+    else:
+        queueFiller(query,work_queue,done_queue, results)
+        crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
 
     #add end signal to done queue
     done_queue.put(None)
