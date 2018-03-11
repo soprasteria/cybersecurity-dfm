@@ -594,7 +594,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
                 results.add_fail({'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
     work_queue.put_nowait(None)
-    self.exit.set()
+    return ""
 
 #@profile
 def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=True):
@@ -681,7 +681,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     done_queue.put(results.results)
     del items, work_queue, done_queue
     gc.collect()
-    self.exit.set()
+    return ""
 
 #@profile
 def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_predict=True,size=None):
