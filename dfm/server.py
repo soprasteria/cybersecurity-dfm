@@ -611,7 +611,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     items=[]
     app.logger.debug("processing: get item to process")
 
-    while not work_queue.empty():
+    while work_queue.qsize()>0:
         app.logger.debug("processing: item is not None")
         item=work_queue.get_nowait()
         if item==None:
