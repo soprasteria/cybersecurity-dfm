@@ -50,10 +50,10 @@ class Storage:
          results=Results(self.logger,1,str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
          if parent is not None:
              result=self.es.get(index=self.index,doc_type='_all',routing=parent,id=item_id,ignore=[400,404])
-             results.add_success({"id":result["_id"],"source":result["_parent"],"link":result["_source"]["link"],"summary":result["_source"]["summary"]})
+             results.add_success({"id":result["_id"],"link":result["_source"]["link"],"summary":result["_source"]["summary"]})
          else:
              result=self.es.get(index=self.index,doc_type='_all',id=item_id,ignore=[400,404])
-             results.add_success({"id":result["_id"],"source":result["_parent"],"link":result["_source"]["link"],"summary":result["_source"]["summary"]})
+             results.add_success({"id":result["_id"],"link":result["_source"]["link"],"summary":result["_source"]["summary"]})
          results.finish()
          return [result,results.results]
 
