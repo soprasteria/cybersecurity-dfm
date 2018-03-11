@@ -643,13 +643,17 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     results=Results(app.logger,work_queue.qsize(),str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     multi_pos="begin_crawl"
     if doc_type!="source":
+        app.logger.debug("processing: create dummy feed")
         feed=Feed({"_id":"dummy feed","_source":{"link":"http://dummy/feed","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"Content Crawler","title":"Content Crawler","format":"tt-rss","predict":content_predict,"enable_content":content_crawl,"active":False}},app.logger,storage, config)
     items=[]
+    app.logger.debug("processing: get item to process")
     item=work_queue.get()
+
     while item is not None:
+        app.logger.debug("processing: item is not None")
         try:
             if doc_type=="source":
-                app.logger.debug("Multithread: source detected")
+                app.logger.debug("processing: source detected")
                 multi_pos="source_crawl"
                 feed_result=storage.get(item['_id'])
                 feed=Feed(feed_result[0],app.logger,storage,config)
@@ -659,10 +663,10 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                 item=None
                 del feed
             elif doc_type=="doc":
-                app.logger.debug("Multithread: doc detected")
+                app.logger.debug("processing: doc detected")
                 multi_pos="doc crawl"
                 if content_crawl:
-                    app.logger.debug("Multithread: content crawl detected")
+                    app.logger.debug("processing: content crawl detected")
                     multi_pos="content_crawl"
                     item_result=feed.get_content(item)
                     new_item=item_result[0]
