@@ -262,7 +262,8 @@ class Storage:
              global_results.add_success(criteria)
          else:
              self.logger.debug("storage.query helpers.scan:"+json.dumps(criteria))
-             results_gen=helpers.scan(self.es,query=criteria,scroll=self.config['ES_SEARCH_CACHING_DELAY'],preserve_order=True,request_timeout=self.timeout,size=9999)
+             #org.elasticsearch.search.query.QueryPhaseExecutionException: Batch size is too large, size must be less than or equal to: [10000]. Scroll batch sizes cost as much memory as result windows so they are controlled by the [index.max_result_window] index level setting.
+             results_gen=helpers.scan(self.es,query=criteria,scroll=self.config['ES_SEARCH_CACHING_DELAY'],preserve_order=True,request_timeout=self.timeout,size=limit)
              global_results.add_success(criteria)
 
 #             for result in results_gen:
