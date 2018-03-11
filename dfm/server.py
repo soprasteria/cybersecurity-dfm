@@ -572,17 +572,21 @@ def queueFiller(query,work_queue,done_queue, results):
             for do in doc:
                 try:
                    work_queue.put_nowait(list(do))
+                   results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
                    app.logger.exception("can't parse list: "+str(do))
+                   results.add_fail({'url':do['_source']['link'],'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
-                #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+                results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
         else:
 
             try:
                work_queue.put_nowait(list(doc))
+               results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
-            #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+                results.add_fail({'url':doc['_source']['link'],'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+
 
     work_queue.put_nowait(None)
 
@@ -716,10 +720,10 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                     new_item=item_result[0]
                     if new_item!=None:
                         item=new_item
-                        results.add_success(item_result[1])
+                        results.add_success({'url':item_result[1]['_source']['link'],'id':item_result[1]['_id']})
                     else:
                         del new_item
-                        results.add_fail(item_result[1])
+                        results.add_fail({'url':item_result[1]['_source']['link'],'id':item_result[1]['_id']})
 
                 if content_predict and item is not None:
                     print("Multithread: prediction detected")
