@@ -564,7 +564,7 @@ def queueFiller(query,work_queue,done_queue, results):
         while work_queue.qsize()>=3000:
             print("processing waiting queue size to reduce: "+str(work_queue.qsize()))
             if not config['THREADED']:
-                crawl(doc_type="doc",work_queue, done_queue, content_crawl=True, content_predict=True)
+                crawl("doc",work_queue, done_queue, True, True)
             time.sleep(5)
 
 
