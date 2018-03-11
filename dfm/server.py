@@ -591,93 +591,6 @@ def queueFiller(query,work_queue,done_queue, results):
     work_queue.put_nowait(None)
 
 #@profile
-def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_predict=True,size=None):
-    """ Multithreading task management
-    from ES query process docs for multiple task in multithreading like crawl, predict, gather content.
-    :param str type of ES documents (doc,source,model,topic)
-    :param str query ES query to get docs
-    :param bool content_crawl crawl doc contents on internet
-    :param bool content_predict predict topics for docs from deepdetect
-    :param int size batch size for ES query
-    :result json return result
-    """
-
-    results=Results(app.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
-    workers = multiprocessing.cpu_count()+1
-    if not config['THREADED']:
-        workers=1
-    work_queue = Queue()
-    done_queue = Queue()
-    processes = []
-    if size is not None:
-        query['size']=size
-    if config['THREADED']:
-
-        #create process to fullfill the queue from the query
-        p = Process(target=queueFiller, args=(query,work_queue,done_queue, results, ))
-        app.logger.debug("processing filler process created: "+str(p))
-        p.start()
-        app.logger.debug("processing filler process started: "+str(p))
-        processes.append(p)
-        app.logger.debug("processing filler processes number: "+str(len(processes)))
-
-        while work_queue.qsize()<100:
-            time.sleep(5)
-
-        #create processing workers
-        for w in range(workers):
-            p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
-            app.logger.debug("processing process created: "+str(p))
-            p.start()
-            app.logger.debug("processing process started: "+str(p))
-            processes.append(p)
-            app.logger.debug("processing processes number: "+str(len(processes)))
-
-        #wait for end of the processing
-        for p in processes:
-            p.join()
-    else:
-        queueFiller(query,work_queue,done_queue, results)
-        crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
-
-    #add end signal to done queue
-    done_queue.put_nowait(None)
-
-    #intialize result item for loop
-    result=done_queue.get()
-    app.logger.debug("queue processed size: "+str(work_queue.qsize()))
-
-    if result != None:
-        if result['failed']==0:
-            results.add_success(result)
-            app.logger.debug(result)
-        else:
-            results.add_fail(result)
-            app.logger.debug(result)
-    else:
-        results.add_fail(result)
-        app.logger.debug(result)
-    while result is not None:
-        result=done_queue.get()
-        app.logger.debug(result)
-        if result!= None:
-            if result['failed']==0:
-                results.add_success(result)
-                app.logger.debug(result)
-            else:
-                results.add_fail(result)
-                app.logger.debug(result)
-        else:
-            results.add_fail(result)
-            app.logger.debug(result)
-
-    #del size, workers, work_queue, done_queue, processes, docs, count_docs
-    gc.collect()
-    results.finish()
-
-    return results.results
-
-#@profile
 def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=True):
     """ Function for workers to crawl ES doc (source,doc,...) """
     print("processing: start worker")
@@ -764,6 +677,92 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     del items, work_queue, done_queue
     gc.collect()
 
+#@profile
+def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_predict=True,size=None):
+    """ Multithreading task management
+    from ES query process docs for multiple task in multithreading like crawl, predict, gather content.
+    :param str type of ES documents (doc,source,model,topic)
+    :param str query ES query to get docs
+    :param bool content_crawl crawl doc contents on internet
+    :param bool content_predict predict topics for docs from deepdetect
+    :param int size batch size for ES query
+    :result json return result
+    """
+
+    results=Results(app.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
+    workers = multiprocessing.cpu_count()+1
+    if not config['THREADED']:
+        workers=1
+    work_queue = Queue()
+    done_queue = Queue()
+    processes = []
+    if size is not None:
+        query['size']=size
+    if config['THREADED']:
+
+        #create process to fullfill the queue from the query
+        p = Process(target=queueFiller, args=(query,work_queue,done_queue, results, ))
+        app.logger.debug("processing filler process created: "+str(p))
+        p.start()
+        app.logger.debug("processing filler process started: "+str(p))
+        processes.append(p)
+        app.logger.debug("processing filler processes number: "+str(len(processes)))
+
+        while work_queue.qsize()<100:
+            time.sleep(5)
+
+        #create processing workers
+        for w in range(workers):
+            p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
+            app.logger.debug("processing process created: "+str(p))
+            p.start()
+            app.logger.debug("processing process started: "+str(p))
+            processes.append(p)
+            app.logger.debug("processing processes number: "+str(len(processes)))
+
+        #wait for end of the processing
+        for p in processes:
+            p.join()
+    else:
+        queueFiller(query,work_queue,done_queue, results)
+        crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
+
+    #add end signal to done queue
+    done_queue.put_nowait(None)
+
+    #intialize result item for loop
+    result=done_queue.get()
+    app.logger.debug("queue processed size: "+str(work_queue.qsize()))
+
+    if result != None:
+        if result['failed']==0:
+            results.add_success(result)
+            app.logger.debug(result)
+        else:
+            results.add_fail(result)
+            app.logger.debug(result)
+    else:
+        results.add_fail(result)
+        app.logger.debug(result)
+    while result is not None:
+        result=done_queue.get()
+        app.logger.debug(result)
+        if result!= None:
+            if result['failed']==0:
+                results.add_success(result)
+                app.logger.debug(result)
+            else:
+                results.add_fail(result)
+                app.logger.debug(result)
+        else:
+            results.add_fail(result)
+            app.logger.debug(result)
+
+    #del size, workers, work_queue, done_queue, processes, docs, count_docs
+    gc.collect()
+    results.finish()
+
+    return results.results
 
 #@profile
 def generate_doc(curr_path,doc):
