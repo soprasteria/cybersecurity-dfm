@@ -584,7 +584,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     else:
         starter_size=docs['total']
     for pos in range(0,starter_size):
-        doc=docs['hits'][pos]
+        doc=iter(docs['hits'])[pos]
         if isinstance(doc, list):
             for do in doc:
                 try:
@@ -626,7 +626,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             while work_queue.qsize()>3000:
                 sleep(10)
 
-            doc=docs['hits'][pos]
+            doc=iter(docs['hits'])[pos]
             if isinstance(doc, list):
                 for do in doc:
                     try:
