@@ -585,7 +585,7 @@ def queueFiller(query,work_queue,done_queue, results):
                results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't parse: "+str(list(doc)))
-                results.add_fail({'id':doc['_id'],'source':doc['_parent'],'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                results.add_fail({'object':str(list(doc)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
 
     work_queue.put_nowait(None)
