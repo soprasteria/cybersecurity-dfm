@@ -714,8 +714,6 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         processes.append(p)
         app.logger.debug("processing filler processes number: "+str(len(processes)))
 
-        while work_queue.qsize()<100:
-            time.sleep(5)
 
         #create processing workers
         for w in range(workers):
