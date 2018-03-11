@@ -50,10 +50,10 @@ class Storage:
          results=Results(self.logger,1,str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
          if parent is not None:
              result=self.es.get(index=self.index,doc_type='_all',routing=parent,id=item_id,ignore=[400,404])
-             results.add_success(result)
+             results.add_success(result["_id"])
          else:
              result=self.es.get(index=self.index,doc_type='_all',id=item_id,ignore=[400,404])
-             results.add_success(result)
+             results.add_success(result["_id"])
          results.finish()
          return [result,results.results]
 
@@ -114,7 +114,7 @@ class Storage:
          #When you have a parent child relationship, you need to specify the parent in the URL each time you try to access it a child, since routing now depends on the parent.
          #json serialize with special date parser otherwise ES index fail
          result=self.es.update(index=self.index,doc_type=dtype,id=item_id,parent=parent,routing=parent,body=json.dumps(data,default=self.serializer.to_json),ignore=400)
-         results.add_success(result)
+         results.add_success(result["_id"])
          return results.results
 
      def delete(self, item_id, parent=None):
@@ -205,10 +205,10 @@ class Storage:
              if source is not None:
                     data['origin']=source
                     result=self.es.index(index=self.index,doc_type=type,id=item_id,parent=source,body=json.dumps(data,default=self.serializer.to_json),ignore=[400,404,409])
-                    results.add_success(result)
+                    results.add_success(result["_id"])
              else:
                     result=self.es.index(index=self.index,doc_type=type,id=item_id,body=json.dumps(data,default=self.serializer.to_json),ignore=[400,404,409])
-                    results.add_success(result)
+                    results.add_success(result["_id"])
          except (TransportError,ConnectionError, ConnectionTimeout,RequestError) as e:
              results.add_error(e)
 
@@ -222,7 +222,7 @@ class Storage:
          """
          results=Results(self.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
          result=self.es.search(index=self.index,q=criteria,request_timeout=self.timeout)
-         results.add_success(result)
+         results.add_success(criteria)
          return [result,results.results]
 
      def query(self,criteria):
