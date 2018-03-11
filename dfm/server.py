@@ -560,7 +560,7 @@ def queueFiller(query,work_queue,done_queue, results):
     results.set_total(docs['total'])
     print("total docs to process: "+str(docs['total']))
     for doc in docs['hits'][0:3]:
-        app.logger.debug(str(list(doc)))
+        app.logger.debug(str(dict(doc)))
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=3000:
@@ -767,7 +767,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     gc.collect()
     results.finish()
 
-    #return results.results
+    return results.results
 
 #@profile
 def generate_doc(curr_path,doc):
