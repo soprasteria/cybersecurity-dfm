@@ -765,7 +765,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     gc.collect()
     results.finish()
 
-    #return results.results
+    return results.results
 
 #@profile
 def generate_doc(curr_path,doc):
@@ -1026,7 +1026,7 @@ class Schedule(Resource):
             del feed
 
         gc.collect()
-        return {"source":src_id,"result":result,"duration":(time.time()-start_time)}
+        return {"source":src_id,"result":{"size":result["size"],"successed":result["susccessed"],"failed":result["failed"]},"duration":(time.time()-start_time)}
 
 class VoidReturn(Resource):
     def get(sef):
