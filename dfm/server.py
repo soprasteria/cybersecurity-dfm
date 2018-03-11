@@ -557,12 +557,12 @@ def queueFiller(query,work_queue,done_queue, results):
     """ Multithreading job queue filler   """
     docs=storage.query(query)[0]['hits']
     results.set_total(docs['total'])
-    app.logger.debug("total docs to process: "+str(docs['total']))
+    print("total docs to process: "+str(docs['total']))
     for doc in docs['hits']:
 
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=3000:
-            app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
+            print("processing waiting queue size to reduce: "+str(work_queue.qsize()))
             time.sleep(5)
 
         if isinstance(doc, list):
@@ -669,27 +669,27 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 #@profile
 def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=True):
     """ Function for workers to crawl ES doc (source,doc,...) """
-    app.logger.debug("processing: start worker")
+    print("processing: start worker")
     results=Results(app.logger,work_queue.qsize(),str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     multi_pos="begin_crawl"
     if doc_type!="source":
-        app.logger.debug("processing: create dummy feed")
+        print("processing: create dummy feed")
         c_storage=storage
         c_config=config
         feed=Feed(structure={"_id":"dummy feed","_source":{"link":"http://dummy/feed","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"Content Crawler","title":"Content Crawler","format":"tt-rss","predict":content_predict,"enable_content":content_crawl,"active":False}},logger=app.logger,storage=c_storage, config=c_config)
-        app.logger.debug("processing: dummy feed"+str(feed))
+        print("processing: dummy feed"+str(feed))
     items=[]
-    app.logger.debug("processing: get item to process")
+    print("processing: get item to process")
 
 
 
-    app.logger.debug("processing: process "+str(item))
+    print("processing: process "+str(item))
     while not work_queue.empty():
-        app.logger.debug("processing: item is not None")
+        print("processing: item is not None")
         item=work_queue.get_nowait()
         try:
             if doc_type=="source":
-                app.logger.debug("processing: source detected")
+                print("processing: source detected")
                 multi_pos="source_crawl"
                 feed_result=storage.get(item['_id'])
                 feed=Feed(feed_result[0],app.logger,storage,config)
@@ -699,10 +699,10 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                 item=None
                 del feed
             elif doc_type=="doc":
-                app.logger.debug("processing: doc detected")
+                print("processing: doc detected")
                 multi_pos="doc crawl"
                 if content_crawl:
-                    app.logger.debug("processing: content crawl detected")
+                    print("processing: content crawl detected")
                     multi_pos="content_crawl"
                     item_result=feed.get_content(item)
                     new_item=item_result[0]
@@ -714,7 +714,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                         results.add_fail(item_result[1])
 
                 if content_predict and item is not None:
-                    app.logger.debug("Multithread: prediction detected")
+                    print("Multithread: prediction detected")
                     multi_pos="content_predict"
                     predictions=feed.do_predict(item['_source'])
                     item['_source']=predictions[0]
@@ -722,7 +722,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                     results.add_success(result)
 
                 if item is not None:
-                    app.logger.debug("Multithread: item detected")
+                    print("Multithread: item detected")
                     items.append(item)
                     results.add_success({'url':item['_source']['link'],'id':item['_id']})
             else:
@@ -731,7 +731,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
              results.add_fail(e)
 
         if len(items)>config["BATCH_SIZE"]:
-            app.logger.debug("Multithread: flush items")
+            print("Multithread: flush items")
             result=storage.bulk(items)
             results.add_success(result)
             del items
@@ -740,14 +740,14 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
 
 
     if len(items)>0:
-        app.logger.debug("Multithread: flush items")
+        print("Multithread: flush items")
         result=storage.bulk(items)
         results.add_success(result)
         del items
         items=[]
     if doc_type!="source":
         del feed
-    app.logger.debug('Multithread: stopping thread')
+    print('Multithread: stopping thread')
     done_queue.put(results.results)
     del items, work_queue, done_queue
     gc.collect()
