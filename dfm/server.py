@@ -613,6 +613,9 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     processes.append(p)
     app.logger.debug("processing filler processes number: "+str(len(processes)))
 
+    while work_queue.qsize()<100:
+        sleep(5)
+
     #create processing workers
     for w in range(workers):
         p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
@@ -677,11 +680,13 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         app.logger.debug("processing: dummy feed"+str(feed))
     items=[]
     app.logger.debug("processing: get item to process")
-    item=work_queue.get()
+
+
 
     app.logger.debug("processing: process "+str(item))
-    while item is not None:
+    while not work_queue.empty():
         app.logger.debug("processing: item is not None")
+        item=work_queue.get_nowait()
         try:
             if doc_type=="source":
                 app.logger.debug("processing: source detected")
@@ -733,7 +738,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             gc.collect()
             items=[]
 
-        item=work_queue.get_nowait()
+
     if len(items)>0:
         app.logger.debug("Multithread: flush items")
         result=storage.bulk(items)
