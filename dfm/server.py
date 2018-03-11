@@ -553,39 +553,18 @@ class DocDetail(Resource):
         app.logger.debug("PUT src_id:"+src_id+" doc_id:"+doc_id+" link:"+request.json['link'])
         return storage.put(item_id=doc_id,type='doc',source=src_id,data=request.json)
 
-#@profile
-def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_predict=True,size=None):
-    """ Multithreading task management
-    from ES query process docs for multiple task in multithreading like crawl, predict, gather content.
-    :param str type of ES documents (doc,source,model,topic)
-    :param str query ES query to get docs
-    :param bool content_crawl crawl doc contents on internet
-    :param bool content_predict predict topics for docs from deepdetect
-    :param int size batch size for ES query
-    :result json return result
-    """
-
-
-
-    results=Results(app.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
-    workers = multiprocessing.cpu_count()+1
-    if not config['THREADED']:
-        workers=1
-    work_queue = Queue()
-    done_queue = Queue()
-    processes = []
-    if size is not None:
-        query['size']=size
+def queueFiller(query,work_queue,done_queue, results):
+    """ Multithreading job queue filler   """
     docs=storage.query(query)[0]['hits']
     results.set_total(docs['total'])
     app.logger.debug("total docs to process: "+str(docs['total']))
-    count_docs=0
-    if docs['total']>3000:
-        starter_size=3000
-    else:
-        starter_size=docs['total']
     for doc in docs['hits']:
-        count_docs+=1
+
+        #wait queue reduce under 3000 items
+        while work_queue.qsize()>=3000:
+            app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
+            sleep(10)
+
         if isinstance(doc, list):
             for do in doc:
                 try:
@@ -601,56 +580,47 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
-        if count_docs>=starter_size:
-            break
-    app.logger.debug("processing queue size: "+str(work_queue.qsize()))
 
-    #send end of work signal if starter feeding is enougth
-    if starter_size<3000:
-        work_queue.put(None)
+    work_queue.put(None)
+
+#@profile
+def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_predict=True,size=None):
+    """ Multithreading task management
+    from ES query process docs for multiple task in multithreading like crawl, predict, gather content.
+    :param str type of ES documents (doc,source,model,topic)
+    :param str query ES query to get docs
+    :param bool content_crawl crawl doc contents on internet
+    :param bool content_predict predict topics for docs from deepdetect
+    :param int size batch size for ES query
+    :result json return result
+    """
+
+    results=Results(app.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
+    workers = multiprocessing.cpu_count()+1
+    if not config['THREADED']:
+        workers=1
+    work_queue = Queue()
+    done_queue = Queue()
+    processes = []
+    if size is not None:
+        query['size']=size
+
+    #create process to fullfill the queue from the query
+    p = Process(target=queueFiller, args=(query,work_queue,done_queue, results, ))
+    app.logger.debug("processing filler process created: "+str(p))
+    p.start()
+    app.logger.debug("processing filler process started: "+str(p))
+    processes.append(p)
+    app.logger.debug("processing filler processes number: "+str(len(processes)))
 
     #create processing workers
     for w in range(workers):
-        if not config['THREADED']:
-            app.logger.debug("processing monothread")
-            crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
-        else:
-            p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
-            app.logger.debug("processing process created: "+str(p))
-            p.start()
-            app.logger.debug("processing process started: "+str(p))
-            processes.append(p)
-            app.logger.debug("processing processes number: "+str(len(processes)))
-
-    #if initial queue feeding is not enougth to cover all docs add more by batch of 3000
-    if starter_size==3000:
-        doc_counts=0
-        for doc in docs['hits']:
-            count_docs+=1
-            #skip first starter_size doc
-            if count_docs<=3000:
-               continue
-
-            #wait queue reduce under 3000 items
-            while work_queue.qsize()>=3000:
-                sleep(10)
-            if isinstance(doc, list):
-                for do in doc:
-                    try:
-                       work_queue.put(list(do))
-                    except Exception as e:
-                       app.logger.exception("can't parse list: "+str(do))
-
-                    #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
-            else:
-
-                try:
-                   work_queue.put(list(doc))
-                except Exception as e:
-                    app.logger.exception("can't parse: "+str(doc))
-                #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
-        app.logger.debug("processing queue size: "+str(work_queue.qsize()))
-        work_queue.put(None)
+        p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
+        app.logger.debug("processing process created: "+str(p))
+        p.start()
+        app.logger.debug("processing process started: "+str(p))
+        processes.append(p)
+        app.logger.debug("processing processes number: "+str(len(processes)))
 
     #wait for end of the processing
     for p in processes:
@@ -658,6 +628,8 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
     #add end signal to done queue
     done_queue.put(None)
+
+    #intialize result item for loop
     result=done_queue.get()
     app.logger.debug("queue processed size: "+str(work_queue.qsize()))
 
@@ -693,8 +665,8 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
 #@profile
 def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=True):
-    app.logger.debug("processing: start worker")
     """ Function for workers to crawl ES doc (source,doc,...) """
+    app.logger.debug("processing: start worker")
     results=Results(app.logger,work_queue.qsize(),str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     multi_pos="begin_crawl"
     if doc_type!="source":
