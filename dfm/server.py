@@ -588,9 +588,9 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
     for w in range(workers):
         p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
-        app.logger.debug("processing process created: "+str(p)
+        app.logger.debug("processing process created: "+str(p))
         p.start()
-        app.logger.debug("processing process started: "+str(p)
+        app.logger.debug("processing process started: "+str(p))
         processes.append(p)
         app.logger.debug("processing processes number: "+str(len(processes)))
         work_queue.put(None)
