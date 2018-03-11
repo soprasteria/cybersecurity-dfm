@@ -108,15 +108,15 @@ def submitUrl(url,body,keywords=[]):
         print "waiting for body text..."
         response = http.urlopen('PUT',dfm_api_base+source_uuid+"/"+news_uuid, headers={'content-type': 'application/json'},body=json.dumps(doc))
         print "PUT "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status)
-        #print response.data
+        print response.data
 
         response = http.request('GET',dfm_api_base+"schedule/contents_crawl?id="+news_uuid) #auth=('user', 'password'))
         print "GET "+dfm_api_base+"schedule/contents_crawl?id="+news_uuid+" status:"+str(response.status)
-        #print response.data
+        print response.data
 
         response = http.request('GET',dfm_api_base+source_uuid+"/"+news_uuid)
         print "GET "+dfm_api_base+source_uuid+"/"+news_uuid+" status:"+str(response.status)
-        #print response.data
+        print response.data
         result_doc=json.loads(response.data)
         retries+=1
 
@@ -313,16 +313,15 @@ def handle(msg):
 
 def postRecent():
     recent_id=""
+    print("recent id submitted for vote: "+recent_id)
     average_score=0
 
     results=getDoc(recent_id)
 
     if results != None:
-        recent_id=results[0]["_id"]
         recent_parent=results[0]["_parent"]
         results=results[0]
         if "text" in results["_source"]:
-
             tags_message=""
             topics_message=""
             tags_message_list=[]
@@ -364,6 +363,7 @@ def postRecent():
             #After being added as an administrator to a channel, the bot can send messages to the channel
             bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN",reply_markup=markup,disable_notification=True)
             print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
+            recent_id=results[0]["_id"]
 
 def postJob():
     for tm in config.get('variables', 'POST_SCHEDULE').split(","):
