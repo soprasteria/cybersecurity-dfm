@@ -608,9 +608,11 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
 
 
 
-    while not work_queue.empty():
+    while True:
         print("processing: item is not None")
         item=work_queue.get_nowait()
+        if item==None:
+            break;
         print("processing: process "+str(item))
         try:
             if doc_type=="source":
