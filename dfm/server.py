@@ -586,7 +586,6 @@ def queueFiller(query,work_queue,done_queue, results):
             except Exception as e:
                 app.logger.exception("can't queue doc")
                 results.add_fail({'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
-        sys.stdout.flush()
 
     work_queue.put_nowait(None)
 
@@ -604,9 +603,6 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         print("processing: dummy feed"+str(feed))
     items=[]
     print("processing: get item to process")
-
-
-
 
     while True:
         print("processing: item is not None")
@@ -664,7 +660,6 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             del items
             gc.collect()
             items=[]
-        sys.stdout.flush()
 
 
     if len(items)>0:
