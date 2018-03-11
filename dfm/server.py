@@ -584,12 +584,15 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         else:
             work_queue.put(doc)
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
-    app.logger.debug("queue size: "+str(work_queue.qsize()))
+    app.logger.debug("processing queue size: "+str(work_queue.qsize()))
 
     for w in range(workers):
         p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
+        app.logger.debug("processing process created: "+str(p)
         p.start()
+        app.logger.debug("processing process started: "+str(p)
         processes.append(p)
+        app.logger.debug("processing processes number: "+str(len(processes)))
         work_queue.put(None)
 
     for p in processes:
