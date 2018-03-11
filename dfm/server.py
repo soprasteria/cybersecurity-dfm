@@ -644,7 +644,10 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     multi_pos="begin_crawl"
     if doc_type!="source":
         app.logger.debug("processing: create dummy feed")
-        feed=Feed({"_id":"dummy feed","_source":{"link":"http://dummy/feed","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"Content Crawler","title":"Content Crawler","format":"tt-rss","predict":content_predict,"enable_content":content_crawl,"active":False}},app.logger,storage, config)
+        c_storage=storage
+        c_config=config
+        feed=Feed(structure={"_id":"dummy feed","_source":{"link":"http://dummy/feed","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"Content Crawler","title":"Content Crawler","format":"tt-rss","predict":content_predict,"enable_content":content_crawl,"active":False}},logger=app.logger,storage=c_storage, config=c_config)
+        app.logger.debug("processing: dummy feed"+str(feed))
     items=[]
     app.logger.debug("processing: get item to process")
     item=work_queue.get()
