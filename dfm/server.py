@@ -559,7 +559,10 @@ def queueFiller(size, query,work_queue,done_queue, results):
 
     if size is not None:
         query['size']=size
-
+    else:
+        docs=storage.query(query)[0]['hits']
+        n_size=int(docs['total'])
+        query['size']=n_size
     docs=storage.query(query)[0]['hits']
     results.set_total(int(docs['total']))
     app.logger.debug("total docs to process: "+str(docs['total']))
