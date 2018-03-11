@@ -560,11 +560,11 @@ def queueFiller(query,work_queue,done_queue, results):
     results.set_total(docs['total'])
     print("total docs to process: "+str(docs['total']))
     for doc in docs['hits'][0:3]:
-        print(doc)
-        print("processing queue size: "+str(work_queue.qsize()))
+        app.logger.debug(doc)
+        app.logger.debug("processing queue size: "+str(work_queue.qsize()))
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=3000:
-            print("processing waiting queue size to reduce: "+str(work_queue.qsize()))
+            app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
             if not config['THREADED']:
                 crawl("doc",work_queue, done_queue, True, True)
             time.sleep(5)
@@ -588,12 +588,12 @@ def queueFiller(query,work_queue,done_queue, results):
                work_queue.put_nowait(list(doc))
                app.logger.debug("queued:"+str(doc))
                for d in doc:
-                   print d
+                   app.logger.debug(d)
                results.add_success({'object':str(doc),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't queue: "+str(doc))
                 for d in doc:
-                    print d
+                    app.logger.debug(d)
                 results.add_fail({'object':str(doc),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
         sys.stdout.flush()
 
