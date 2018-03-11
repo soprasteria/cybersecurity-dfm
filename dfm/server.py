@@ -587,13 +587,17 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     app.logger.debug("processing queue size: "+str(work_queue.qsize()))
 
     for w in range(workers):
-        p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
-        app.logger.debug("processing process created: "+str(p))
-        p.start()
-        app.logger.debug("processing process started: "+str(p))
-        processes.append(p)
-        app.logger.debug("processing processes number: "+str(len(processes)))
-        work_queue.put(None)
+        if not config['THREADED']:
+            app.logger.debug("processing monothread")
+            crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
+        else:
+            p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
+            app.logger.debug("processing process created: "+str(p))
+            p.start()
+            app.logger.debug("processing process started: "+str(p))
+            processes.append(p)
+            app.logger.debug("processing processes number: "+str(len(processes)))
+            work_queue.put(None)
 
     for p in processes:
         p.join()
