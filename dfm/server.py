@@ -573,20 +573,23 @@ def queueFiller(query,work_queue,done_queue, results):
             for do in doc:
                 try:
                    work_queue.put_nowait(list(do))
-                   results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+                   app.logger.exception("queued:")
+                   app.logger.exception(do)
+                   #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
-                   app.logger.exception("can't parse list: "+str(do))
-                   results.add_fail({'url':do['_source']['link'],'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                   app.logger.exception("can't queue from list: "+str(do))
+                   #results.add_fail({'url':do['_source']['link'],'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
                 results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
         else:
 
             try:
                work_queue.put_nowait(list(doc))
-               results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+               app.logger.debug("queued:"+str(doc))
+               results.add_success({'object':str(doc),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
-                app.logger.exception(doc)
-                results.add_fail({'object':doc,'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                app.logger.exception("can't queue: "+str(doc))
+                results.add_fail({'object':str(doc),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
         sys.stdout.flush()
 
     work_queue.put_nowait(None)
