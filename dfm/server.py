@@ -650,7 +650,11 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         app.logger.debug("processing: dummy feed"+str(feed))
     items=[]
     app.logger.debug("processing: get item to process")
-    item=work_queue.get()
+    try:
+       item=work_queue.get()
+    except Exception as e:
+        app.logger.errors(e)
+
     app.logger.debug("processing: process "+str(item))
     while item is not None:
         app.logger.debug("processing: item is not None")
