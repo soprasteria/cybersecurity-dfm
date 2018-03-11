@@ -262,7 +262,7 @@ class Storage:
              global_results.add_success(criteria)
          else:
              self.logger.debug("storage.query helpers.scan:"+json.dumps(criteria))
-             results_gen=helpers.scan(self.es,query=criteria,scroll=self.config['ES_SEARCH_CACHING_DELAY'],preserve_order=True,request_timeout=self.timeout,size=10000)
+             results_gen=helpers.scan(self.es,query=criteria,scroll=self.config['ES_SEARCH_CACHING_DELAY'],preserve_order=True,request_timeout=self.timeout,size=9999)
              global_results.add_success(criteria)
 
 #             for result in results_gen:
