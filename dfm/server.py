@@ -654,7 +654,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                 app.logger.debug("Multithread: doc detected")
                 multi_pos="doc crawl"
                 if content_crawl:
-                    app.logger.debug("Multithread: crawl detected")
+                    app.logger.debug("Multithread: content crawl detected")
                     multi_pos="content_crawl"
                     item_result=feed.get_content(item)
                     new_item=item_result[0]
