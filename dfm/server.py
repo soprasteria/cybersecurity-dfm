@@ -569,27 +569,24 @@ def queueFiller(query,work_queue,done_queue, results):
                 crawl("doc",work_queue, done_queue, True, True)
             time.sleep(5)
 
-
         if isinstance(doc, list):
             for do in doc:
                 try:
-                   work_queue.put_nowait(list(do))
-                   app.logger.exception("queued:")
-                   app.logger.exception(do)
-                   #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+                   work_queue.put_nowait(dict(do))
+                   app.logger.exception("queued:"+str(dict(do)))
+                   results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
-                   app.logger.exception("can't queue from list: "+str(do))
-                   #results.add_fail({'url':do['_source']['link'],'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                   app.logger.exception("can't queue from list: "+str(dict(do)))
+                   results.add_fail({'object':str(dict(do)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
-                #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
         else:
 
             try:
-               work_queue.put_nowait(list(doc))
-               #results.add_success({'object':"",'message':'added to processing queue','queue_size':work_queue.qsize()})
+               work_queue.put_nowait(dict(doc))
+               results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
-                app.logger.exception("can't queue: "+str(list(doc)))
-                #results.add_fail({'object':"",'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                app.logger.exception("can't queue: "+str(dict(doc)))
+                results.add_fail({'object':str(dict(doc)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
         sys.stdout.flush()
 
     work_queue.put_nowait(None)
