@@ -597,7 +597,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         else:
 
             try:
-               work_queue.put(pickle.dumps(doc))
+               work_queue.put(json.dumps(doc))
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
@@ -645,7 +645,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             else:
 
                 try:
-                   work_queue.put(pickle.dumps(doc))
+                   work_queue.put(json.dumps(doc))
                 except Exception as e:
                     app.logger.exception("can't parse: "+str(doc))
                 #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
