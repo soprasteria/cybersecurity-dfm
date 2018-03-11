@@ -554,8 +554,15 @@ class DocDetail(Resource):
         app.logger.debug("PUT src_id:"+src_id+" doc_id:"+doc_id+" link:"+request.json['link'])
         return storage.put(item_id=doc_id,type='doc',source=src_id,data=request.json)
 
-def queueFiller(query,work_queue,done_queue, results):
+def queueFiller(size, query,work_queue,done_queue, results):
     """ Multithreading job queue filler   """
+
+    if size is not None:
+        query['size']=size
+    else:
+        docs=storage.query(query)[0]['hits']
+        query['size']=docs['total']
+
     docs=storage.query(query)[0]['hits']
     results.set_total(int(docs['total']))
     print("total docs to process: "+str(docs['total']))
@@ -694,13 +701,12 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     work_queue = Queue()
     done_queue = Queue()
     processes = []
-    if size is not None:
-        query['size']=size
+
     app.logger.debug("query size:"+str(size))
     if config['THREADED']:
 
         #create process to fullfill the queue from the query
-        p = Process(target=queueFiller, args=(query,work_queue,done_queue, results, ))
+        p = Process(target=queueFiller, args=(size, query,work_queue,done_queue, results, ))
         app.logger.debug("processing filler process created: "+str(p))
         p.start()
         app.logger.debug("processing filler process started: "+str(p))
@@ -723,7 +729,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         for p in processes:
             p.join()
     else:
-        queueFiller(query,work_queue,done_queue, results)
+        queueFiller(size, query,work_queue,done_queue, results)
         crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
 
     #add end signal to done queue
