@@ -557,7 +557,7 @@ class DocDetail(Resource):
 def queueFiller(query,work_queue,done_queue, results):
     """ Multithreading job queue filler   """
     docs=storage.query(query)[0]['hits']
-    results.set_total(docs['total'])
+    results.set_total(int(docs['total']))
     print("total docs to process: "+str(docs['total']))
     for doc in docs['hits'][0:3]:
         app.logger.debug(str(dict(doc)))
@@ -574,7 +574,7 @@ def queueFiller(query,work_queue,done_queue, results):
                 try:
                    work_queue.put_nowait(dict(do))
                    app.logger.exception("queued:"+str(dict(do)))
-                   results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+                   results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
                    app.logger.exception("can't queue from list: "+str(dict(do)))
                    results.add_fail({'object':str(dict(do)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
@@ -583,7 +583,7 @@ def queueFiller(query,work_queue,done_queue, results):
 
             try:
                work_queue.put_nowait(dict(doc))
-               results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+               results.add_success({'url':str(doc['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't queue: "+str(dict(doc)))
                 results.add_fail({'object':str(dict(doc)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
@@ -619,9 +619,9 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                 multi_pos="source_crawl"
                 feed_result=storage.get(item['_id'])
                 feed=Feed(feed_result[0],app.logger,storage,config)
-                results.add_success(feed_result[1])
+                results.add_success(json.dumps(feed_result[1]))
                 result=feed.crawl()
-                results.add_success(result)
+                results.add_success(json.dumps(result))
                 item=None
                 del feed
             elif doc_type=="doc":
@@ -634,10 +634,10 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                     new_item=item_result[0]
                     if new_item!=None:
                         item=new_item
-                        results.add_success({'url':item_result[1]['_source']['link'],'id':item_result[1]['_id']})
+                        results.add_success({'url':str(item_result[1]['_source']['link']),'id':str(item_result[1]['_id'])})
                     else:
                         del new_item
-                        results.add_fail({'url':item_result[1]['_source']['link'],'id':item_result[1]['_id']})
+                        results.add_fail({'object':None})
 
                 if content_predict and item is not None:
                     print("Multithread: prediction detected")
@@ -645,7 +645,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                     predictions=feed.do_predict(item['_source'])
                     item['_source']=predictions[0]
                     result=predictions[1]
-                    results.add_success(result)
+                    results.add_success(json.dumps(result))
 
                 if item is not None:
                     print("Multithread: item detected")
@@ -654,12 +654,12 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             else:
                 results.add_fail({"message":"Empty work_queue","size":work_queue.qsize()})
         except Exception as e:
-             results.add_fail(e)
+             results.add_fail(json.dumps(e))
 
         if len(items)>config["BATCH_SIZE"]:
             print("Multithread: flush items")
             result=storage.bulk(items)
-            results.add_success(result)
+            results.add_success(json.dumps(result))
             del items
             gc.collect()
             items=[]
