@@ -494,7 +494,7 @@ class DocList(Resource):
                 app.logger.debug("fetch: "+doc['_source']['link'])
                 updated=doc['_source']['updated']
                 link=urllib2.unquote(doc['_source']['link'])
-                
+
                 if "title" in doc['_source']:
                    title=doc['_source']['title']
                 else:
@@ -522,7 +522,7 @@ class DocList(Resource):
                 app.logger.debug("write row: "+row[1])
                 writer.writerow(row)
             app.logger.debug("csv export duration:"+str(time.time()-start_time))
-            
+
             if 'row' in locals():
               del row,updated,summary,topics,scores,overall_scr,link,gte,lte,offset,size,start_time
             gc.collect()
@@ -1294,7 +1294,7 @@ class DataGraph(Resource):
 class Recent(Resource):
 
     """ Return most recent doc
-    
+
     """
     def get(self):
         """ Get most recent doc
@@ -1347,7 +1347,7 @@ class Recent(Resource):
         app.logger.debug("Recent docs parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
 
         #query by default
-        time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, { "_score" : { "order" : "desc" } } ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }, { "exists": { "field":"text" } }] } }}
+        time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, { "_score" : { "order" : "desc" } } ], "query":{ "bool" : { "must":[ { "range" : { "updated" : { "gte" : gte, "lt" :  lte } } },{ "exists": { "field":"text" } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } }] } }}
 
         if model or topic:
             topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[],"must":[] } } } }
@@ -1388,7 +1388,7 @@ class Recent(Resource):
 
 class Rank(Resource):
 
-    """ Return most recent doc 
+    """ Return most recent doc
 
     """
     def get(self):
