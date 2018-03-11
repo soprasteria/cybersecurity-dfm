@@ -584,7 +584,7 @@ def queueFiller(query,work_queue,done_queue, results):
                work_queue.put_nowait(dict(doc))
                results.add_success({'url':str(doc['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
-                app.logger.exception("can't queue: "+str(dict(doc)))
+                app.logger.exception("can't queue doc")
                 results.add_fail({'object':str(dict(doc)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
         sys.stdout.flush()
 
