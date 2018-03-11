@@ -598,27 +598,27 @@ def queueFiller(size, query,work_queue,done_queue, results):
 #@profile
 def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=True):
     """ Function for workers to crawl ES doc (source,doc,...) """
-    print("processing: start worker")
+    app.logger.debug("processing: start worker")
     results=Results(app.logger,work_queue.qsize(),str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     multi_pos="begin_crawl"
     if doc_type!="source":
-        print("processing: create dummy feed")
+        app.logger.debug("processing: create dummy feed")
         c_storage=storage
         c_config=config
         feed=Feed(structure={"_id":"dummy feed","_source":{"link":"http://dummy/feed","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"Content Crawler","title":"Content Crawler","format":"tt-rss","predict":content_predict,"enable_content":content_crawl,"active":False}},logger=app.logger,storage=c_storage, config=c_config)
-        print("processing: dummy feed"+str(feed))
+        app.logger.debug("processing: dummy feed"+str(feed))
     items=[]
-    print("processing: get item to process")
+    app.logger.debug("processing: get item to process")
 
     while not work_queue.empty():
-        print("processing: item is not None")
+        app.logger.debug("processing: item is not None")
         item=work_queue.get_nowait()
         if item==None:
             break
-        print("processing: process "+str(item))
+        app.logger.debug("processing: process "+str(item))
         try:
             if doc_type=="source":
-                print("processing: source detected")
+                app.logger.debug("processing: source detected")
                 multi_pos="source_crawl"
                 feed_result=storage.get(item['_id'])
                 feed=Feed(feed_result[0],app.logger,storage,config)
@@ -628,10 +628,10 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                 item=None
                 del feed
             elif doc_type=="doc":
-                print("processing: doc detected")
+                app.logger.debug("processing: doc detected")
                 multi_pos="doc crawl"
                 if content_crawl:
-                    print("processing: content crawl detected")
+                    app.logger.debug("processing: content crawl detected")
                     multi_pos="content_crawl"
                     item_result=feed.get_content(item)
                     new_item=item_result[0]
@@ -643,7 +643,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                         results.add_fail({'object':None})
 
                 if content_predict and item is not None:
-                    print("Multithread: prediction detected")
+                    app.logger.debug("Multithread: prediction detected")
                     multi_pos="content_predict"
                     predictions=feed.do_predict(item['_source'])
                     item['_source']=predictions[0]
@@ -651,7 +651,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                     results.add_success(json.dumps(result))
 
                 if item is not None:
-                    print("Multithread: item detected")
+                    app.logger.debug("Multithread: item detected")
                     items.append(item)
                     results.add_success({'url':item['_source']['link'],'id':item['_id']})
             else:
@@ -660,7 +660,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
              results.add_fail(e.message)
 
         if len(items)>config["BATCH_SIZE"]:
-            print("Multithread: flush items")
+            app.logger.debug("Multithread: flush items")
             result=storage.bulk(items)
             results.add_success(json.dumps(result))
             del items
@@ -669,14 +669,14 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
 
 
     if len(items)>0:
-        print("Multithread: flush items")
+        app.logger.debug("Multithread: flush items")
         result=storage.bulk(items)
         results.add_success(json.dumps(result))
         del items
         items=[]
     if doc_type!="source":
         del feed
-    print('Multithread: stopping thread')
+    app.logger.debug('Multithread: stopping thread')
     done_queue.put(results.results)
     del items, work_queue, done_queue
     gc.collect()
