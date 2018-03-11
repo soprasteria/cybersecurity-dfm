@@ -559,7 +559,7 @@ def queueFiller(query,work_queue,done_queue, results):
     results.set_total(docs['total'])
     print("total docs to process: "+str(docs['total']))
     for doc in docs['hits']:
-
+        print("processing waiting queue size to reduce: "+str(work_queue.qsize()))
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=3000:
             print("processing waiting queue size to reduce: "+str(work_queue.qsize()))
