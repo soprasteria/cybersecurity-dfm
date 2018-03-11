@@ -583,7 +583,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         starter_size=3000
     else:
         starter_size=docs['total']
-    for pos in range(starter_size):
+    for pos in range(0,starter_size):
         doc=docs['hits'][pos]
         if isinstance(doc, list):
             for do in doc:
@@ -648,7 +648,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     #wait for end of the processing
     for p in processes:
         p.join()
-        
+
     #add end signal to done queue
     done_queue.put(None)
     result=done_queue.get()
