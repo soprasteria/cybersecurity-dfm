@@ -5,6 +5,7 @@
 """ Import utilities """
 
 import io
+import sys
 import os
 import types
 import errno
@@ -584,9 +585,9 @@ def queueFiller(query,work_queue,done_queue, results):
                work_queue.put_nowait(list(doc))
                results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
-                app.logger.exception("can't parse: "+doc)
+                app.logger.exception(doc)
                 results.add_fail({'object':doc,'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
-
+        sys.stdout.flush()
 
     work_queue.put_nowait(None)
 
@@ -662,6 +663,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             del items
             gc.collect()
             items=[]
+        sys.stdout.flush()
 
 
     if len(items)>0:
