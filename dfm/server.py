@@ -563,7 +563,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
     docs=storage.query(query)[0]['hits']
     results.set_total(int(docs['total']))
     app.logger.debug("total docs to process: "+str(docs['total']))
-    app.logger.debug("total doc in result:"+str(docs))
+    app.logger.debug("total doc in result:"+json.dumps(docs['hits'][0]))
     for doc in docs['hits']:
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
         #wait queue reduce under 3000 items
