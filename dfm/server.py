@@ -579,10 +579,20 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     for doc in docs['hits']:
         if isinstance(doc, list):
             for do in doc:
-                work_queue.put(do)
+                try:
+                   work_queue.put(do)
+                except Exception as e:
+                   app.logger.debug(do)
+                   app.logger.exception(e)
+
                 #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
         else:
-            work_queue.put(doc)
+
+            try:
+               work_queue.put(doc)
+            except Exception as e:
+                app.logger.debug(doc)
+                app.logger.exception(e)
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
     app.logger.debug("processing queue size: "+str(work_queue.qsize()))
 
@@ -650,10 +660,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         app.logger.debug("processing: dummy feed"+str(feed))
     items=[]
     app.logger.debug("processing: get item to process")
-    try:
-       item=work_queue.get()
-    except Exception as e:
-        app.logger.errors(e)
+    item=work_queue.get()
 
     app.logger.debug("processing: process "+str(item))
     while item is not None:
