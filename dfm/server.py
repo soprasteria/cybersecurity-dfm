@@ -577,7 +577,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
         if isinstance(doc, list):
             for do in doc:
                 try:
-                   work_queue.put_nowait(dict(do))
+                   work_queue.put(dict(do))
                    app.logger.exception("queued:"+str(dict(do)))
                    results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
@@ -587,13 +587,13 @@ def queueFiller(size, query,work_queue,done_queue, results):
         else:
 
             try:
-               work_queue.put_nowait(dict(doc))
+               work_queue.put(dict(doc))
                results.add_success({'url':str(doc['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't queue doc")
                 results.add_fail({'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
-    work_queue.put_nowait(None)
+    work_queue.put(None)
     return ""
 
 #@profile
@@ -611,9 +611,9 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     items=[]
     app.logger.debug("processing: get item to process")
 
-    while work_queue.qsize()>0:
+    while not work_queue.empty():
         app.logger.debug("processing: item is not None")
-        item=work_queue.get_nowait()
+        item=work_queue.get()
         if item==None:
             break
         app.logger.debug("processing: process "+str(item))
@@ -714,10 +714,6 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         processes.append(p)
         app.logger.debug("processing filler processes number: "+str(len(processes)))
 
-        if size is not None:
-            while work_queue.qsize()<=int(size/3):
-                time.sleep(3)
-
         #create processing workers
         for w in range(workers):
             p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
@@ -735,7 +731,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
 
     #add end signal to done queue
-    done_queue.put_nowait(None)
+    done_queue.put(None)
 
     #intialize result item for loop
     result=done_queue.get()
