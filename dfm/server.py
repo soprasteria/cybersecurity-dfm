@@ -767,7 +767,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     gc.collect()
     results.finish()
 
-    return results.results
+    #return results.results
 
 #@profile
 def generate_doc(curr_path,doc):
