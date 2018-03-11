@@ -600,8 +600,8 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
-    if count_docs>=starter_size:
-        break
+        if count_docs>=starter_size:
+            break
     app.logger.debug("processing queue size: "+str(work_queue.qsize()))
 
     #send end of work signal if starter feeding is enougth
@@ -629,7 +629,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             #skip first starter_size doc
             if count_docs<=3000:
                continue
-           
+
             #wait queue reduce under 3000 items
             while work_queue.qsize()>=3000:
                 sleep(10)
