@@ -627,9 +627,9 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         for doc in docs['hits']:
             count_docs+=1
             #skip first starter_size doc
-            if (count_docs<=3000)
+            if count_docs<=3000:
             {
-                continue;
+                continue
             }
             #wait queue reduce under 3000 items
             while work_queue.qsize()>=3000:
