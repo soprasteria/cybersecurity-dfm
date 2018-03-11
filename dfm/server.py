@@ -674,7 +674,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     return results.results
 
 #@profile
-def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=True):
+def crawl(doc_type="doc",work_queue, done_queue, content_crawl=True,content_predict=True):
     """ Function for workers to crawl ES doc (source,doc,...) """
     print("processing: start worker")
     results=Results(app.logger,work_queue.qsize(),str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
@@ -690,10 +690,11 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
 
 
 
-    print("processing: process "+str(item))
+
     while not work_queue.empty():
         print("processing: item is not None")
         item=work_queue.get_nowait()
+        print("processing: process "+str(item))
         try:
             if doc_type=="source":
                 print("processing: source detected")
