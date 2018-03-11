@@ -669,7 +669,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     if len(items)>0:
         print("Multithread: flush items")
         result=storage.bulk(items)
-        results.add_success(result)
+        results.add_success(json.dumps(result))
         del items
         items=[]
     if doc_type!="source":
@@ -764,7 +764,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     gc.collect()
     results.finish()
 
-    return results.results
+    #return results.results
 
 #@profile
 def generate_doc(curr_path,doc):
