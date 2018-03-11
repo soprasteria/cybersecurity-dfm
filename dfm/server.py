@@ -583,8 +583,8 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         starter_size=3000
     else:
         starter_size=docs['total']
-    for pos in range(0,starter_size):
-        doc=iter(docs['hits'])[pos]
+    for doc in docs['hits']:
+        count_docs+=1
         if isinstance(doc, list):
             for do in doc:
                 try:
@@ -600,6 +600,8 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+    if count_docs>=starter_size:
+        break
     app.logger.debug("processing queue size: "+str(work_queue.qsize()))
 
     #send end of work signal if starter feeding is enougth
@@ -621,12 +623,16 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
     #if initial queue feeding is not enougth to cover all docs add more by batch of 3000
     if starter_size==3000:
-        for pos in range(starter_size,docs['total']):
+        doc_counts=0
+        for doc in docs['hits']:
+            count_docs+=1
+            #skip first starter_size doc
+            if (count_docs<=3000){
+                continue;
+            }
             #wait queue reduce under 3000 items
-            while work_queue.qsize()>3000:
+            while work_queue.qsize()>=3000:
                 sleep(10)
-
-            doc=iter(docs['hits'])[pos]
             if isinstance(doc, list):
                 for do in doc:
                     try:
