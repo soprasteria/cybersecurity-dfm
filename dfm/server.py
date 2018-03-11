@@ -704,7 +704,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     processes = []
 
     app.logger.debug("query size:"+str(size))
-    if config['THREADED']:
+    if config['THREADED'] or size>1:
 
         #create process to fullfill the queue from the query
         p = Process(target=queueFiller, args=(size, query,work_queue,done_queue, results, ))
