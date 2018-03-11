@@ -581,15 +581,15 @@ def queueFiller(query,work_queue,done_queue, results):
                    app.logger.exception("can't queue from list: "+str(do))
                    #results.add_fail({'url':do['_source']['link'],'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
-                results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+                #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
         else:
 
             try:
                work_queue.put_nowait(list(doc))
-               results.add_success({'object':"",'message':'added to processing queue','queue_size':work_queue.qsize()})
+               #results.add_success({'object':"",'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't queue: "+str(list(doc)))
-                results.add_fail({'object':"",'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                #results.add_fail({'object':"",'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
         sys.stdout.flush()
 
     work_queue.put_nowait(None)
