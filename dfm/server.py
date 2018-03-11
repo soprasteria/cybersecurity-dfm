@@ -563,6 +563,9 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     :param int size batch size for ES query
     :result json return result
     """
+
+
+
     results=Results(app.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     workers = multiprocessing.cpu_count()+1
     if not config['THREADED']:
@@ -576,7 +579,12 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     results.set_total(docs['total'])
     app.logger.debug("total docs to process: "+str(docs['total']))
     count_docs=0
-    for doc in docs['hits']:
+    if docs['total']>3000:
+        starter_size=3000
+    else:
+        starter_size=docs['total']
+    for pos in range(starter_size):
+        doc=docs['hits'][pos]
         if isinstance(doc, list):
             for do in doc:
                 try:
@@ -594,6 +602,11 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
     app.logger.debug("processing queue size: "+str(work_queue.qsize()))
 
+    #send end of work signal if starter feeding is enougth
+    if starter_size<3000:
+        work_queue.put(None)
+
+    #create processing workers
     for w in range(workers):
         if not config['THREADED']:
             app.logger.debug("processing monothread")
@@ -605,11 +618,38 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             app.logger.debug("processing process started: "+str(p))
             processes.append(p)
             app.logger.debug("processing processes number: "+str(len(processes)))
-            work_queue.put(None)
 
+    #if initial queue feeding is not enougth to cover all docs add more by batch of 3000
+    if starter_size==3000:
+        for pos in range(starter_size,docs['total']):
+            #wait queue reduce under 3000 items
+            while work_queue.qsize()>3000:
+                sleep(10)
+
+            doc=docs['hits'][pos]
+            if isinstance(doc, list):
+                for do in doc:
+                    try:
+                       work_queue.put(do)
+                    except Exception as e:
+                       app.logger.exception("can't parse list: "+str(do))
+
+                    #results.add_success({'url':do['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+            else:
+
+                try:
+                   work_queue.put(doc)
+                except Exception as e:
+                    app.logger.exception("can't parse: "+str(doc))
+                #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
+        app.logger.debug("processing queue size: "+str(work_queue.qsize()))
+        work_queue.put(None)
+
+    #wait for end of the processing
     for p in processes:
         p.join()
-
+        
+    #add end signal to done queue
     done_queue.put(None)
     result=done_queue.get()
     app.logger.debug("queue processed size: "+str(work_queue.qsize()))
