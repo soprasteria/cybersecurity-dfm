@@ -596,6 +596,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         else:
 
             try:
+               app.logger.debug(doc)
                work_queue.put(dict(doc))
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
@@ -644,6 +645,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             else:
 
                 try:
+                   app.logger.debug(doc)
                    work_queue.put(dict(doc))
                 except Exception as e:
                     app.logger.exception("can't parse: "+str(doc))
