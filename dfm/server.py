@@ -588,7 +588,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         if isinstance(doc, list):
             for do in doc:
                 try:
-                   work_queue.put(do)
+                   work_queue.put(list(do))
                 except Exception as e:
                    app.logger.exception("can't parse list: "+str(do))
 
@@ -596,7 +596,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         else:
 
             try:
-               work_queue.put(doc)
+               work_queue.put(dict(doc))
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
@@ -636,7 +636,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             if isinstance(doc, list):
                 for do in doc:
                     try:
-                       work_queue.put(do)
+                       work_queue.put(list(do))
                     except Exception as e:
                        app.logger.exception("can't parse list: "+str(do))
 
@@ -644,7 +644,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             else:
 
                 try:
-                   work_queue.put(doc)
+                   work_queue.put(dict(doc))
                 except Exception as e:
                     app.logger.exception("can't parse: "+str(doc))
                 #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
