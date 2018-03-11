@@ -560,7 +560,8 @@ def queueFiller(size, query,work_queue,done_queue, results):
     if size is not None:
         query['size']=size
     else:
-        query['size']=int(storage.query(query)[0]['hits']['total'])
+        size=int(storage.query(query)[0]['hits']['total'])
+        query['size']=size
 
     docs=storage.query(query)[0]['hits']
     results.set_total(int(docs['total']))
