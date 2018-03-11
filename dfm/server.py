@@ -559,9 +559,6 @@ def queueFiller(size, query,work_queue,done_queue, results):
 
     if size is not None:
         query['size']=size
-    else:
-        docs=storage.query(query)[0]['hits']
-        query['size']=docs['total']
 
     docs=storage.query(query)[0]['hits']
     results.set_total(int(docs['total']))
@@ -611,11 +608,11 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     items=[]
     print("processing: get item to process")
 
-    while True:
+    while not work_queue.empty():
         print("processing: item is not None")
         item=work_queue.get_nowait()
         if item==None:
-            break;
+            break
         print("processing: process "+str(item))
         try:
             if doc_type=="source":
