@@ -654,7 +654,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             else:
                 results.add_fail({"message":"Empty work_queue","size":work_queue.qsize()})
         except Exception as e:
-             results.add_fail(json.dumps(e))
+             results.add_fail(e.message)
 
         if len(items)>config["BATCH_SIZE"]:
             print("Multithread: flush items")
