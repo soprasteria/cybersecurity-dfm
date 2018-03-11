@@ -634,6 +634,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
 #@profile
 def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=True):
+    app.logger.debug("processing: start worker")
     """ Function for workers to crawl ES doc (source,doc,...) """
     results=Results(app.logger,work_queue.qsize(),str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     multi_pos="begin_crawl"
