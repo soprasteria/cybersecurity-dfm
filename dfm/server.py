@@ -586,10 +586,10 @@ def queueFiller(query,work_queue,done_queue, results):
 
             try:
                work_queue.put_nowait(list(doc))
-               results.add_success({'object':str(list(doc)),'message':'added to processing queue','queue_size':work_queue.qsize()})
+               results.add_success({'object':list(doc),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't queue: "+str(list(doc)))
-                results.add_fail({'object':str(list(doc)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                results.add_fail({'object':list(doc),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
         sys.stdout.flush()
 
     work_queue.put_nowait(None)
