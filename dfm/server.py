@@ -563,7 +563,10 @@ def queueFiller(query,work_queue,done_queue, results):
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=3000:
             print("processing waiting queue size to reduce: "+str(work_queue.qsize()))
+            if not config['THREADED']:
+                crawl(doc_type="doc",work_queue, done_queue, content_crawl=True, content_predict=True)
             time.sleep(5)
+
 
         if isinstance(doc, list):
             for do in doc:
