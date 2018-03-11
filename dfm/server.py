@@ -10,6 +10,7 @@ import types
 import errno
 import shutil
 import inspect
+import pickle
 import re
 import resource
 from memory_profiler import profile
@@ -596,8 +597,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         else:
 
             try:
-               app.logger.debug(doc)
-               work_queue.put(dict(doc))
+               work_queue.put(pickle.dumps(doc))
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
@@ -645,8 +645,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
             else:
 
                 try:
-                   app.logger.debug(doc)
-                   work_queue.put(dict(doc))
+                   work_queue.put(pickle.dumps(doc))
                 except Exception as e:
                     app.logger.exception("can't parse: "+str(doc))
                 #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
