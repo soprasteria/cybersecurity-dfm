@@ -571,7 +571,7 @@ def queueFiller(query,work_queue,done_queue, results):
         if isinstance(doc, list):
             for do in doc:
                 try:
-                   work_queue.put(list(do))
+                   work_queue.put_nowait(list(do))
                 except Exception as e:
                    app.logger.exception("can't parse list: "+str(do))
 
@@ -579,12 +579,12 @@ def queueFiller(query,work_queue,done_queue, results):
         else:
 
             try:
-               work_queue.put(list(doc))
+               work_queue.put_nowait(list(doc))
             except Exception as e:
                 app.logger.exception("can't parse: "+str(doc))
             #results.add_success({'url':doc['_source']['link'],'message':'added to processing queue','queue_size':work_queue.qsize()})
 
-    work_queue.put(None)
+    work_queue.put_nowait(None)
 
 #@profile
 def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_predict=True,size=None):
@@ -637,7 +637,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
 
     #add end signal to done queue
-    done_queue.put(None)
+    done_queue.put_nowait(None)
 
     #intialize result item for loop
     result=done_queue.get()
