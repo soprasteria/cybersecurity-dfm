@@ -165,7 +165,7 @@ class Feed:
 
         self.min_text_size=self.config['NEWS_MIN_TEXT_SIZE']
 
-        self.dd=DD(self.config['DEEP_DETECT_URI'])
+        self.dd=DD(self.config['DEEP_DETECT_URI'],self.config['DEEP_DETECT_PORT'])
 
         self.http=urllib3.PoolManager(num_pools=self.config['CRAWLING_POOL_CONNECTIONS'],timeout=urllib3.Timeout(connect=self.config['CRAWLING_TIMEOUT_CONNECT'], read=self.config['CRAWLING_TIMEOUT_READ']),retries=urllib3.Retry(self.config['CRAWLING_RETRIES'], redirect=self.config['CRAWLING_REDIRECTS']))
 
@@ -1176,13 +1176,13 @@ class Feed:
                 if "text" in content['doc']:
                     text=content['doc']['text']
                     doc['_source'].update(content['doc'])
-                    result=self.storage.delete(item_id=doc['_id'])
+                    #result=self.storage.delete(item_id=doc['_id'])
                     results.add_fail({'url':doc["_source"]["link"],'message':'body text too small','text_size':len(doc['_source']['text']),"text":doc['_source']['text'],"deletion":result})
                     del doc
                     doc=None
                 else:
                     text=""
-                    result=self.storage.delete(item_id=doc['_id'])
+                    #result=self.storage.delete(item_id=doc['_id'])
                     results.add_fail({'url':doc["_source"]["link"],'message':'no body text detect',"deletion":result})
                     del doc
                     doc=None
