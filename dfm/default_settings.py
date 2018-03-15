@@ -55,7 +55,7 @@ class Config(object):
     """ TWITTER OAuth access secret """
     DEEP_DETECT_URI = 'localhost'
     """ Deep Detect rest api URI """
-    DEEP_DETECT_PORT = 'localhost'
+    DEEP_DETECT_PORT = 8080
     """ Deep Detect rest api PORT """
     TRAININGS_PATH = '../training'
     """ Path used to generate trainings for models """
