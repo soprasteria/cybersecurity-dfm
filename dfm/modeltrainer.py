@@ -49,7 +49,7 @@ class ModelTrainer:
         self.description = 'classifier'
         self.sname=self.structure['sname']
         self.mllib = self.structure['mllib']
-        self.dd = DD(config['DEEP_DETECT_URI'])
+        self.dd = DD(config['DEEP_DETECT_URI'],config['DEEP_DETECT_PORT'])
         self.dd.set_return_format(self.dd.RETURN_PYTHON)
 
     def createMLTrainerService(self):
