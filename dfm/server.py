@@ -617,53 +617,53 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         item=work_queue.get()
         app.logger.debug("processing: process "+str(item))
         if item==None:
-            break
+            app.logger.debug("processing: None item to process break go to the next one")
+            continue
 
-        try:
-            if doc_type=="source":
-                app.logger.debug("processing: source detected")
-                multi_pos="source_crawl"
-                feed_result=storage.get(item['_id'])
-                feed=Feed(feed_result[0],app.logger,storage,config)
-                results.add_success(json.dumps(feed_result[1]))
-                result=feed.crawl()
+#        try:
+        app.logger.debug("processing: type:"+doc_type)
+        if doc_type=="source":
+            app.logger.debug("processing: source detected")
+            multi_pos="source_crawl"
+            feed_result=storage.get(item['_id'])
+            feed=Feed(feed_result[0],app.logger,storage,config)
+            results.add_success(json.dumps(feed_result[1]))
+            result=feed.crawl()
+            results.add_success(json.dumps(result))
+            item=None
+            del feed
+        elif doc_type=="doc":
+            app.logger.debug("processing: doc detected")
+            multi_pos="doc crawl"
+            if content_crawl:
+                app.logger.debug("processing: content crawl detected")
+                multi_pos="content_crawl"
+                item_result=feed.get_content(item)
+                new_item=item_result[0]
+                if new_item!=None:
+                    item=new_item
+                    results.add_success({'url':str(item_result[0]['_source']['link']),'id':str(item_result[0]['_id'])})
+                else:
+                    del new_item
+                    results.add_fail({'object':None})
+
+            if content_predict:
+                app.logger.debug("processing: prediction detected")
+                multi_pos="content_predict"
+                predictions=feed.do_predict(item['_source'])
+                item['_source']=predictions[0]
+                result=predictions[1]
                 results.add_success(json.dumps(result))
-                item=None
-                del feed
-            elif doc_type=="doc":
-                app.logger.debug("processing: doc detected")
-                multi_pos="doc crawl"
-                if content_crawl:
-                    app.logger.debug("processing: content crawl detected")
-                    multi_pos="content_crawl"
-                    item_result=feed.get_content(item)
-                    new_item=item_result[0]
-                    if new_item!=None:
-                        item=new_item
-                        items.append(item)
-                        results.add_success({'url':str(item_result[1]['_source']['link']),'id':str(item_result[1]['_id'])})
-                    else:
-                        del new_item
-                        results.add_fail({'object':None})
 
-                if content_predict and item is not None:
-                    app.logger.debug("processing: prediction detected")
-                    multi_pos="content_predict"
-                    predictions=feed.do_predict(item['_source'])
-                    item['_source']=predictions[0]
-                    result=predictions[1]
-                    items.append(item)
-                    results.add_success(json.dumps(result))
-
-                if item is not None:
-                    app.logger.debug("processing: item detected")
-                    items.append(item)
-                    results.add_success({'url':item['_source']['link'],'id':item['_id']})
-            else:
-                app.logger.debug("processing: Empty item detected")
-                results.add_fail({"message":"Empty work_queue","size":work_queue.qsize()})
-        except Exception as e:
-             results.add_fail(e.message)
+            if item is not None:
+                app.logger.debug("processing: item detected")
+                items.append(item)
+                results.add_success({'url':item['_source']['link'],'id':item['_id']})
+        else:
+            app.logger.debug("processing: Empty item detected")
+            results.add_fail({"message":"Empty work_queue","size":work_queue.qsize()})
+#        except Exception as e:
+#             results.add_fail(e.message)
         app.logger.debug("processing: Processed items to store "+str(items))
         if len(items)>config["BATCH_SIZE"]:
             app.logger.debug("processing: flush items in the processing loop")
@@ -683,10 +683,10 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     if doc_type!="source":
         del feed
     app.logger.debug('Multithread: stopping thread')
-    done_queue.put(results.results)
+    #done_queue.put(results)
     del items, work_queue, done_queue
     gc.collect()
-    return ""
+    return results
 
 #@profile
 def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_predict=True,size=None):
@@ -1042,7 +1042,7 @@ class Schedule(Resource):
             del feed
 
         gc.collect()
-        return {"source":src_id,"result":{"size":result["count"],"successed":result["successful"],"failed":result["failed"]},"duration":(time.time()-start_time)}
+        return {"source":src_id,"result":{"size":result["count"],"successed":result["successful"],"failed":result["failed"],"traceback":result},"duration":(time.time()-start_time)}
 
 class VoidReturn(Resource):
     def get(sef):
