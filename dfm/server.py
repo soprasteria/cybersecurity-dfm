@@ -574,20 +574,21 @@ def queueFiller(size, query,work_queue,done_queue, results):
                 crawl("doc",work_queue, done_queue, True, True)
             time.sleep(5)
 
-        if isinstance(doc, list):
+        if isinstance(doc, list) or isinstance(doc, types.GeneratorType):
             for do in doc:
                 try:
-                   work_queue.put(dict(do))
-                   app.logger.exception("queued:"+str(dict(do)))
+                   work_queue.put(do)
+                   app.logger.debug("queued:"+str(do))
                    results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
                    app.logger.exception("can't queue from list: "+str(dict(do)))
-                   results.add_fail({'object':str(dict(do)),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
+                   results.add_fail({'object':str(do),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
         else:
 
             try:
-               work_queue.put(dict(doc))
+               work_queue.put(doc)
+               app.logger.debug("queued:"+str(doc))
                results.add_success({'url':str(doc['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't queue doc")
@@ -612,7 +613,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     app.logger.debug("processing: get item to process")
 
     while not work_queue.empty():
-        app.logger.debug("processing: item is not None")
+        app.logger.debug("processing: queue to process is not empty")
         item=work_queue.get()
         app.logger.debug("processing: process "+str(item))
         if item==None:
@@ -705,6 +706,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     processes = []
 
     app.logger.debug("query size:"+str(size))
+    app.logger.debug("query: "+str(query))
     if config['THREADED']:
 
         #create process to fullfill the queue from the query
@@ -732,7 +734,9 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         for p in processes:
             p.join()
     else:
+        app.logger.debug("queue processed size: "+str(work_queue.qsize()))
         queueFiller(size, query,work_queue,done_queue, results)
+        app.logger.debug("queue processed size: "+str(work_queue.qsize()))
         crawl(doc_type,work_queue, done_queue, content_crawl, content_predict)
 
     #add end signal to done queue
@@ -1588,14 +1592,14 @@ api.add_resource(ChromePlugin, '/api/chromeplugin')
 if __name__ == '__main__':
     #Logging format hide console pin and flask default message
     # Comment next 4 lines to display pin console in logs
-    logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s' , datefmt='%m/%d/%Y %I:%M:%S %p')
-    handler = RotatingFileHandler(config['LOG_PATH'], maxBytes=10000, backupCount=1)
-    handler.setLevel(logging.DEBUG)
-    app.logger.addHandler(handler)
-    if config['DEBUG']:
-        es_logger=logging.getLogger('elasticsearch.trace')
-        es_logger.setLevel(logging.INFO)
-        es_logger.addHandler(handler)
+    #logging.basicConfig(format='%(asctime)s %(levelname)s:%(message)s' , datefmt='%m/%d/%Y %I:%M:%S %p')
+    #handler = RotatingFileHandler(config['LOG_PATH'], maxBytes=10000, backupCount=1)
+    #handler.setLevel(logging.DEBUG)
+    #app.logger.addHandler(handler)
+    #if config['DEBUG']:
+    #    es_logger=logging.getLogger('elasticsearch.trace')
+    #    es_logger.setLevel(logging.INFO)
+    #    es_logger.addHandler(handler)
         #self.es_logger.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     #app.logger.Formatter('%(asctime)s %(levelname)s:%(message)s')
     app.run(threaded=config['THREADED'],host=config['LISTEN_MASK'],port=config['LISTEN_PORT'])
