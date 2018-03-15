@@ -1176,8 +1176,8 @@ class Feed:
                 if "text" in content['doc']:
                     text=content['doc']['text']
                     doc['_source'].update(content['doc'])
-                    #result=self.storage.delete(item_id=doc['_id'])
-                    results.add_fail({'url':doc["_source"]["link"],'message':'body text too small','text_size':len(doc['_source']['text']),"text":doc['_source']['text'],"deletion":result})
+                    #result=self.storage.delete(item_id=doc['_id']) remove deletion status "deletion":result
+                    results.add_fail({'url':doc["_source"]["link"],'message':'body text too small','text_size':len(doc['_source']['text']),"text":doc['_source']['text']})
                     del doc
                     doc=None
                 else:
