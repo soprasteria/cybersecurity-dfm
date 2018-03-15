@@ -32,3 +32,4 @@ langdetect
 flask
 flask-restful
 selenium
+schedule
