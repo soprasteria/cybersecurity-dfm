@@ -26,3 +26,9 @@ telepot
 textract
 python-magic
 sumy
+iso8601
+unicodecsv
+langdetect
+flask
+flask-restful
+selenium
