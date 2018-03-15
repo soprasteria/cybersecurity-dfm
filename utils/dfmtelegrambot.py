@@ -101,7 +101,7 @@ def submitUrl(url,body,keywords=[]):
         if len(keywords)==0:
             return result_doc
 
-    max_retry=5
+    max_retry=10
     retries=0
     text=False
     while not text:
@@ -374,7 +374,7 @@ def postJob():
         time.sleep(1)
 
 def postVote(news_id,voter_id,name,score):
-    response = http.request('GET',dfm_api_base+"rank?id="+str(news_id)+"&voter="+str(voter_id)+"&name="+str(name)+"&score="+str(score)) #auth=('user', 'password'))
+    response = http.request('GET',dfm_api_base+"rank?id="+urllib.quote(str(news_id))+"&voter="+urllib.quote(str(voter_id))+"&name="+urllib.quote(str(name))+"&score="+score) #auth=('user', 'password'))
     print "GET "+dfm_api_base+"rank?id="+str(news_id)+"&voter="+str(voter_id)+"&name="+str(name)+"&score="+str(score)+" status:"+str(response.status)
 
 
