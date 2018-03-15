@@ -299,7 +299,13 @@ def handle(msg):
                                 built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
                                 built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
 
-                                bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'])
+                                markup = InlineKeyboardMarkup(inline_keyboard=[
+                                [InlineKeyboardButton(text=u'\u274c', callback_data=0),
+                                InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
+                                InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
+                                ])
+
+                                bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
 
                             else:
                                 bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
@@ -363,7 +369,7 @@ def postRecent():
             #After being added as an administrator to a channel, the bot can send messages to the channel
             bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN",reply_markup=markup,disable_notification=True)
             print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
-            recent_id=results[0]["_id"]
+            recent_id=results["_id"]
 
 def postJob():
     for tm in config.get('variables', 'POST_SCHEDULE').split(","):
