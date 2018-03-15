@@ -640,39 +640,42 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                     new_item=item_result[0]
                     if new_item!=None:
                         item=new_item
+                        items.append(item)
                         results.add_success({'url':str(item_result[1]['_source']['link']),'id':str(item_result[1]['_id'])})
                     else:
                         del new_item
                         results.add_fail({'object':None})
 
                 if content_predict and item is not None:
-                    app.logger.debug("Multithread: prediction detected")
+                    app.logger.debug("processing: prediction detected")
                     multi_pos="content_predict"
                     predictions=feed.do_predict(item['_source'])
                     item['_source']=predictions[0]
                     result=predictions[1]
+                    items.append(item)
                     results.add_success(json.dumps(result))
 
                 if item is not None:
-                    app.logger.debug("Multithread: item detected")
+                    app.logger.debug("processing: item detected")
                     items.append(item)
                     results.add_success({'url':item['_source']['link'],'id':item['_id']})
             else:
+                app.logger.debug("processing: Empty item detected")
                 results.add_fail({"message":"Empty work_queue","size":work_queue.qsize()})
         except Exception as e:
              results.add_fail(e.message)
-
+        app.logger.debug("processing: Processed items to store "+str(items))
         if len(items)>config["BATCH_SIZE"]:
-            app.logger.debug("Multithread: flush items")
+            app.logger.debug("processing: flush items in the processing loop")
             result=storage.bulk(items)
             results.add_success(json.dumps(result))
             del items
             gc.collect()
             items=[]
 
-
+    app.logger.debug("processing: Processed items to store "+str(items))
     if len(items)>0:
-        app.logger.debug("Multithread: flush items")
+        app.logger.debug("processing: flush items")
         result=storage.bulk(items)
         results.add_success(json.dumps(result))
         del items
@@ -716,10 +719,14 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         app.logger.debug("processing filler process started: "+str(p))
         processes.append(p)
         app.logger.debug("processing filler processes number: "+str(len(processes)))
-        if work_queue.qsize()>1:
-            time.sleep(30)
-        else:
-            workers=1
+
+        #wait for job queue to start to be filled
+        retry=10
+        while not work_queue.empty():
+            time.sleep(5)
+            retry+=1
+            if retry>5:
+                break
 
         #create processing workers
         for w in range(workers):
