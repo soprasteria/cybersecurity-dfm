@@ -1,24 +1,31 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Data Feed Manager Topics</title>
+    <title>DFM Topics</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="static/css/main.css" rel="stylesheet" media="screen">
+    <link href="static/css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="static/css/paraia_multi_select.css" rel="stylesheet" media="screen">
+    <!--<link href="static/css/main.css" rel="stylesheet" media="screen">-->
+    <!--<link href="static/css/sb-admin-2.css" rel="stylesheet" media="screen">-->
     <link rel="alternate" type="application/atom+xml" title="News" href="/atom.xml" />
-    <script src="static/js/lib/jquery.js"></script>
-    <script src="static/js/lib/bootstrap.min.js"></script>
+
   </head>
   <body>
+      <div w3-include-html="browser/menubar.html"></div>
 
-  <div class="container-narrow">
-    <div w3-include-html="browser/menubar.html"></div>
+    <div class="jumbotron text-center">
+      <h1 class="page-header">Topics</h1>
+      <p>Define labels to be predicted by machine learning</p>
+    </div>
 
-<div class="container">
-    <h3>Manage topics (predicted labels)</h3>
-  <form id="addTopic" class="form-inline">
-    <h2 class="form-heading">Add Topic </h2>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm">
+  <form id="addTopic" class="form">
+    <button class="btn btn-default" id="addTopicButton" type="button">Add Topic</button>
+
       <!-- {"tags":[],"freq":30,"summary":"","title":"","active":true} -->
+
     <div class="form-group">
       <label for="title">Topic</label>
       <input type="text" name="title" id="title" class="form-control" placeholder="Topic" required autofocus/>
@@ -30,19 +37,28 @@
       <!--<input type="hidden" name="tags" value="[]"/>-->
       <input type="hidden" name="freq" value="30"/>
       <input type="hidden" name="link" value=""/>
+
       <!--<input type="hidden" name="topics" value="{}"/>-->
       <!--<input type="hidden" name="active" value="true"/>-->
     <div class="form-group">
       <label for="tags">Top 1000 Tags</label>
-      <select multiple name="tags" id="tags" class="form-control" size="20">
-      </select>
+      <!--<select multiple name="tags" id="tags" class="form-control" size="20">
+      </select>-->
+      <input id="tags" type="text" class="form-control"
+       name="tags"
+       data-paraia-multi-select="true"
+       placeholder="Select tags">
     </div>
-    <button class="btn btn-default" id="addTopicButton" type="button">Add Topic</button>
+
   </form>
-<hr/>
+</div>
+
+<div class="col">
 <div class="table-responsive">
-  <table id="topicsTable" class="table table-sm">
+  <table id="topicsTable" class="table table-striped">
   </table>
+</div>
+</div>
 </div>
 </div>
 
@@ -51,6 +67,11 @@
     <p>&copy; Copyright 2016, Alexandre CABROL PERALES on behalf of Sopra Steria Group, GNU General Public License version 3 or later; see LICENSE</p>
   </div>
   </div>
+
+  <script src="static/js/lib/jquery.js"></script>
+  <script src="static/js/lib/bootstrap.js"></script>
+  <script src="static/js/lib/paraia_multi_select.js"></script>
+
   <script type="text/javascript">
   $(document).ready(function(){
     $('#addTopicButton').click(function() {
@@ -82,12 +103,8 @@ function serializeForm(originForm){
   $.each( arr , function( key, input ) {
    console.log( input.name + ": " + input.value );
    if(input.name=="tags"){
-     if(dict[input.name]){
-       dict[input.name].push(input.value)
-     }
-     else{
-       dict[input.name]=[input.value]
-     }
+     dict[input.name]=$('#tags').paraia_multi_select('get_items');
+
    }
    else if (input.name=="link") {
      dict[input.name]="http://localhost:12345/api/topics/"+dict["title"]
@@ -98,6 +115,7 @@ function serializeForm(originForm){
    }
 
   });
+
   return JSON.stringify(dict) ;
 }
 
@@ -105,7 +123,19 @@ function refreshTags(){
   console.log("Refesh Tags");
   $("#tags").empty()
   $.getJSON( "/api/tags?size=1000", function( data ) {
-      drawList(data.aggregations.group_by_state.buckets);
+      //drawList(data.aggregations.group_by_state.buckets);
+      items=[]
+      wdata=data.aggregations.group_by_state.buckets
+      for (var i = 0; i < wdata.length; i++) {
+          items.push({value: wdata[i].key, text: wdata[i].key+' '+wdata[i].doc_count});
+      }
+      // Initialize paraia-multi-select
+      var select = $('[data-paraia-multi-select="true"]').paraia_multi_select({
+          multi_select: true,
+          items: items,
+          defaults: [],
+          rtl: true
+      });
   });
 }
 
@@ -168,6 +198,5 @@ function drawRow(rowData) {
   <script>
   includeHTML();
   </script>
-
   </body>
 </html>

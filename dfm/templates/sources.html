@@ -1,74 +1,90 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Data Feed Manager Sources</title>
+    <title>DFM Sources</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="static/css/main.css" rel="stylesheet" media="screen">
+    <link href="static/css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="static/css/paraia_multi_select.css" rel="stylesheet" media="screen">
+    <!--<link href="static/css/main.css" rel="stylesheet" media="screen">-->
+    <!--<link href="static/css/sb-admin-2.css" rel="stylesheet" media="screen">-->
     <link rel="alternate" type="application/atom+xml" title="News" href="/atom.xml" />
-    <script src="static/js/lib/jquery.js"></script>
-    <script src="static/js/lib/bootstrap.min.js"></script>
+
   </head>
   <body>
+      <div w3-include-html="browser/menubar.html"></div>
 
-  <div class="container-narrow">
-    <div w3-include-html="browser/menubar.html"></div>
+    <div class="jumbotron text-center">
+      <h1 class="page-header">Sources</h1>
+      <p>Define feeds sources to crawl for docs.</p>
+    </div>
 
-<div class="container">
-    <h3>Manage sources (feeds)</h3>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col">
   <form id="addSource" class="form-inline">
-    <h2 class="form-heading">Add Source </h2>
+
       <!-- {"link":"http://wwww.test.com/rss/atom.xml","tags":[],"freq":30,"depth":2,"step":10000,"limit":10000,"topics":{},"summary":"","title":"","format":"","predict":true,"enable_content":true,"active":true} -->
     <div class="form-group">
-      <label for="title">Title</label>
-      <input type="text" name="title" id="title" class="form-control" placeholder="Title" required autofocus/>
+      <label for="title">Title</label>&nbsp;
+      <input type="text" name="title" id="title" class="form-control" placeholder="Title" required autofocus/>&nbsp;&nbsp;
     </div>
     <div class="form-group">
-      <label for="summary">Summary</label>
-      <input type="text" name="summary" id="summary" class="form-control" placeholder="Description" required autofocus/>
+      <label for="summary">Summary</label>&nbsp;
+      <input type="text" name="summary" id="summary" class="form-control" placeholder="Description" required autofocus/>&nbsp;&nbsp;
     </div>
     <div class="form-group">
-      <label for="link">Link or Query</label>
-      <input type="text" name="link" id="link" class="form-control" placeholder="Feed Address or Query" required autofocus/>
+      <label for="link">Link or Query</label>&nbsp;
+      <input type="text" name="link" id="link" class="form-control" placeholder="Feed Address or Query" required autofocus/>&nbsp;&nbsp;
     </div>
       <!--<input type="hidden" name="tags" value="[]"/>-->
       <input type="hidden" name="freq" value="30"/>
       <input type="hidden" name="depth" value="2"/>
       <div class="form-group">
-        <label for="step">step by batch</label>
-        <input type="text" name="step" value="10000"/>
+        <label for="step">step by batch</label>&nbsp;
+        <input type="text" name="step" value="10000"/>&nbsp;&nbsp;
       </div>
       <div class="form-group">
-        <label for="limit">limit by batch</label>
-        <input type="text" name="limit" value="10000"/>
+        <label for="limit">limit by batch</label>&nbsp;
+        <input type="text" name="limit" value="10000"/>&nbsp;&nbsp;
       </div>
       <!--<input type="hidden" name="topics" value="{}"/>-->
       <input type="hidden" name="predict" value="true"/>
       <input type="hidden" name="enable_content" value="true"/>
       <input type="hidden" name="active" value="true"/>
     <div class="form-group">
-      <label for="format">Format</label>
-      <select name="format" id="format" class="form-control">
+      <label for="format">Format</label>&nbsp;
+      <select name="format" id="format" class="form-control">&nbsp;&nbsp;
         <option value="rss">RSS Feed</option>
         <option value="twitter">Twitter Search</option>
         <option value="tt-rss">TinyTiny RSS Feed</option>
-      </select>
+      </select>&nbsp;&nbsp;
     </div>
-    <button class="btn btn-default" id="addSourceButton" type="button">Add Source</button>
+<button class="btn btn-default" id="addSourceButton" type="button">Add Source</button>
+
   </form>
-<hr/>
-<div class="table-responsive">
+  </div>
+</div>
+<div class="row">
+<div class="col-md-11">
+<div class=".table-responsive-sm">
   <table id="sourcesTable" class="table table-sm">
   </table>
 </div>
-  <hr/>
 </div>
+</div>
+</div>
+
 
 
   <div class="footer">
     <p>&copy; Copyright 2016, Alexandre CABROL PERALES on behalf of Sopra Steria Group, GNU General Public License version 3 or later; see LICENSE</p>
   </div>
   </div>
+
+    <script src="static/js/lib/jquery.js"></script>
+    <script src="static/js/lib/bootstrap.js"></script>
+    <script src="static/js/lib/paraia_multi_select.js"></script>
+
   <script type="text/javascript">
   $(document).ready(function(){
     $('#addSourceButton').click(function() {

@@ -1,27 +1,32 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Data Feed Manager Models</title>
+    <title>DFM Models</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="static/css/bootstrap.min.css" rel="stylesheet" media="screen">
-    <link href="static/css/main.css" rel="stylesheet" media="screen">
+    <link href="static/css/bootstrap.css" rel="stylesheet" media="screen">
+    <link href="static/css/paraia_multi_select.css" rel="stylesheet" media="screen">
+    <!--<link href="static/css/main.css" rel="stylesheet" media="screen">-->
+    <!--<link href="static/css/sb-admin-2.css" rel="stylesheet" media="screen">-->
     <link rel="alternate" type="application/atom+xml" title="News" href="/atom.xml" />
-    <script src="static/js/lib/jquery.js"></script>
-    <script src="static/js/lib/bootstrap.min.js"></script>
+
   </head>
   <body>
+      <div w3-include-html="browser/menubar.html"></div>
 
-  <div class="container-narrow">
-    <div w3-include-html="browser/menubar.html"></div>
+    <div class="jumbotron text-center">
+      <h1 class="page-header">Models</h1>
+      <p>Define models to decide between different topics on the same axiom.</p>
+    </div>
 
-<div class="container">
-    <h3>Manage Models (Prediction Models)</h3>
-  <form id="addModel" class="form-inline">
-    <h2 class="form-heading">Add Model </h2>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm">
+  <form id="addModel" class="form">
+    <button class="btn btn-default" id="addModelButton" type="button">Add Model</button>
       <!-- {"tags":[],"freq":30,"summary":"","title":"","active":true} -->
     <div class="form-group">
       <label for="title">Model</label>
-      <input type="text" name="title" id="title" class="form-control" placeholder="Topic" required autofocus/>
+      <input type="text" name="title" id="title" class="form-control" placeholder="Model" required autofocus/>
     </div>
     <div class="form-group">
       <label for="summary">Summary</label>
@@ -36,21 +41,29 @@
       <input type="hidden" name="link" value=""/>
       <!--<input type="hidden" name="topics" value="{}"/>-->
       <!--<input type="hidden" name="active" value="true"/>-->
-    <div class="form-group">
-      <label for="related_topics">Topics</label>
-      <select multiple name="related_topics" id="related_topics" class="form-control" size="20">
-      </select>
       <div class="form-group">
-        <label for="limit">Limit news number</label>
-        <input type="text" name="limit" id="limit" class="form-control" size="5">
+        <label for="limit">Limit docs number</label>
+        <input type="text" name="limit" id="limit" class="form-control" size="5" value="3000">
         </select>
     </div>
-    <button class="btn btn-default" id="addModelButton" type="button">Add Model</button>
+    <div class="form-group">
+      <label for="related_topics">Topics</label>
+      <input multiple name="related_topics" type="text" class="form-control"
+       name="related_topics"
+       data-paraia-multi-select="true"
+       placeholder="Select tags">
+    </div>
+
+
+
   </form>
-<hr/>
+
+</div>
+<div class="col-md">
 <div class="table-responsive">
   <table id="modelsTable" class="table table-sm">
   </table>
+</div>
 </div>
 </div>
 
@@ -59,6 +72,12 @@
     <p>&copy; Copyright 2016, Alexandre CABROL PERALES on behalf of Sopra Steria Group, GNU General Public License version 3 or later; see LICENSE</p>
   </div>
   </div>
+
+  <script src="static/js/lib/jquery.js"></script>
+  <script src="static/js/lib/bootstrap.js"></script>
+  <script src="static/js/lib/paraia_multi_select.js"></script>
+
+
   <script type="text/javascript">
   $(document).ready(function(){
     $('#addModelButton').click(function() {
@@ -90,12 +109,7 @@ function serializeForm(originForm){
   $.each( arr , function( key, input ) {
    console.log( input.name + ": " + input.value );
    if(input.name=="related_topics"){
-     if(dict[input.name]){
-       dict[input.name].push(input.value)
-     }
-     else{
-       dict[input.name]=[input.value]
-     }
+     dict[input.name]=$('#related_topics').paraia_multi_select('get_items');
    }
    else if (input.name=="link") {
      dict[input.name]="http://localhost:12345/api/models/"+dict["title"]
@@ -112,7 +126,19 @@ function refreshTopics(){
   console.log("Refesh Topics");
   $("#related_topics").empty()
   $.getJSON( "/api/trainings", function( data ) {
-      drawList(data.docs.topics.buckets);
+      //drawList(data.docs.topics.buckets);
+      items=[]
+      wdata=data.docs.topics.buckets
+      for (var i = 0; i < wdata.length; i++) {
+          items.push({value: wdata[i].key, text: wdata[i].key+' '+wdata[i].doc_count});
+      }
+      // Initialize paraia-multi-select
+      var select = $('[data-paraia-multi-select="true"]').paraia_multi_select({
+          multi_select: true,
+          items: items,
+          defaults: [],
+          rtl: true
+      });
   });
 }
 

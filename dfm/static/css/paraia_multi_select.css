@@ -1,0 +1,181 @@
+.paraia-multi-select > .selected-items {
+    position: relative;
+    padding: 2px 80px 2px 2px;
+}
+
+.paraia-multi-select > .selected-items > .placeholder {
+    display: inline-block;
+    padding: 6.5px;
+}
+
+.paraia-multi-select > .selected-items > button {
+    position: absolute;
+    height: 28px;
+    width: 28px;
+    background-color: transparent;
+    top: 7px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.paraia-multi-select > .selected-items > button:hover {
+    transform: scale(1.2);
+}
+
+.paraia-multi-select > .selected-items > button:nth-child(2) {
+    background: url("../images/select-all.jpg") no-repeat center center;
+    background-size: contain;
+    right: 7px;
+}
+
+.paraia-multi-select > .selected-items > button:nth-child(3) {
+    background: url("../images/deselect-all.jpg") no-repeat center center;
+    background-size: contain;
+    right: 40px;
+}
+
+.paraia-multi-select > .selected-items > .item {
+    display: inline-block;
+    background-color: #2a345a;
+    padding: 2px 5px 5px;
+    border-radius: 5px;
+    color: #fff;
+    margin: 2px;
+}
+
+.paraia-multi-select > .selected-items > .item > button {
+    background-color: transparent;
+    color: #fff;
+    border: 0;
+    font-weight: 900;
+    cursor: pointer;
+    vertical-align: bottom;
+}
+
+.paraia-multi-select > .selected-items > .item > button:hover {
+    color: #ccc;
+}
+
+.paraia-multi-select > .selected-items.expand {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.paraia-multi-select > .dropdown {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    max-height: 0;
+    -webkit-transition: .75s;
+    -moz-transition: .75s;
+    -ms-transition: .75s;
+    -o-transition: .75s;
+    transition: .75s;
+    overflow-y: hidden;
+    padding: 0;
+    border-top-width: 0;
+    border-color: transparent;
+}
+
+.paraia-multi-select > .dropdown.expand {
+    max-height: 250px;
+    border-color: #ced4da;
+}
+
+.paraia-multi-select > .dropdown > .filter {
+    position: relative;
+}
+
+.paraia-multi-select > .dropdown > .filter > input {
+    width: 97%;
+    margin: 5px auto 0;
+}
+
+.paraia-multi-select > .dropdown > .filter > button {
+    position: absolute;
+    border: 0;
+    background-color: transparent;
+    cursor: pointer;
+    font-weight: 900;
+    color: #ccc;
+    top: 5px;
+    right: 15px;
+}
+
+.paraia-multi-select > .dropdown > .filter > button:hover {
+    color: #aaa;
+}
+
+.paraia-multi-select > .dropdown > .items {
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.paraia-multi-select > .dropdown > .items::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #F5F5F5;
+    border-radius: 10px;
+}
+
+.paraia-multi-select > .dropdown > .items::-webkit-scrollbar {
+    width: 6px;
+    background-color: #F5F5F5;
+}
+
+.paraia-multi-select > .dropdown > .items::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: #aaa;
+}
+
+.paraia-multi-select > .dropdown > .items > .item {
+    cursor: pointer;
+}
+
+.paraia-multi-select > .dropdown > .items > .item > .custom-checkbox > label {
+    padding: 5px 10px;
+    display: block;
+    cursor: pointer;
+}
+
+.paraia-multi-select > .dropdown > .items > .item > .custom-checkbox > label::before, .paraia-multi-select > .dropdown > .items > .item > .custom-checkbox > label::after {
+    margin: 5px 10px;
+}
+
+.paraia-multi-select > .dropdown > .items > .item:hover {
+    background-color: #005cbf;
+    color: #fff;
+}
+
+.paraia-multi-select.rtl {
+    direction: rtl;
+    text-align: right;
+}
+
+.paraia-multi-select.rtl > .selected-items {
+    padding: 2px 2px 2px 80px;
+}
+
+.paraia-multi-select > .selected-items > button:nth-child(2) {
+    right: auto;
+    left: 7px;
+}
+
+.paraia-multi-select > .selected-items > button:nth-child(3) {
+    right: auto;
+    left: 40px;
+}
+
+.paraia-multi-select.rtl > .dropdown > .filter > button {
+    right: auto;
+    left: 15px;
+}
+
+.paraia-multi-select.rtl > .dropdown > .items > .item > .custom-checkbox {
+    padding: 0 1.5rem 0 0;
+}
+
+.paraia-multi-select.rtl > .dropdown > .items > .item > .custom-checkbox > label::before, .paraia-multi-select.rtl > .dropdown > .items > .item > .custom-checkbox > label::after {
+    left: auto;
+    right: 0;
+}
