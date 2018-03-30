@@ -9,6 +9,7 @@ import requests
 import hashlib
 import urlparse
 import urllib,urllib3
+from urllib3.exceptions import ReadTimeoutError
 import json
 import feedparser
 import threading
@@ -171,205 +172,211 @@ def submitSource(link,stype,msg):
     return "Your source add attempt is a "+code+" "+result_msg
 
 def handle(msg):
-    content_type, chat_type, chat_id = telepot.glance(msg)
-    average_score=0
+    try:
+        content_type, chat_type, chat_id = telepot.glance(msg)
+        average_score=0
 
-    print(content_type, chat_type, chat_id, msg)
+        print(content_type, chat_type, chat_id, msg)
 
-    if content_type == 'text':
-        if "entities" in msg:
-            command=None
-            keywords=None
-            for entity in msg["entities"]:
-                if entity['type'] == 'bot_command':
-                    order=msg['text'][entity['offset']+1:entity['offset']+entity['length']].split('@')
-                    if type(order)==list:
-                        print "order is a list"
-                        if len(order)>1:
-                            "print order has bot name"
-                            if order[1]=="dfmtelegrambot":
+        if content_type == 'text':
+            if "entities" in msg:
+                command=None
+                keywords=None
+                for entity in msg["entities"]:
+                    if entity['type'] == 'bot_command':
+                        order=msg['text'][entity['offset']+1:entity['offset']+entity['length']].split('@')
+                        if type(order)==list:
+                            print "order is a list"
+                            if len(order)>1:
+                                "print order has bot name"
+                                if order[1]=="dfmtelegrambot":
+                                    order=order[0]
+                                    print "order is for me"
+                                else:
+                                    print "order is for another bot"
+                                    order=None
+                            else:
                                 order=order[0]
-                                print "order is for me"
-                            else:
-                                print "order is for another bot"
-                                order=None
-                        else:
-                            order=order[0]
-                            print "order has not botname so i take it"
+                                print "order has not botname so i take it"
 
-                    if type(order)==unicode:
-                        print order
-                        bot.sendMessage(chat_id, "Got the "+order+" order Mr. "+msg['from']['first_name']+"!")
-                        command=order
-                        #subscribe and teach commands are manager while detecting url entity
-                        if command=="follow" or command=="watch":
-                            if msg["entities"][0]["type"]=='bot_command' and entity['offset']+entity['length']+1<len(msg['text']):
-                                link=msg['text'][entity['offset']+entity['length']+1:len(msg['text'])]
-                                if command=="follow" and link[0]!="@":
-                                    bot.sendMessage(chat_id,"Error: "+msg['from']['first_name']+", /follow require twitter account starting with @ .")
-                                    break
-                                bot.sendMessage(chat_id,"Source subscription result for "+msg['from']['first_name']+":\n"+submitSource(link,"twitter",msg))
-                            else:
-                                bot.sendMessage(chat_id,"Error: "+msg['from']['first_name']+", please check /help .")
-                        elif command=="digest":
-                            #dfm_feedparser=feedparser.parse(dfm_feed)
-                            response = http.request('GET',dfm_api_base+"recent?size=5&gte=now-1d/d")
-                            print "GET "+dfm_api_base+"recent"+" status:"+str(response.status)
-                            result_docs=json.loads(response.data)
-                            digest="Top current news categorization:\n\n"
-                            for dfm_entry in result_docs:
-                                if "title" in dfm_entry["_source"]:
-                                   title=dfm_entry["_source"]["title"]
+                        if type(order)==unicode:
+                            print order
+                            bot.sendMessage(chat_id, "Got the "+order+" order Mr. "+msg['from']['first_name']+"!")
+                            command=order
+                            #subscribe and teach commands are manager while detecting url entity
+                            if command=="follow" or command=="watch":
+                                if msg["entities"][0]["type"]=='bot_command' and entity['offset']+entity['length']+1<len(msg['text']):
+                                    link=msg['text'][entity['offset']+entity['length']+1:len(msg['text'])]
+                                    if command=="follow" and link[0]!="@":
+                                        bot.sendMessage(chat_id,"Error: "+msg['from']['first_name']+", /follow require twitter account starting with @ .")
+                                        break
+                                    bot.sendMessage(chat_id,"Source subscription result for "+msg['from']['first_name']+":\n"+submitSource(link,"twitter",msg))
                                 else:
-                                   title=dfm_entry["_source"]["summary"]
-                                link=dfm_entry["_source"]["link"]
-                                tags=""
-                                if "tags" in dfm_entry["_source"]:
-                                    for tag in dfm_entry["_source"]["tags"]:
-                                        tags=tags+"#"+tag+" "
-                                topics=""
-                                if "topics" in dfm_entry["_source"]:
-                                   for topic in dfm_entry["_source"]["topics"]:
-                                       topics=topics+"#"+topic["label"]+" "
+                                    bot.sendMessage(chat_id,"Error: "+msg['from']['first_name']+", please check /help .")
+                            elif command=="digest":
+                                #dfm_feedparser=feedparser.parse(dfm_feed)
+                                response = http.request('GET',dfm_api_base+"recent?size=5&gte=now-1d/d")
+                                print "GET "+dfm_api_base+"recent"+" status:"+str(response.status)
+                                result_docs=json.loads(response.data)
+                                digest="Top current news categorization:\n\n"
+                                for dfm_entry in result_docs:
+                                    if "title" in dfm_entry["_source"]:
+                                       title=dfm_entry["_source"]["title"]
+                                    else:
+                                       title=dfm_entry["_source"]["summary"]
+                                    link=dfm_entry["_source"]["link"]
+                                    tags=""
+                                    if "tags" in dfm_entry["_source"]:
+                                        for tag in dfm_entry["_source"]["tags"]:
+                                            tags=tags+"#"+tag+" "
+                                    topics=""
+                                    if "topics" in dfm_entry["_source"]:
+                                       for topic in dfm_entry["_source"]["topics"]:
+                                           topics=topics+"#"+topic["label"]+" "
 
-                                digest=digest+"["+title+"]("+link+")\n"
-                                digest=digest+"Tags: "+tags+"\n"
-                                digest=digest+"Topics: "+topics+"\n\n"
+                                    digest=digest+"["+title+"]("+link+")\n"
+                                    digest=digest+"Tags: "+tags+"\n"
+                                    digest=digest+"Topics: "+topics+"\n\n"
 
-                            bot.sendMessage(chat_id, digest,parse_mode="Markdown")
-                        elif command=="help":
-                            bot.sendMessage(chat_id, """*DFM Bot Commands:*
-                            /subscribe _rss feed url_ Subscribe to an rss feed
-                            /follow _twitter account_ follow a twitter account
-                            /watch _twitter search_ watch for a twitter search
-                            /teach _url_ _keywords_ teach dfm bot keywords (separated by commas) related to one news
-                            /digest get current top 10 news in DFM
-                            /help get this message (help message)
-                            *To submit a news just post an url as chat message then i will catch it, scrap the web page, reply extract, keywords provided by author and predict categories.*
-                            """,parse_mode="Markdown")
+                                bot.sendMessage(chat_id, digest,parse_mode="Markdown")
+                            elif command=="help":
+                                bot.sendMessage(chat_id, """*DFM Bot Commands:*
+                                /subscribe _rss feed url_ Subscribe to an rss feed
+                                /follow _twitter account_ follow a twitter account
+                                /watch _twitter search_ watch for a twitter search
+                                /teach _url_ _keywords_ teach dfm bot keywords (separated by commas) related to one news
+                                /digest get current top 10 news in DFM
+                                /help get this message (help message)
+                                *To submit a news just post an url as chat message then i will catch it, scrap the web page, reply extract, keywords provided by author and predict categories.*
+                                """,parse_mode="Markdown")
 
-                if entity['type'] == 'url':
-                    print "url and "+str(command)+" detected"
+                    if entity['type'] == 'url':
+                        print "url and "+str(command)+" detected"
 
-                    if command==None or command=="teach":
-                        url=msg['text'][entity['offset']:entity['offset']+entity['length']]
-                        print url
-                        keywords=[]
-                        if command=="teach":
-                            print "Teaching"
-                            keywords=msg['text'][entity['offset']+entity['length']+1:len(msg['text'])].strip().split(',')
-                            print keywords
+                        if command==None or command=="teach":
+                            url=msg['text'][entity['offset']:entity['offset']+entity['length']]
+                            print url
+                            keywords=[]
+                            if command=="teach":
+                                print "Teaching"
+                                keywords=msg['text'][entity['offset']+entity['length']+1:len(msg['text'])].strip().split(',')
+                                print keywords
 
-                        bot.sendMessage(chat_id, "Thank you for the news "+msg['from']['first_name']+"!")
-                        print "Scraping"
-                        results = submitUrl(url,msg,keywords)
-                        if results != None:
-                            if "text" in results["_source"]:
+                            bot.sendMessage(chat_id, "Thank you for the news "+msg['from']['first_name']+"!")
+                            print "Scraping"
+                            results = submitUrl(url,msg,keywords)
+                            if results != None:
+                                if "text" in results["_source"]:
 
-                                tags_message=""
-                                topics_message=""
-                                tags_message_list=[]
-                                if "tags" in results["_source"]:
-                                    if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
-                                        for tag in results["_source"]["tags"]:
-                                            tags_message=tags_message+" #"+tag
-                                        tags_message=tags_message
-                                        tags_message_list=tags_message.split(" ")
+                                    tags_message=""
+                                    topics_message=""
+                                    tags_message_list=[]
+                                    if "tags" in results["_source"]:
+                                        if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
+                                            for tag in results["_source"]["tags"]:
+                                                tags_message=tags_message+" #"+tag
+                                            tags_message=tags_message
+                                            tags_message_list=tags_message.split(" ")
+                                    else:
+                                        tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
+
+                                    if "topics" in results["_source"]:
+                                        topics_scores=[]
+                                        for topic in results["_source"]["topics"]:
+                                            topics_message=topics_message+topic["label"]+" and "
+                                            topics_scores.append(topic["score"])
+                                        average_score=sum(topics_scores)/len(topics_scores)
+                                        topics_message=topics_message[:-5]
+
+                                    if "title" not in results["_source"]:
+                                        title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+                                    else:
+                                        title=results["_source"]["title"]
+
+                                    extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+                                    built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
+                                    built_message+="```"+extract+"...```\n\n"
+                                    built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+                                    built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
+                                    built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+                                    built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
+
+                                    markup = InlineKeyboardMarkup(inline_keyboard=[
+                                    [InlineKeyboardButton(text=u'\u274c', callback_data=0),
+                                    InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
+                                    InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
+                                    ])
+
+                                    bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
+
                                 else:
-                                    tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
-
-                                if "topics" in results["_source"]:
-                                    topics_scores=[]
-                                    for topic in results["_source"]["topics"]:
-                                        topics_message=topics_message+topic["label"]+" and "
-                                        topics_scores.append(topic["score"])
-                                    average_score=sum(topics_scores)/len(topics_scores)
-                                    topics_message=topics_message[:-5]
-
-                                if "title" not in results["_source"]:
-                                    title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-                                else:
-                                    title=results["_source"]["title"]
-
-                                extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-                                built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
-                                built_message+="```"+extract+"...```\n\n"
-                                built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-                                built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
-                                built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-                                built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
-
-                                markup = InlineKeyboardMarkup(inline_keyboard=[
-                                [InlineKeyboardButton(text=u'\u274c', callback_data=0),
-                                InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
-                                InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
-                                ])
-
-                                bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
-
+                                    bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
                             else:
                                 bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
-                        else:
-                            bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
 
-                    elif command=="subscribe":
-                        print "Subscribing"
-                        link=msg['text'][entity['offset']:entity['offset']+entity['length']]
-                        bot.sendMessage(chat_id,"Source subscription result for "+msg['from']['first_name']+":\n"+json.dumps(submitSource(link,"rss",msg)))
+                        elif command=="subscribe":
+                            print "Subscribing"
+                            link=msg['text'][entity['offset']:entity['offset']+entity['length']]
+                            bot.sendMessage(chat_id,"Source subscription result for "+msg['from']['first_name']+":\n"+json.dumps(submitSource(link,"rss",msg)))
+    except ReadTimeoutError:
+        pass
 
 def postRecent():
-    recent_id=""
-    print("recent id submitted for vote: "+recent_id)
-    average_score=0
+    try:
+        recent_id=""
+        print("recent id submitted for vote: "+recent_id)
+        average_score=0
 
-    results=getDoc(recent_id)
+        results=getDoc(recent_id)
 
-    if results != None:
-        recent_parent=results[0]["_parent"]
-        results=results[0]
-        if "text" in results["_source"]:
-            tags_message=""
-            topics_message=""
-            tags_message_list=[]
-            if "tags" in results["_source"]:
-                if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
-                    for tag in results["_source"]["tags"]:
-                        tags_message=tags_message+" #"+tag
-                    tags_message=tags_message
-                    tags_message_list=tags_message.split(" ")
-            else:
-                tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
+        if results != None:
+            recent_parent=results[0]["_parent"]
+            results=results[0]
+            if "text" in results["_source"]:
+                tags_message=""
+                topics_message=""
+                tags_message_list=[]
+                if "tags" in results["_source"]:
+                    if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
+                        for tag in results["_source"]["tags"]:
+                            tags_message=tags_message+" #"+tag
+                        tags_message=tags_message
+                        tags_message_list=tags_message.split(" ")
+                else:
+                    tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
 
-            if "topics" in results["_source"]:
-                topics_scores=[]
-                for topic in results["_source"]["topics"]:
-                    topics_message=topics_message+topic["label"]+" and "
-                    topics_scores.append(topic["score"])
-                average_score=sum(topics_scores)/len(topics_scores)
-                topics_message=topics_message[:-5]
+                if "topics" in results["_source"]:
+                    topics_scores=[]
+                    for topic in results["_source"]["topics"]:
+                        topics_message=topics_message+topic["label"]+" and "
+                        topics_scores.append(topic["score"])
+                    average_score=sum(topics_scores)/len(topics_scores)
+                    topics_message=topics_message[:-5]
 
-            if "title" not in results["_source"]:
-                title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-            else:
-                title=results["_source"]["title"]
-            cb_uri=recent_parent+'/'+recent_id
-            markup = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text=u'\u274c', callback_data=0),
-            InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
-            InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
-            ])
+                if "title" not in results["_source"]:
+                    title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+                else:
+                    title=results["_source"]["title"]
+                cb_uri=recent_parent+'/'+recent_id
+                markup = InlineKeyboardMarkup(inline_keyboard=[
+                [InlineKeyboardButton(text=u'\u274c', callback_data=0),
+                InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
+                InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
+                ])
 
-            extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-            built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
-            built_message+="```"+extract+"...```\n\n"
-            built_message+=tags_message+"\n\n topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
-            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-            built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")\n\n Ranke it:"
-            #After being added as an administrator to a channel, the bot can send messages to the channel
-            bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN",reply_markup=markup,disable_notification=True)
-            print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
-            recent_id=results["_id"]
+                extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+                built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
+                built_message+="```"+extract+"...```\n\n"
+                built_message+=tags_message+"\n\n topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+                built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
+                built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+                built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")\n\n Ranke it:"
+                #After being added as an administrator to a channel, the bot can send messages to the channel
+                bot.sendMessage(config.get('variables', 'BROADCAST_ID'),built_message,parse_mode="MARKDOWN",reply_markup=markup,disable_notification=True)
+                print "Sent to "+str(config.get('variables', 'BROADCAST_ID'))+" message: "+built_message
+                recent_id=results["_id"]
+    except ReadTimeoutError:
+        pass
 
 def postJob():
     for tm in config.get('variables', 'POST_SCHEDULE').split(","):
@@ -426,6 +433,7 @@ t.start()
 
 print "entering reception message loop..."
 bot.message_loop({'chat': handle, 'callback_query': on_callback_query},run_forever='Listening ...') #'inline_query': on_inline_query,'chosen_inline_result': on_chosen_inline_result
+
 # Keep the program running.
 while 1:
     time.sleep(10)
