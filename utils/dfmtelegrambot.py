@@ -171,14 +171,76 @@ def submitSource(link,stype,msg):
                 result_msg="Source ID for "+link+" is :"+result['_id']
     return "Your source add attempt is a "+code+" "+result_msg
 
+def botAnswer(results,chat_id,msg,keywords):
+    average_score=0
+    if results != None:
+        if "text" in results["_source"]:
+
+            tags_message=""
+            topics_message=""
+            tags_message_list=[]
+            if "tags" in results["_source"]:
+                if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
+                    for tag in results["_source"]["tags"]:
+                        tags_message=tags_message+" #"+tag
+                    tags_message=tags_message
+                    tags_message_list=tags_message.split(" ")
+            else:
+                tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
+
+            if "topics" in results["_source"]:
+                topics_scores=[]
+                for topic in results["_source"]["topics"]:
+                    topics_message=topics_message+topic["label"]+" and "
+                    topics_scores.append(topic["score"])
+                average_score=sum(topics_scores)/len(topics_scores)
+                topics_message=topics_message[:-5]
+
+            if "title" not in results["_source"]:
+                title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+            else:
+                title=results["_source"]["title"]
+
+            extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
+            built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
+            built_message+="```"+extract+"...```\n\n"
+            built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
+            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+            built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
+
+            markup = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text=u'\u274c', callback_data=0),
+            InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
+            InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
+            ])
+
+            bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
+
+        else:
+            bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
+    else:
+        bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
+
 def handle(msg):
     try:
         content_type, chat_type, chat_id = telepot.glance(msg)
-        average_score=0
+
 
         print(content_type, chat_type, chat_id, msg)
+        if content_type == 'document':
+            doc=bot.getFile(msg['document']['file_id'])
+            print(doc)
 
-        if content_type == 'text':
+            url='https://api.telegram.org/file/bot'+config.get('variables', 'BOT_TOKEN')+'/'+doc['file_path']
+            print('DOCUMENT FOUND: '+url)
+            bot.sendMessage(chat_id, "Thank you for the file "+msg['from']['first_name']+"!")
+            print "Scraping"
+            msg['text']=msg['document']['file_name']+'  type: '+msg['document']['mime_type']+' size: '+str(msg['document']['file_size'])+' bytes'
+            results = submitUrl(url,msg,[])
+            botAnswer(results,chat_id,msg,[])
+
+        elif content_type == 'text':
             if "entities" in msg:
                 command=None
                 keywords=None
@@ -265,54 +327,7 @@ def handle(msg):
                             bot.sendMessage(chat_id, "Thank you for the news "+msg['from']['first_name']+"!")
                             print "Scraping"
                             results = submitUrl(url,msg,keywords)
-                            if results != None:
-                                if "text" in results["_source"]:
-
-                                    tags_message=""
-                                    topics_message=""
-                                    tags_message_list=[]
-                                    if "tags" in results["_source"]:
-                                        if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
-                                            for tag in results["_source"]["tags"]:
-                                                tags_message=tags_message+" #"+tag
-                                            tags_message=tags_message
-                                            tags_message_list=tags_message.split(" ")
-                                    else:
-                                        tags_message_list=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines()).split()
-
-                                    if "topics" in results["_source"]:
-                                        topics_scores=[]
-                                        for topic in results["_source"]["topics"]:
-                                            topics_message=topics_message+topic["label"]+" and "
-                                            topics_scores.append(topic["score"])
-                                        average_score=sum(topics_scores)/len(topics_scores)
-                                        topics_message=topics_message[:-5]
-
-                                    if "title" not in results["_source"]:
-                                        title=" ".join(results["_source"]["text"][0:120].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-                                    else:
-                                        title=results["_source"]["title"]
-
-                                    extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-                                    built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
-                                    built_message+="```"+extract+"...```\n\n"
-                                    built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-                                    built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
-                                    built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-                                    built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
-
-                                    markup = InlineKeyboardMarkup(inline_keyboard=[
-                                    [InlineKeyboardButton(text=u'\u274c', callback_data=0),
-                                    InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
-                                    InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
-                                    ])
-
-                                    bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
-
-                                else:
-                                    bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
-                            else:
-                                bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
+                            botAnswer(results,chat_id,msg,keywords)
 
                         elif command=="subscribe":
                             print "Subscribing"
