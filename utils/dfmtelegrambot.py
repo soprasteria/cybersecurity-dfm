@@ -229,16 +229,17 @@ def handle(msg):
 
         print(content_type, chat_type, chat_id, msg)
         if content_type == 'document':
-            doc=bot.getFile(msg['document']['file_id'])
-            print(doc)
+            if msg['document']['mime_type']!="video/mp4":
+               doc=bot.getFile(msg['document']['file_id'])
+               print(doc)
 
-            url='https://api.telegram.org/file/bot'+config.get('variables', 'BOT_TOKEN')+'/'+doc['file_path']
-            print('DOCUMENT FOUND: '+url)
-            bot.sendMessage(chat_id, "Thank you for the file "+msg['from']['first_name']+"!")
-            print "Scraping"
-            msg['text']=msg['document']['file_name']+'  type: '+msg['document']['mime_type']+' size: '+str(msg['document']['file_size'])+' bytes'
-            results = submitUrl(url,msg,[])
-            botAnswer(results,chat_id,msg,[])
+               url='https://api.telegram.org/file/bot'+config.get('variables', 'BOT_TOKEN')+'/'+doc['file_path']
+               print('DOCUMENT FOUND: '+url)
+               bot.sendMessage(chat_id, "Thank you for the file "+msg['from']['first_name']+"!")
+               print "Scraping"
+               msg['text']=msg['document']['file_name']+'  type: '+msg['document']['mime_type']+' size: '+str(msg['document']['file_size'])+' bytes'
+               results = submitUrl(url,msg,[])
+               botAnswer(results,chat_id,msg,[])
 
         elif content_type == 'text':
             if "entities" in msg:
