@@ -291,6 +291,59 @@ class Feed:
             docs_results=self.standard_get(url)
         return results.results
 
+    def twitt_get(self,raw_twitt):
+        """ Extract single twitt content and store it """
+        results=Results(self.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
+
+        twitt_link="https://twitter.com/"+raw_twitt.user.screen_name+"/status/"+raw_twitt.id_str
+        summary=re.sub('[a-z]+://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', raw_twitt.text, flags=re.MULTILINE)
+
+        hashtags=[]
+        for curr_hashtag in raw_twitt.entities['hashtags']:
+            hashtags.append(curr_hashtag['text'])
+
+        try:
+            lang_detect=detect(summary)
+        except Exception as e:
+            results.add_error(e)
+            lang_detect=""
+        twitt={
+         "origin":self.id,
+         "author": raw_twitt.user.screen_name,
+         "id": raw_twitt.id,
+         "source_type":"twitter",
+         "format":"twitter",
+         "source": twitt_link,
+         "summary": summary,
+         "tags": hashtags,
+         "title": summary,
+         "content":[{"base":"","language":lang_detect}],
+         "updated": raw_twitt.created_at,
+         "occurences":raw_twitt.retweet_count,
+        }
+        #and self.url_validator.match(raw_twitt.entities['urls'][0]['expanded_url'])
+        if raw_twitt.entities['urls']:
+            urls=[]
+            for curr_url in raw_twitt.entities['urls']:
+                self.logger.debug(curr_url)
+#                if self.url_validator.match(curr_url['expanded_url']):
+                urls.append(curr_url['expanded_url'])
+                twitt.update({"link":curr_url['expanded_url']})
+
+            twitt.update({
+             "related_links": urls
+            })
+
+            results.add_success(twitt_link)
+            return {"_parent":self.id,"_routing":self.id,"_type":"doc","doc":twitt}
+        else:
+            results.add_fail({'url':twitt_link,'message':'No link in this twitt'})
+            twitt.update({
+             "related_links": [],
+             "link":twitt_link
+            })
+            return {"_parent":self.id,"_routing":self.id,"_type":"doc","doc":twitt}
+
     #@profile
     def twitter_get(self):
         """ Twitter news collect, link are extracted from the twitts and manage as news """
@@ -324,49 +377,8 @@ class Feed:
                                monitor_rate_limit=True,
                                wait_on_rate_limit=True,
                                lang="en").items(self.limit):
-                    twitt_link="https://twitter.com/"+raw_twitt.user.screen_name+"/status/"+raw_twitt.id_str
-                    if raw_twitt.entities['urls'] and self.url_validator.match(raw_twitt.entities['urls'][0]['expanded_url']):
-
-
-                        urls=[]
-                        for curr_url in raw_twitt.entities['urls']:
-                            if self.url_validator.match(curr_url['expanded_url']):
-                                urls.append(curr_url['expanded_url'])
-                        summary=re.sub('[a-z]+://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', raw_twitt.text, flags=re.MULTILINE)
-
-                        self.logger.debug("Unshorting: "+urls[0])
-                        twitt={"link":self.redirects_pass_through(urls.pop(0))}
-
-                        hashtags=[]
-                        for curr_hashtag in raw_twitt.entities['hashtags']:
-                            hashtags.append(curr_hashtag['text'])
-                        try:
-                            lang_detect=detect(summary)
-                        except Exception as e:
-                            results.add_error(e)
-                            lang_detect=""
-                        twitt.update({
-                         "origin":self.id,
-                         "author": raw_twitt.user.screen_name,
-                         "id": raw_twitt.id,
-                         "related_links": urls,
-                         "source_type":"twitter",
-                         "format":"twitter",
-                         "source": twitt_link,
-                         "summary": summary,
-                         "tags": hashtags,
-                         "title": summary,
-                         "content":[{"base":ssearch,"language":lang_detect}],
-                         "updated": raw_twitt.created_at,
-                         "occurences":raw_twitt.retweet_count,
-                        })
-                        #bulk helpers format http://elasticsearch-py.readthedocs.io/en/master/helpers.html#bulk-helpers
-                        twitts.append({"_parent":self.id,"_routing":self.id,"_type":"doc","doc":twitt})
-                        results.add_success(twitt_link)
-                        del twitt
-                    else:
-                        results.add_fail({'url':twitt_link,'message':'No link in this twitt'})
-
+                               #bulk helpers format http://elasticsearch-py.readthedocs.io/en/master/helpers.html#bulk-helpers
+                               twitts.append(self.twitt_get(raw_twitt))
                     #if (time.time()-start_time)>10:
                     #    break
 
@@ -540,11 +552,17 @@ class Feed:
         :param: str url url to scrap and extract content_crawl
         :return: json extracted attributes mostly text, tags, summary and title if extraction success
         """
+
         results=Results(self.logger,1,str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
 
-        url_exclusion=any(re.match(regex, url) for regex in self.uri_exclusion)
-        extension_exclusion=any(re.match(regex, url) for regex in self.file_extensions_exclusion)
-        twitter_link=any(re.match(regex, url) for regex in [r'twitter.com'])
+        """ Test if uri is in exclusion list of settings """
+        combined_uri_exclusions = "(" + ")|(".join(self.uri_exclusion)+ ")"
+        url_exclusion=re.match(combined_uri_exclusions, url)
+
+        """ Test if extension is in exclusion list of settings """
+        combined_extensions_exclusions = "(" + ")|(".join(self.file_extensions_exclusion)+ ")"
+        extension_exclusion=re.match(combined_extensions_exclusions, url)
+
 
         if url_exclusion:
             results.add_fail({"url":url,"message":"url has been excluded by settings EXCLUDED_URIS"})
@@ -556,14 +574,23 @@ class Feed:
             doc={"link":url,"content":[{"base":url,"language":""}]}
             return [doc, results.results]
 
-        if twitter_link:
+        html=""
+        text=""
+        title=""
+        summary=""
+        tags=[]
+
+        """ Test if it is a twitt """
+        if 'twitter.com' in url:
             self.logger.debug("Twitt detected")
-            matched=re.search('\/([0-9]+)[\/|\?][^\/]+$',url)
+            matched=re.search('/([0-9]+)/?',url)
             if matched:
-                tweet_id=matched.group(1)
-                self.logger.debug("Twitt ID: "+tweet_id)
-                tweets=self.twt_api.statuses_lookup([twitt_id])
-                url=tweets[0].entities['urls'][0]
+                twitt_id=matched.group(1)
+                self.logger.debug("Twitt ID: "+twitt_id)
+                twitt=self.twitt_get(self.twt_api.get_status(twitt_id))
+                url=twitt["doc"]["link"]
+                summary=twitt["doc"]["summary"]
+                tags=twitt["doc"]["tags"]
 
 
 
@@ -576,11 +603,6 @@ class Feed:
             doc={"link":url,"content":[{"base":url,"language":""}]}
             return [doc, results.results]
 
-        html=""
-        text=""
-        title=""
-        summary=""
-        tags=[]
         self.logger.debug("Content-Type: "+doc_type)
         #manage not web documents
         if "html" not in doc_type and "text" not in doc_type and "htm" not in doc_type and "javascript" not in doc_type:
@@ -1050,7 +1072,7 @@ class Feed:
     #@profile
     def redirects_pass_through(self,url,retries=3):
         #test infinite loop from https://kev.inburke.com/kevin/urllib3-retries/
-        while True:
+        while retries>0:
             try:
                 self.logger.debug("Redirects: url for redirects pass through:"+url)
                 resp = self.http.request('GET', url)
