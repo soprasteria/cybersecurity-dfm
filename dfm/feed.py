@@ -807,6 +807,7 @@ class Feed:
             lang_detect=""
 
         #generate summary
+        sumy_summary=""
         if lang_detect!="":
             parser = PlaintextParser.from_string(text, Tokenizer(self.LANGUAGES[lang_detect]))
             stemmer = Stemmer(self.LANGUAGES[lang_detect])
@@ -814,7 +815,7 @@ class Feed:
             summarizer = Summarizer(stemmer)
             summarizer.stop_words = get_stop_words(self.LANGUAGES[lang_detect])
 
-            sumy_summary=""
+
             for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
                 sumy_summary+=sentence.__unicode__()+u"\n"
 
