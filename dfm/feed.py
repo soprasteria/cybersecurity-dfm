@@ -397,6 +397,13 @@ class Feed:
                 self.logger.debug(curr_url)
 #                if self.url_validator.match(curr_url['expanded_url']):
                 urls.append(curr_url['expanded_url'])
+                if "twitter.com" in curr_url['expanded_url']:
+                    matched=re.search('/([0-9]+)/?',curr_url['expanded_url'])
+                    if matched:
+                        twitt_id=matched.group(1)
+                        self.logger.debug("Twitt ID: "+twitt_id)
+                        twitt=self.twitt_get(self.twt_api.get_status(twitt_id))
+                        curr_url['expanded_url']=twitt["doc"]["link"]
                 twitt.update({"link":curr_url['expanded_url']})
 
             twitt.update({
