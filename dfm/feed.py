@@ -689,6 +689,7 @@ class Feed:
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
             text = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
+
             #quick cleanup
             text=text.replace('\n\n','\n').replace('\n',"\n").replace('....',' ')
 
@@ -800,6 +801,7 @@ class Feed:
             results.add_error({'url':url,'lib':last_lib,'message':str(e)})
             lang_detect=""
 
+        #generate summary
         parser = PlaintextParser.from_string(text, Tokenizer(self.LANGUAGES[lang_detect]))
         stemmer = Stemmer(self.LANGUAGES[lang_detect])
 
@@ -815,10 +817,12 @@ class Feed:
             doc["title"]=title
         if self.config['STORE_HTML'] and len(html)>0:
             doc["html"]=base64.b64encode(self.text_to_string(html))
-        #if len(sumy_summary)>0:
-        #    doc["summary"]=sumy_summary
+
         if len(sumy_summary)>0:
+            doc["summary"]=sumy_summary
+        elif len(sumy_summary)>0:
             doc["summary"]=summary
+
         if len(text)>0:
             doc["text"]=text
         if len(tags):
