@@ -651,7 +651,7 @@ class Feed:
 
         """ Test if it is a twitt """
         if 'twitter.com' in url:
-            self.logger.debug("Twitt detected")
+            self.logger.debug("Tweet detected")
             matched=re.search('/([0-9]+)/?',url)
             if matched:
                 twitt_id=matched.group(1)
@@ -660,8 +660,6 @@ class Feed:
                 url=twitt["doc"]["link"]
                 summary=twitt["doc"]["summary"]
                 tags=twitt["doc"]["tags"]
-
-
 
         res = self.http.request('GET', url, preload_content=False)
         doc_type = res.getheader('Content-Type')
@@ -686,6 +684,9 @@ class Feed:
             ext = mimetypes.guess_all_extensions(mimes)[0] # Guess extension
             self.logger.debug("Document guessed type: "+tmp_file.name+ext)
             last_lib="textract"
+            """ Test if it is arxiv """
+            if 'arxiv.org' in url:
+                ext=pdf
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
             text = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
