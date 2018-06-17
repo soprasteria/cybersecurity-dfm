@@ -688,7 +688,7 @@ class Feed:
             last_lib="textract"
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
-            text = textract.process(str(tmp_file.name), extension=str(ext), encoding='unicode')
+            text = textract.process(str(tmp_file.name), extension=str(ext), encoding='utf_8')
             #quick cleanup
             text=text.replace('\n\n','\n').replace('\n',"\n").replace('....',' ')
 
