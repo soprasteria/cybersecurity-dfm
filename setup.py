@@ -42,7 +42,6 @@ setup(
      'sphinx-pyreverse',
      'sphinx_rtd_theme',
      'sphinx_git',
-     'memory_profiler',
      'selenium',
      'textract',
      'python-magic',

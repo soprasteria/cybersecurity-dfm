@@ -21,7 +21,6 @@ sphinx_git
 praw
 pycallgraph
 pylint
-memory_profiler
 selenium
 six==1.7.3
 urllib3==1.21.1

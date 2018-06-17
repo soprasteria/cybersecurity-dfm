@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 "Data Feed Manager Machine Learning model trainer"
 
-from memory_profiler import profile
+#from memory_profiler import profile
 import sys, os, time, argparse
 from dd_client import DD
 

@@ -12,7 +12,7 @@ import inspect
 import tempfile
 import mimetypes
 
-from memory_profiler import profile
+#from memory_profiler import profile
 import base64
 import json
 import signal

@@ -14,7 +14,7 @@ import inspect
 import pickle
 import re
 import resource
-from memory_profiler import profile
+#from memory_profiler import profile
 from subprocess import call
 import multiprocessing
 import time

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 "Data Feed Manager json data custom serializer"
 
-from memory_profiler import profile
+#from memory_profiler import profile
 import time
 import datetime
 class CustomSerializer:

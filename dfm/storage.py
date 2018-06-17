@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 "Data Feed Manager Storage Management for ElasticSearch"
 
-from memory_profiler import profile
+#from memory_profiler import profile
 from datetime import datetime
 from elasticsearch import Elasticsearch, helpers, TransportError, ConnectionTimeout, ConnectionError, RequestError, RequestsHttpConnection
 import hashlib
