@@ -800,15 +800,15 @@ class Feed:
             results.add_error({'url':url,'lib':last_lib,'message':str(e)})
             lang_detect=""
 
-        #parser = PlaintextParser.from_string(text, Tokenizer(self.LANGUAGES[lang_detect]))
-        #stemmer = Stemmer(self.LANGUAGES[lang_detect])
+        parser = PlaintextParser.from_string(text, Tokenizer(self.LANGUAGES[lang_detect]))
+        stemmer = Stemmer(self.LANGUAGES[lang_detect])
 
-        #summarizer = Summarizer(stemmer)
-        #summarizer.stop_words = get_stop_words(self.LANGUAGES[lang_detect])
+        summarizer = Summarizer(stemmer)
+        summarizer.stop_words = get_stop_words(self.LANGUAGES[lang_detect])
 
         sumy_summary=""
-        #for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
-        #    sumy_summary+=sentence.__unicode__()+u"\n"
+        for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
+            sumy_summary+=sentence.__unicode__()+u"\n"
 
         doc={"link":url,"content":[{"base":url,"language":lang_detect}]}
         if len(title)>0:
