@@ -39,3 +39,4 @@ schedule
 sumy==0.3.0
 tinysegmenter
 jieba
+python-pptx==0.5.1
