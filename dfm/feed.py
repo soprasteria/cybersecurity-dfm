@@ -808,16 +808,16 @@ class Feed:
 
         sumy_summary=""
         for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
-            sumy_summary+=unicode(sentence).encode('ascii','ignore')+"\n"
+            sumy_summary+=sentence.__unicode__()+u"\n"
 
         doc={"link":url,"content":[{"base":url,"language":lang_detect}]}
         if len(title)>0:
             doc["title"]=title
         if self.config['STORE_HTML'] and len(html)>0:
             doc["html"]=base64.b64encode(self.text_to_string(html))
+        #if len(sumy_summary)>0:
+        #    doc["summary"]=sumy_summary
         if len(sumy_summary)>0:
-            doc["summary"]=sumy_summary
-        elif len(sumy_summary)>0:
             doc["summary"]=summary
         if len(text)>0:
             doc["text"]=text
