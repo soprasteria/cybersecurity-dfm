@@ -51,6 +51,13 @@ from sumy.utils import get_stop_words
 
 from langdetect import detect
 
+from sumy.parsers.html import HtmlParser
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lsa import LsaSummarizer as Summarizer
+from sumy.nlp.stemmers import Stemmer
+from sumy.utils import get_stop_words
+
 #from dd_client import DD, DDCommunicationError
 from dd_client import DD
 """ Deep Detect client is mandatory for prediction """
@@ -113,6 +120,68 @@ class Feed:
         self.structure=structure
         self.storage=storage
         self.config=config
+
+        self.SENTENCES_COUNT=self.config["NEWS_SENTENCES_COUNT"]
+
+        """ Languages mapping between Langdetect and Sumy (text summarizer) """
+        self.LANGUAGES = {
+        "":"",
+        "af":"af",
+        "ar":"ar",
+        "bg":"bg",
+        "bn":"bn",
+        "ca":"ca",
+        "cs":"czech",
+        "cy":"cy",
+        "da":"da",
+        "de":"german",
+        "el":"el",
+        "en":"english",
+        "es":"spanish",
+        "et":"et",
+        "fa":"fa",
+        "fi":"fi",
+        "fr":"french",
+        "gu":"gu",
+        "he":"he",
+        "hi":"hi",
+        "hr":"hr",
+        "hu":"hu",
+        "id":"id",
+        "it":"it",
+        "ja":"japanese",
+        "kn":"kn",
+        "ko":"ko",
+        "lt":"lt",
+        "lv":"lv",
+        "mk":"mk",
+        "ml":"ml",
+        "mr":"mr",
+        "ne":"ne",
+        "nl":"nl",
+        "no":"bo",
+        "pa":"pa",
+        "pl":"portuguese",
+        "pt":"pt",
+        "ro":"ro",
+        "ru":"ru",
+        "sk":"slovak",
+        "sl":"sl",
+        "so":"so",
+        "sq":"sq",
+        "sv":"sv",
+        "sw":"sw",
+        "ta":"ta",
+        "te":"te",
+        "th":"th",
+        "tl":"tl",
+        "tr":"tr",
+        "uk":"uk",
+        "ur":"ur",
+        "vi":"vi",
+        "zh-cn":"chinese",
+        "zh-tw":"chinese"
+        }
 
         #https://coderwall.com/p/9jgaeq/set-phantomjs-user-agent-string
         #https://support.google.com/webmasters/answer/1061943?hl=en
@@ -622,18 +691,7 @@ class Feed:
             text = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
             #quick cleanup
             text=text.replace('\n\n','\n').replace('\n',"\n").replace('....',' ')
-            # nltk models issue for sumy to investigate
-            #parser = PlaintextParser.from_string(text, Tokenizer(detect(text)))
-            #stemmer = Stemmer(detect(text))
-            #summarizer = Summarizer(stemmer)
-            #summarizer.stop_words = get_stop_words(detect(text))
-            #summary=""
-            #sentences_count=0
-            #for sentence in summarizer(parser.document, 10):
-            #    if sentences_count==0:
-            #        title=sentence
-            #    summary=summary+"\n"+sentence
-            #    sentences_count+=1
+
             self.logger.debug("Text Extracted file: "+tmp_file.name+" text size:"+str(len(text)))
             os.unlink(tmp_file.name)
             if len(text)<1:
@@ -742,12 +800,24 @@ class Feed:
             results.add_error({'url':url,'lib':last_lib,'message':str(e)})
             lang_detect=""
 
+        parser = PlaintextParser.from_string(text, Tokenizer(self.LANGUAGES[lang_detect]))
+        stemmer = Stemmer(self.LANGUAGES[lang_detect])
+
+        summarizer = Summarizer(stemmer)
+        summarizer.stop_words = get_stop_words(self.LANGUAGES[lang_detect])
+
+        sumy_summary=""
+        for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
+            sumy_summary+=unicode(sentence).encode('ascii','ignore')+"\n"
+
         doc={"link":url,"content":[{"base":url,"language":lang_detect}]}
         if len(title)>0:
             doc["title"]=title
         if self.config['STORE_HTML'] and len(html)>0:
             doc["html"]=base64.b64encode(self.text_to_string(html))
-        if len(summary)>0:
+        if len(sumy_summary)>0:
+            doc["summary"]=sumy_summary
+        elif len(sumy_summary)>0:
             doc["summary"]=summary
         if len(text)>0:
             doc["text"]=text

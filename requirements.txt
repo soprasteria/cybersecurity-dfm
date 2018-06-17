@@ -21,9 +21,9 @@ pylint
 memory_profiler
 selenium
 six
-nltk
+nltk==2.0.5
 telepot
-textract
+textract==1.5.0
 python-magic
 sumy
 iso8601
@@ -33,3 +33,6 @@ flask
 flask-restful
 selenium
 schedule
+sumy==0.3.0
+tinysegmenter
+jieba

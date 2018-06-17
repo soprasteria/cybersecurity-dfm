@@ -70,6 +70,8 @@ class Config(object):
     STORE_HTML=True
     """ Store raw html of news """
     NEWS_MIN_TEXT_SIZE=1000
+    """ News summary sentences """
+    NEWS_SENTENCES_COUNT = 10
     """ Minimum characters which must be present in a news to be imported """
     FAST_CRAWLING_MODE=True
     """ Drop all web pages which can not be collected fastly and easily,
