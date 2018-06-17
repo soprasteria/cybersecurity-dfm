@@ -672,7 +672,7 @@ class Feed:
 
         self.logger.debug("Content-Type: "+doc_type)
 
-        if 'arxiv.org' in url:
+        if '.pdf' in url:
             doc_type='application/pdf'
         #manage not web documents
         if "html" not in doc_type and "text" not in doc_type and "htm" not in doc_type and "javascript" not in doc_type:
@@ -687,8 +687,8 @@ class Feed:
             ext = mimetypes.guess_all_extensions(mimes)[0] # Guess extension
             self.logger.debug("Document guessed type: "+tmp_file.name+ext)
             last_lib="textract"
-            """ Test if it is arxiv """
-            if 'arxiv.org' in url:
+            """ Test if it is pdf link """
+            if ".pdf" in url:
                 ext="pdf"
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
