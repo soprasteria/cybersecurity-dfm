@@ -299,6 +299,8 @@ runCMD "touch $INSTALL_PATH/ghostdriver.log"
 runCMD "chown dfm:dfm $INSTALL_PATH/ghostdriver.log"
 # Requirements installation
 runCMD "cd $INSTALL_PATH"
+#textract dependencies
+runCMD "apt-get install -y python-dev libxml2-dev libxslt1-dev antiword unrtf poppler-utils pstotext tesseract-ocr flac ffmpeg lame libmad0 libsox-fmt-mp3 sox libjpeg-dev swig libpulse-dev"
 runCMD "pip install --upgrade pip"
 runCMD "pip install --upgrade setuptools"
 runCMD "pip install -r requirements.txt"
