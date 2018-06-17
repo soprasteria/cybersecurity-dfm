@@ -230,6 +230,7 @@ class Feed:
         self.twitter_access_secret = self.config['TWITTER_ACCESS_SECRET']
         auth = OAuthHandler(self.twitter_consumer_key, self.twitter_consumer_secret)
         auth.set_access_token(self.twitter_access_token, self.twitter_access_secret)
+        # twitter debug tweepy.debug(True)
         self.twt_api = tweepy.API(auth,retry_count=3,retry_delay=1,timeout=10,wait_on_rate_limit=True,wait_on_rate_limit_notify=True)
 
         self.min_text_size=self.config['NEWS_MIN_TEXT_SIZE']
@@ -397,14 +398,8 @@ class Feed:
                 self.logger.debug(curr_url)
 #                if self.url_validator.match(curr_url['expanded_url']):
                 urls.append(curr_url['expanded_url'])
-                if "twitter.com" in curr_url['expanded_url']:
-                    matched=re.search('/([0-9]+)/?',curr_url['expanded_url'])
-                    if matched:
-                        twitt_id=matched.group(1)
-                        self.logger.debug("Twitt ID: "+twitt_id)
-                        twitt=self.twitt_get(self.twt_api.get_status(twitt_id))
-                        curr_url['expanded_url']=twitt["doc"]["link"]
-                twitt.update({"link":curr_url['expanded_url']})
+                if "twitter.com" not in curr_url['expanded_url']:
+                    twitt.update({"link":curr_url['expanded_url']})
 
             twitt.update({
              "related_links": urls
