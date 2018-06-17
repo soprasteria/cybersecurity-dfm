@@ -671,6 +671,9 @@ class Feed:
             return [doc, results.results]
 
         self.logger.debug("Content-Type: "+doc_type)
+
+        if 'arxiv.org' in url:
+            doc_type='application/pdf'
         #manage not web documents
         if "html" not in doc_type and "text" not in doc_type and "htm" not in doc_type and "javascript" not in doc_type:
             #create temporary file to download the document
