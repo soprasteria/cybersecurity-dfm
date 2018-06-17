@@ -689,7 +689,7 @@ class Feed:
             last_lib="textract"
             """ Test if it is arxiv """
             if 'arxiv.org' in url:
-                ext=pdf
+                ext="pdf"
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
             text = textract.process(str(tmp_file.name), extension=str(ext), encoding='ascii')
