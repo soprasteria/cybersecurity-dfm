@@ -398,8 +398,7 @@ class Feed:
                 self.logger.debug(curr_url)
 #                if self.url_validator.match(curr_url['expanded_url']):
                 urls.append(curr_url['expanded_url'])
-                if "twitter.com" not in curr_url['expanded_url']:
-                    twitt.update({"link":curr_url['expanded_url']})
+                twitt.update({"link":curr_url['expanded_url']})
 
             twitt.update({
              "related_links": urls
