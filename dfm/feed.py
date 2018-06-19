@@ -722,7 +722,7 @@ class Feed:
                 title=article.title
                 tags=article.keywords
                 url=article.url
-		if len(text) == 0:
+                if len(text) == 0:
                     results.add_error({'url':url,'lib':last_lib,'message':'Could not extract any text'})
                 else:
                     results.add_success({'url':url,'lib':last_lib,'message':'news extraction','title':title,'tags':tags,'text_size':len(text)})
