@@ -696,7 +696,7 @@ class Feed:
             text = textract.process(str(tmp_file.name), extension=str(ext), encoding="utf-8")
 
             #quick cleanup
-            text=text.replace('\n\n','\n').replace('\n',"\n").replace('....',' ')
+            text=text.replace(u'\n\n',u'\n').replace(u'\n',u"\n").replace(u'....',u' ')
 
             self.logger.debug("Text Extracted file: "+tmp_file.name+" text size:"+str(len(text)))
             os.unlink(tmp_file.name)
