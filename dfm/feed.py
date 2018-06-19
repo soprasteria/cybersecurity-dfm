@@ -693,10 +693,10 @@ class Feed:
                 ext="pdf"
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
-            text = textract.process(str(tmp_file.name), extension=str(ext), encoding="utf-8")
+            text = textract.process(str(tmp_file.name), extension=str(ext), encoding="ascii")
 
             #quick cleanup
-            text=text.replace(u'\n\n',u'\n').replace(u'\n',u"\n").replace(u'....',u' ')
+            text=text.replace('\n\n','\n').replace('\n',"\n").replace('....',' ')
 
             self.logger.debug("Text Extracted file: "+tmp_file.name+" text size:"+str(len(text)))
             os.unlink(tmp_file.name)
