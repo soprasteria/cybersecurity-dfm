@@ -566,7 +566,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
     app.logger.debug("total doc in result:"+str(len(docs['hits'])))
     for doc in list(docs['hits']):
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
-        app.logger.debug(doc)
+        app.logger.debug("processing to queue doc: id:"+str(doc['_id'])+', title:'+doc['_source']['title']+', link:'+doc['_source']['link'])
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=1000:
             app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
@@ -578,7 +578,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
             for do in doc:
                 try:
                    work_queue.put(do)
-                   app.logger.debug("queued:"+str(do))
+                   app.logger.debug("processing queued doc: id:"+str(do['_id'])+', title:'+do['_source']['title']+', link:'+do['_source']['link'])
                    results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
                    app.logger.exception("can't queue from list: "+str(dict(do)))
@@ -588,7 +588,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
 
             try:
                work_queue.put(doc)
-               app.logger.debug("queued:"+str(doc))
+               app.logger.debug("processing queued doc: id:"+str(doc['_id'])+', title:'+doc['_source']['title']+', link:'+doc['_source']['link'])
                results.add_success({'url':str(doc['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
             except Exception as e:
                 app.logger.exception("can't queue doc")
@@ -615,7 +615,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     while not work_queue.empty():
         app.logger.debug("processing: queue to process is not empty")
         item=work_queue.get()
-        app.logger.debug("processing: process "+str(item))
+        app.logger.debug("processing doc: id:"+str(item['_id'])+', title:'+item['_source']['title']+', link:'+item['_source']['link'])
         if item==None:
             app.logger.debug("processing: None item to process break go to the next one")
             continue
