@@ -615,7 +615,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     while not work_queue.empty():
         app.logger.debug("processing: queue to process is not empty")
         item=work_queue.get()
-        app.logger.debug("processing doc: id:"+str(item['_id']))
+        app.logger.debug("processing item id:"+str(item))
         if item==None:
             app.logger.debug("processing: None item to process break go to the next one")
             continue
