@@ -693,7 +693,7 @@ class Feed:
                 ext="pdf"
             #extract text from the document
             self.logger.debug("Attempting text extraction: "+tmp_file.name)
-            text = textract.process(str(tmp_file.name), extension=str(ext))
+            text = textract.process(str(tmp_file.name), extension=str(ext), encoding="utf-8")
 
             #quick cleanup
             text=text.replace('\n\n','\n').replace('\n',"\n").replace('....',' ')
