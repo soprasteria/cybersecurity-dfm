@@ -302,15 +302,16 @@ def recent_feed():
         app.logger.debug("API: Prediction Models List:"+json.dumps(models))
         for curr_model in models["hits"]["hits"]:
             app.logger.debug("Current Model: "+json.dumps(curr_model))
-            for curr_topic in curr_model["_source"]["related_topics"]:
-                app.logger.debug("Current Topic: "+curr_topic)
-                if topic:
-                    app.logger.debug("Topic as parameter: "+topic)
-                    if curr_topic.lower()==topic.lower():
-                        app.logger.debug("Topic match")
+            if "related_topics" in curr_model["_source"]:
+                for curr_topic in curr_model["_source"]["related_topics"]:
+                    app.logger.debug("Current Topic: "+curr_topic)
+                    if topic:
+                        app.logger.debug("Topic as parameter: "+topic)
+                        if curr_topic.lower()==topic.lower():
+                            app.logger.debug("Topic match")
+                            topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : curr_topic } })
+                    else:
                         topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : curr_topic } })
-                else:
-                    topics_query["nested"]["query"]["bool"]["should"].append({ "term" : { "topics.label" : curr_topic } })
 
         app.logger.debug("Topics query: "+json.dumps(topics_query))
         time_range_query["query"]["bool"]["must"]=[topics_query]
