@@ -1042,7 +1042,8 @@ class Schedule(Resource):
             del feed
 
         gc.collect()
-        return {"source":src_id,"result":{"size":result["count"],"successed":result["successful"],"failed":result["failed"],"traceback":result},"duration":(time.time()-start_time)}
+        #"size":result["count"],"successed":result["successful"],"failed":result["failed"],
+        return {"source":src_id,"result":{"traceback":result},"duration":(time.time()-start_time)}
 
 class VoidReturn(Resource):
     def get(sef):
