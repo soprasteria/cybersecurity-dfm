@@ -826,6 +826,9 @@ class Feed:
                 sumy_summary+=sentence.__unicode__()+u"\n"
 
         doc={"link":url,"content":[{"base":url,"language":lang_detect}]}
+
+        if len(doc_type)>0:
+            doc["content_type"]=doc_type
         #if there is no title use one line summary instead
         if len(title)>0:
             doc["title"]=title
