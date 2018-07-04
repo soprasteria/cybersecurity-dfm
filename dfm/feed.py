@@ -372,6 +372,7 @@ class Feed:
         for curr_hashtag in raw_twitt.entities['hashtags']:
             hashtags.append(curr_hashtag['text'])
 
+        #detect language of the twitt
         try:
             lang_detect=detect(summary)
         except Exception as e:
@@ -800,6 +801,7 @@ class Feed:
             except Exception as e:
                 results.add_error({'url':url,'lib':last_lib,'message':str(e)})
 
+        #detect lang of the text
         try:
             lang_detect=detect(text)
         except Exception as e:
@@ -808,6 +810,7 @@ class Feed:
 
         #generate summary
         sumy_summary=""
+        sum_title=""
         if lang_detect!="":
             parser = PlaintextParser.from_string(text, Tokenizer(self.LANGUAGES[lang_detect]))
             stemmer = Stemmer(self.LANGUAGES[lang_detect])
@@ -815,13 +818,20 @@ class Feed:
             summarizer = Summarizer(stemmer)
             summarizer.stop_words = get_stop_words(self.LANGUAGES[lang_detect])
 
-
+            #build title from summary
+            for sentence in summarizer(parser.document, 1):
+                sum_title+=sentence.__unicode__()
+            # build summary
             for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
                 sumy_summary+=sentence.__unicode__()+u"\n"
 
         doc={"link":url,"content":[{"base":url,"language":lang_detect}]}
+        #if there is no title use one line summary instead
         if len(title)>0:
             doc["title"]=title
+        else:
+            doc["title"]=sum_title
+
         if self.config['STORE_HTML'] and len(html)>0:
             doc["html"]=base64.b64encode(self.text_to_string(html))
 
