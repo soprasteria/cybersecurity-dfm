@@ -1427,7 +1427,7 @@ class Recent(Resource):
         app.logger.debug("Recent docs parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
 
         #query by default
-        time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, { "_score" : { "order" : "desc" } } ], "query":{ "bool" : { "must":[ { "exists": { "field":"text" } }, { "type":{ "value":"doc" } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } },{ "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }] } }}
+        time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, { "_score" : { "order" : "desc" } } ], "query":{ "bool" : { "must":[ { "exists": { "field":"text" } }, { "type":{ "value":"doc" } },{ "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }}
 
         if model or topic:
             topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[],"must":[] } } } }
