@@ -1382,6 +1382,8 @@ class Recent(Resource):
         :param str model: news source identifier
         :param str topic: topic in the model
         :param str q:  elasticsearch simple query string (https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-query-string-query.html)
+        :param str filter:  used to pass filter arguments (using es syntax)
+        :param str exclude:  used to pass must_not arguments (using es syntax)
         :param str gte: greater date (default now-7d)
         :param str lte: liter date (default now)
         :param int offset: offset of news result (default 0)
@@ -1403,6 +1405,16 @@ class Recent(Resource):
             q=request.args.get('q')
         else:
             q=None
+
+        if request.args.get('filter'):
+            filter=request.args.get('filter')
+        else:
+            filter=None
+
+        if request.args.get('exclude'):
+            exclude=request.args.get('exclude')
+        else:
+            exclude=None
 
         if request.args.get('gte'):
             gte=request.args.get('gte')
@@ -1427,7 +1439,64 @@ class Recent(Resource):
         app.logger.debug("Recent docs parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
 
         #query by default
-        time_range_query={ "sort" : [ { "topics.score" : { "order" : "desc", "nested_path" : "topics" } }, { "updated" : { "order" : "desc" } }, { "_score" : { "order" : "desc" } } ], "query":{ "bool" : { "must":[ { "exists": { "field":"text" } }, { "type":{ "value":"doc" } },{ "range" : { "updated" : { "gte" : gte, "lt" :  lte } } }] ,"should": [{ "nested": { "path": "topics", "query": { "exists": { "field":"topics.label" } } } } ] } }}
+        time_range_query={ 
+            "sort" : [ 
+                { 
+                    "topics.score" : { 
+                        "order" : "desc", 
+                        "nested_path" : "topics" 
+                    } 
+                }, 
+                { 
+                    "updated" : { 
+                        "order" : "desc" 
+                    } 
+                }, 
+                { 
+                    "_score" : { 
+                        "order" : "desc" 
+                    } 
+                }
+            ], 
+            "query":{ 
+                "bool" : { 
+                    "filter":[
+                        {
+                            "range" : { 
+                                "updated" : { 
+                                    "gte" : gte, 
+                                    "lt" :  lte
+                                } 
+                            } 
+                        }
+                    ],
+                    "must":[ 
+                        { 
+                            "exists": { 
+                                "field":"text" 
+                            } 
+                        }, 
+                        { 
+                            "type":{ 
+                                "value":"doc" 
+                            } 
+                        }                        
+                    ],
+                    "should": [
+                        { 
+                            "nested": { 
+                                "path": "topics",
+                                "query": { 
+                                    "exists": { 
+                                        "field":"topics.label" 
+                                    } 
+                                } 
+                            } 
+                        } 
+                    ] 
+                } 
+            }
+        }
 
         if model or topic:
             topics_query={ "nested": { "path": "topics", "query": { "bool" : { "should":[],"must":[] } } } }
@@ -1457,6 +1526,13 @@ class Recent(Resource):
         if q:
             app.logger.debug("Q query: "+json.dumps(q))
             time_range_query["query"]["bool"]["must"].append({"query_string" : {"query" : q}})
+
+        if filter or exclude:
+            app.logger.debug("Filter query: "+json.dumps(filter)+json.dumps(exclude))
+            if filter:
+                time_range_query["query"]["bool"]["filter"].append(filter)
+            if exclude:
+                time_range_query["query"]["bool"].append({"must_not":[exclude]})
 
         if int(offset)>0:
             time_range_query['from']=offset
