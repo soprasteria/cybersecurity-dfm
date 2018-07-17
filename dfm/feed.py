@@ -845,11 +845,11 @@ class Feed:
 
         if len(text)>0:
             doc["text"]=text
-        if len(tags):
+        if len(tags)>0:
             clean_tags=[]
 
             for tag in tags:
-                tag=tag.strip().lower().replace("news","").replace(" ","_")
+                tag=tag.strip().lower().replace("news","").replace(" ","_").encode('ascii', 'ignore')
                 clean_tags.append(tag)
             doc["tags"]=clean_tags
 
