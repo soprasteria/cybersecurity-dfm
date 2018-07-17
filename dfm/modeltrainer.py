@@ -90,7 +90,7 @@ class ModelTrainer:
     def trainModel(self):
         """ Train the model. """
         self.train_data = [self.structure['training-repo']]
-        self.parameters_input = {'test_split':self.structure['test_plit'],'shuffle':True,'db':True}
+        self.parameters_input = {'test_split':self.structure['test_split'],'shuffle':True,'db':True}
         if not self.structure['clevel']:
             self.parameters_input['min_word_length'] = 5
             self.parameters_input['min_count'] = 10
