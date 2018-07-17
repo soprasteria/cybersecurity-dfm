@@ -913,7 +913,7 @@ class Schedule(Resource):
                                         else:
                                             app.logger.debug("[model training] training set model:"+model["_source"]["title"]+" topic: "+curr_topic+", topic_limit:"+str(int(model["_source"]["limit"]))+" tag: "+tag+", tag_limit:"+str(curr_tag_limit)+" curr_doc: "+str(count_docs))
                                             app.logger.debug("[model training] output_doc:"+doc["_source"]["link"])
-                                            if len(doc["_source"]["text"])>500 and detect(sub_doc["_source"]["text"]) == model_lang:
+                                            if len(doc["_source"]["text"])>500 and detect(doc["_source"]["text"]) == model_lang:
                                                generate_doc(topic_path,doc)
                                                app.logger.debug("[model training] generated document for training parent:"+doc["_parent"]+" id:"+doc["_id"]+" link:"+doc["_source"]["link"])
                                                count_docs+=1
