@@ -1439,62 +1439,62 @@ class Recent(Resource):
         app.logger.debug("Recent docs parameters received: model="+str(model)+" topic="+str(topic)+" q="+str(q)+" gte="+str(gte)+" lte="+str(lte)+" offset="+str(offset)+" size="+str(size))
 
         #query by default
-        time_range_query={ 
-            "sort" : [ 
-                { 
-                    "topics.score" : { 
-                        "order" : "desc", 
-                        "nested_path" : "topics" 
-                    } 
-                }, 
-                { 
-                    "updated" : { 
-                        "order" : "desc" 
-                    } 
-                }, 
-                { 
-                    "_score" : { 
-                        "order" : "desc" 
-                    } 
+        time_range_query={
+            "sort" : [
+                {
+                    "topics.score" : {
+                        "order" : "desc",
+                        "nested_path" : "topics"
+                    }
+                },
+                {
+                    "updated" : {
+                        "order" : "desc"
+                    }
+                },
+                {
+                    "_score" : {
+                        "order" : "desc"
+                    }
                 }
-            ], 
-            "query":{ 
-                "bool" : { 
+            ],
+            "query":{
+                "bool" : {
                     "filter":[
                         {
-                            "range" : { 
-                                "updated" : { 
-                                    "gte" : gte, 
+                            "range" : {
+                                "updated" : {
+                                    "gte" : gte,
                                     "lt" :  lte
-                                } 
-                            } 
+                                }
+                            }
                         }
                     ],
-                    "must":[ 
-                        { 
-                            "exists": { 
-                                "field":"text" 
-                            } 
-                        }, 
-                        { 
-                            "type":{ 
-                                "value":"doc" 
-                            } 
-                        }                        
+                    "must":[
+                        {
+                            "exists": {
+                                "field":"text"
+                            }
+                        },
+                        {
+                            "type":{
+                                "value":"doc"
+                            }
+                        }
                     ],
                     "should": [
-                        { 
-                            "nested": { 
+                        {
+                            "nested": {
                                 "path": "topics",
-                                "query": { 
-                                    "exists": { 
-                                        "field":"topics.label" 
-                                    } 
-                                } 
-                            } 
-                        } 
-                    ] 
-                } 
+                                "query": {
+                                    "exists": {
+                                        "field":"topics.label"
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
             }
         }
 
@@ -1530,7 +1530,7 @@ class Recent(Resource):
         if filter or exclude:
             app.logger.debug("Filter query: "+json.dumps(filter)+json.dumps(exclude))
             if filter:
-                time_range_query["query"]["bool"]["filter"].append(json.load(filter)
+                time_range_query["query"]["bool"]["filter"].append(json.load(filter))
             if exclude:
                 time_range_query["query"]["bool"].append({"must_not":[exclude]})
 
