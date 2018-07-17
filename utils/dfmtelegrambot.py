@@ -414,9 +414,9 @@ def on_callback_query(msg):
     print(msg)
     name=""
     if msg['from']['last_name']:
-        name=msg['from']['last_name']
+        name=msg['from']['last_name'].encode('ascii', 'ignore')
     if msg['from']['first_name']:
-        name+=" "+msg['from']['first_name']
+        name+=" "+msg['from']['first_name'].encode('ascii', 'ignore')
     postVote(generate_uuid({"link":msg['message']['entities'][0]['url']}),msg['from']['id'],name,msg['data'])
     bot.answerCallbackQuery(query_id, text='Thank you for your vote')
 
