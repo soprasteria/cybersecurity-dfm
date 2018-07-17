@@ -1530,7 +1530,7 @@ class Recent(Resource):
         if filter or exclude:
             app.logger.debug("Filter query: "+json.dumps(filter)+json.dumps(exclude))
             if filter:
-                time_range_query["query"]["bool"]["filter"].append(filter)
+                time_range_query["query"]["bool"]["filter"].append(json.load(filter)
             if exclude:
                 time_range_query["query"]["bool"].append({"must_not":[exclude]})
 
