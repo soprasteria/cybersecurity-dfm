@@ -662,7 +662,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         except Exception as e:
             app.logger.error("processing: Error on item:"+item['_source']['link']+" message:"+e.message)
             results.add_fail(e.message)
-        app.logger.debug("processing: Processed items to store "+str(items))
+        app.logger.debug("processing: Processed items to store "+str(len(items)))
         if len(items)>config["BATCH_SIZE"]:
             app.logger.debug("processing: flush items in the processing loop")
             result=storage.bulk(items)
@@ -671,7 +671,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             gc.collect()
             items=[]
 
-    app.logger.debug("processing: Processed items to store "+str(items))
+    app.logger.debug("processing: Processed items to store "+str(len(items)))
     if len(items)>0:
         app.logger.debug("processing: flush items")
         result=storage.bulk(items)
