@@ -1299,6 +1299,7 @@ class Feed:
                 else:
                     text=""
                     #result=self.storage.delete(item_id=doc['_id'])
+                    result=None
                     results.add_fail({'url':doc["_source"]["link"],'message':'no body text detect',"deletion":result})
                     del doc
                     doc=None
