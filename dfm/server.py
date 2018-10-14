@@ -683,6 +683,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             del items
             gc.collect()
             items=[]
+        work_queue.task_done()
 
     app.logger.debug("processing: Processed items to store "+str(items))
     if len(items)>0:
@@ -728,6 +729,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         for w in range(workers):
             p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
             app.logger.debug("processing process worker created: "+str(p))
+            p.daemon = True
             p.start()
             app.logger.debug("processing process worker started: "+str(p))
             processes.append(p)
@@ -736,6 +738,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         #create process to fullfill the queue from the query
         p = Process(target=queueFiller, args=(size, query,work_queue,done_queue, results, ))
         app.logger.debug("processing filler process created: "+str(p))
+        p.daemon = True
         p.start()
         app.logger.debug("processing filler process started: "+str(p))
         processes.append(p)
