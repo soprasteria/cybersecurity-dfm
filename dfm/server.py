@@ -565,16 +565,9 @@ def queueFiller(size, query,work_queue,done_queue, results):
     results.set_total(int(docs['total']))
     app.logger.debug("total docs to process: "+str(docs['total']))
     app.logger.debug("total doc in result:"+str(len(docs['hits'])))
-    #while doc = docs['hits'].next():
+
     for doc in docs['hits']:
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
-        app.logger.debug(doc)
-        #wait queue reduce under 3000 items use maxsize queue instead
-        #while work_queue.qsize()>=1000L:
-        #    app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
-        #    if not config['THREADED']:
-        #        crawl("doc",work_queue, done_queue, True, True)
-        #    time.sleep(5)
 
         if isinstance(doc, list) or isinstance(doc, types.GeneratorType):
             for do in doc:
@@ -582,13 +575,6 @@ def queueFiller(size, query,work_queue,done_queue, results):
                    work_queue.put(do)
                    app.logger.debug("processing queued doc: id:"+str(do['_id'])+', link:'+do['_source']['link'])
                    results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
-                except Queue.Full as qf:
-                    while work_queue.full():
-                        app.logger.exception("processing queue waiting can't queue from list: "+str(work_queue.size()))
-                        time.sleep(5)
-                    work_queue.put(do)
-                    app.logger.debug("processing queued doc: id:"+str(do['_id'])+', link:'+do['_source']['link'])
-                    results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
                    app.logger.exception("can't queue from list: "+str(dict(do)))
                    results.add_fail({'object':str(do),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
@@ -742,16 +728,6 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         app.logger.debug("processing filler process started: "+str(p))
         processes.append(p)
         app.logger.debug("processing filler processes number: "+str(len(processes)))
-
-        #wait for job queue to start to be filled
-        #retry=10
-        #while not work_queue.empty():
-        #    time.sleep(5)
-        #    retry+=1
-        #    if retry>5:
-        #        break
-
-
 
         #wait for end of the processing
         for p in processes:
