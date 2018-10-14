@@ -711,6 +711,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
     results=Results(app.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     workers = int(multiprocessing.cpu_count()/2)+1
+    app.logger.debug("processing process to create: "+str(workers))
     if not config['THREADED']:
         workers=1
     work_queue = Queue(maxsize=3000)
@@ -730,12 +731,12 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         app.logger.debug("processing filler processes number: "+str(len(processes)))
 
         #wait for job queue to start to be filled
-        #retry=10
-        #while not work_queue.empty():
-        #    time.sleep(5)
-        #    retry+=1
-        #    if retry>5:
-        #        break
+        retry=10
+        while not work_queue.empty():
+            time.sleep(5)
+            retry+=1
+            if retry>5:
+                break
 
         #create processing workers
         for w in range(workers):
