@@ -620,7 +620,9 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         app.logger.debug("processing: dummy feed"+str(feed))
     items=[]
     app.logger.debug("processing: get item to process")
-
+    while work_queue.empty():
+        app.logger.debug("processing: waiting for item to process")
+        time.sleep(5)
     while not work_queue.empty():
         app.logger.debug("processing: queue to process is not empty")
         item=work_queue.get()
@@ -731,21 +733,21 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         app.logger.debug("processing filler processes number: "+str(len(processes)))
 
         #wait for job queue to start to be filled
-        retry=10
-        while not work_queue.empty():
-            time.sleep(5)
-            retry+=1
-            if retry>5:
-                break
+        #retry=10
+        #while not work_queue.empty():
+        #    time.sleep(5)
+        #    retry+=1
+        #    if retry>5:
+        #        break
 
         #create processing workers
         for w in range(workers):
             p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
-            app.logger.debug("processing process created: "+str(p))
+            app.logger.debug("processing process worker created: "+str(p))
             p.start()
-            app.logger.debug("processing process started: "+str(p))
+            app.logger.debug("processing process worker started: "+str(p))
             processes.append(p)
-            app.logger.debug("processing processes number: "+str(len(processes)))
+            app.logger.debug("processing processes worker number: "+str(len(processes)))
 
         #wait for end of the processing
         for p in processes:
