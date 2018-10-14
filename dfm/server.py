@@ -570,7 +570,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
         app.logger.debug(doc)
         #wait queue reduce under 3000 items
-        while work_queue.qsize()>=1000:
+        while work_queue.qsize()>=1000L:
             app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
             if not config['THREADED']:
                 crawl("doc",work_queue, done_queue, True, True)
