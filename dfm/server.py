@@ -683,7 +683,6 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
             del items
             gc.collect()
             items=[]
-        work_queue.task_done()
 
     app.logger.debug("processing: Processed items to store "+str(items))
     if len(items)>0:
