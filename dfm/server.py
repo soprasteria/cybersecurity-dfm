@@ -709,7 +709,9 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     app.logger.debug("query size:"+str(size))
     app.logger.debug("query: "+str(query))
     if config['THREADED']:
-
+        #reduce number of workers if queue is small
+        if size < workers:
+            workers=int(size/2)
         #create processing workers
         for w in range(workers):
             p = Process(target=crawl, args=(doc_type,work_queue, done_queue, content_crawl, content_predict, ))
@@ -732,6 +734,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         for w in range(workers):
             #add end signal to work queue
             work_queue.put(None)
+
         #wait for end of the processing
         for p in processes:
             p.join()
