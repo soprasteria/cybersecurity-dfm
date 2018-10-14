@@ -568,8 +568,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
     #while doc = docs['hits'].next():
     for doc in docs['hits']:
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
-        app.logger.debug(doc['_id'])
-        app.logger.debug("processing to queue doc: id:"+str(doc['_id'])+', link:'+doc['_source']['link'])
+        app.logger.debug(doc)
         #wait queue reduce under 3000 items
         while work_queue.qsize()>=1000:
             app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
@@ -588,7 +587,7 @@ def queueFiller(size, query,work_queue,done_queue, results):
                    results.add_fail({'object':str(do),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
 
         else:
-
+            app.logger.debug("processing to queue doc: id:"+str(doc['_id'])+', link:'+doc['_source']['link'])
             try:
                work_queue.put(doc)
                app.logger.debug("processing queued doc: id:"+str(doc['_id'])+', link:'+doc['_source']['link'])
