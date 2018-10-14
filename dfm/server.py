@@ -565,7 +565,8 @@ def queueFiller(size, query,work_queue,done_queue, results):
     results.set_total(int(docs['total']))
     app.logger.debug("total docs to process: "+str(docs['total']))
     app.logger.debug("total doc in result:"+str(len(docs['hits'])))
-    for doc in list(docs['hits']):
+    #while doc = docs['hits'].next():
+    for doc in docs['hits']:
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
         app.logger.debug(doc['_id'])
         app.logger.debug("processing to queue doc: id:"+str(doc['_id'])+', link:'+doc['_source']['link'])
