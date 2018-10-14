@@ -705,7 +705,8 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     work_queue = Queue(maxsize=3000)
     done_queue = Queue()
     processes = []
-
+    if size is None:
+        size=storage.query(query)[0]['hits']['total']
     app.logger.debug("query size:"+str(size))
     app.logger.debug("query: "+str(query))
     if config['THREADED']:
