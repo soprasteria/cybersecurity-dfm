@@ -569,12 +569,12 @@ def queueFiller(size, query,work_queue,done_queue, results):
     for doc in docs['hits']:
         app.logger.debug("processing queue size: "+str(work_queue.qsize()))
         app.logger.debug(doc)
-        #wait queue reduce under 3000 items
-        while work_queue.qsize()>=1000L:
-            app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
-            if not config['THREADED']:
-                crawl("doc",work_queue, done_queue, True, True)
-            time.sleep(5)
+        #wait queue reduce under 3000 items use maxsize queue instead
+        #while work_queue.qsize()>=1000L:
+        #    app.logger.debug("processing waiting queue size to reduce: "+str(work_queue.qsize()))
+        #    if not config['THREADED']:
+        #        crawl("doc",work_queue, done_queue, True, True)
+        #    time.sleep(5)
 
         if isinstance(doc, list) or isinstance(doc, types.GeneratorType):
             for do in doc:
@@ -706,7 +706,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     workers = int(multiprocessing.cpu_count()/2)+1
     if not config['THREADED']:
         workers=1
-    work_queue = Queue()
+    work_queue = Queue(maxsize=3000)
     done_queue = Queue()
     processes = []
 
