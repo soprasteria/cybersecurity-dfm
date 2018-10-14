@@ -712,7 +712,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
     if config['THREADED']:
         #reduce number of workers if queue is small
         if size < workers:
-            workers=int(size/2)
+            workers=int(size/2)+1
         app.logger.debug("processing process workers to create: "+str(workers))
         #create processing workers
         for w in range(workers):
