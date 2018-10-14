@@ -729,9 +729,9 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
         processes.append(p)
         app.logger.debug("processing filler processes number: "+str(len(processes)))
 
-       for w in range(workers):
-           #add end signal to work queue
-           work_queue.put(None)
+        for w in range(workers):
+            #add end signal to work queue
+            work_queue.put(None)
         #wait for end of the processing
         for p in processes:
             p.join()
