@@ -660,7 +660,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
                 app.logger.debug("processing: Empty item detected")
                 results.add_fail({"message":"Empty work_queue","size":work_queue.qsize()})
         except Exception as e:
-            app.logger.error("processing: Error on item:"+item['_source']['link']+" message:"+e.message)
+            app.logger.exception("processing: Error on item:"+item['_source']['link'])
             results.add_fail(e.message)
         app.logger.debug("processing: Processed items to store "+str(len(items)))
         if len(items)>config["BATCH_SIZE"]:
