@@ -582,6 +582,13 @@ def queueFiller(size, query,work_queue,done_queue, results):
                    work_queue.put(do)
                    app.logger.debug("processing queued doc: id:"+str(do['_id'])+', link:'+do['_source']['link'])
                    results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
+                except Queue.Full as qf:
+                    while work_queue.full():
+                        app.logger.exception("processing queue waiting can't queue from list: "+str(work_queue.size()))
+                        time.sleep(5)
+                    work_queue.put(do)
+                    app.logger.debug("processing queued doc: id:"+str(do['_id'])+', link:'+do['_source']['link'])
+                    results.add_success({'url':str(do['_source']['link']),'message':'added to processing queue','queue_size':work_queue.qsize()})
                 except Exception as e:
                    app.logger.exception("can't queue from list: "+str(dict(do)))
                    results.add_fail({'object':str(do),'message':'fail to add to processing queue','queue_size':work_queue.qsize()})
