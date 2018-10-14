@@ -711,7 +711,7 @@ def multithreaded_processor(qid,query,doc_type='doc',content_crawl=True,content_
 
     results=Results(app.logger,current=str(inspect.stack()[0][1])+"."+str(inspect.stack()[0][3]))
     workers = int(multiprocessing.cpu_count()/2)+1
-    app.logger.debug("processing process to create: "+str(workers))
+    app.logger.debug("processing process workers to create: "+str(workers))
     if not config['THREADED']:
         workers=1
     work_queue = Queue(maxsize=3000)
