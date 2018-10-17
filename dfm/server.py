@@ -608,7 +608,7 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
     app.logger.debug("processing: get item to process")
     exit_count=0
     while work_queue.empty():
-        exit_count++
+        exit_count+=1
         app.logger.debug("processing: waiting for item to process")
         time.sleep(6)
         if exit_count > 10:
