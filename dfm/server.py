@@ -606,9 +606,13 @@ def crawl(doc_type,work_queue, done_queue, content_crawl=True,content_predict=Tr
         app.logger.debug("processing: dummy feed"+str(feed))
     items=[]
     app.logger.debug("processing: get item to process")
+    exit_count=0
     while work_queue.empty():
+        exit_count++
         app.logger.debug("processing: waiting for item to process")
-        time.sleep(5)
+        time.sleep(6)
+        if exit_count > 10:
+            break
     while not work_queue.empty():
         app.logger.debug("processing: queue to process is not empty")
         item=work_queue.get()
