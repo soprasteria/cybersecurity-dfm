@@ -1257,12 +1257,14 @@ class DataGraph(Resource):
         if request.args.get('size'):
             size=int(request.args.get('size'))
         else:
-            size=int(config['NODES_SIZE'])
+            #size=int(config['NODES_SIZE'])
+            size=0
 
         nodes={}
         edges={}
         result={"nodes": [],"edges": []}
-        query={ "stored_fields": [ "_id", "updated", "_parent", "title", "text", "format", "summary", "source", "author", "source_type", "link", "topics", "tags" ],"size": size, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "updated": { "gte": gte, "lt": lt } } } ] } },"sort" : [ {"updated" : {"order" : "asc"}}, {"topics.score" : {"order" : "desc"}}, "_score" ], "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":int(size/5) }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":int(size/2) }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":int(size/1.5) }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
+#        query={ "stored_fields": [ "_id", "updated", "_parent", "title", "text", "format", "summary", "source", "author", "source_type", "link", "topics", "tags" ],"size": size, "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "updated": { "gte": gte, "lt": lt } } } ] } },"sort" : [ {"updated" : {"order" : "asc"}}, {"topics.score" : {"order" : "desc"}}, "_score" ], "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label", "size":int(size/5) }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags", "size":int(size/2) }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link", "size":int(size/1.5) }, "aggs": { "fields": { "top_hits": { "size": 1, "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
+        query={ "stored_fields": [ "_id", "updated", "_parent", "title", "text", "format", "summary", "source", "author", "source_type", "link", "topics", "tags" ], "query": { "bool": { "must": [ { "exists": { "field": "text" } }, { "type": { "value": "doc" } }, { "range": { "updated": { "gte": gte, "lt": lt } } } ] } },"sort" : [ {"updated" : {"order" : "asc"}}, {"topics.score" : {"order" : "desc"}}, "_score" ], "aggs": { "graph": { "nested": { "path": "topics" }, "aggs": { "topics": { "terms": { "field": "topics.label" }, "aggs": { "linked_tags": { "reverse_nested": {}, "aggs": { "tags": { "terms": { "field": "tags" }, "aggs": { "linked_links": { "reverse_nested": {}, "aggs": { "links": { "terms": { "field": "link" }, "aggs": { "fields": { "top_hits": {  "_source": { "include": [ "title", "source", "summary", "source_type", "author", "text", "topics" ] } } } } } } } } } } } } } } } } }
         if q is not None:
             query['query']['bool']['must'].append({"simple_query_string" : {"query" : q}})
         doc_results=storage.query(query)[0]['aggregations']
