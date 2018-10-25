@@ -34,7 +34,7 @@ class Storage:
          """
          self.config=config
          #ssl verify issue on latest version of python elasticsearch, workaround from here: https://github.com/elastic/elasticsearch-py/issues/712
-         ssl_context = create_ssl_context()
+         context = ssl.create_ssl_context()
          context.check_hostname = False
          context.verify_mode = ssl.CERT_NONE
          if self.config['ES_PROXY'] is not None:
