@@ -4,6 +4,7 @@
 
 #from memory_profiler import profile
 from datetime import datetime
+import ssl
 from elasticsearch import Elasticsearch, helpers, TransportError, ConnectionTimeout, ConnectionError, RequestError, RequestsHttpConnection
 import hashlib
 import sys
@@ -32,10 +33,14 @@ class Storage:
          :returns: DFM storage object
          """
          self.config=config
+         #ssl verify issue on latest version of python elasticsearch, workaround from here: https://github.com/elastic/elasticsearch-py/issues/712
+         ssl_context = create_ssl_context()
+         context.check_hostname = False
+         context.verify_mode = ssl.CERT_NONE
          if self.config['ES_PROXY'] is not None:
-            self.es = Elasticsearch(self.config['ES_URIS'], timeout=self.config['ES_TIMEOUT'], connection_class=ProxiesConnection, proxies = self.config['ES_PROXY'])
+            self.es = Elasticsearch(self.config['ES_URIS'], timeout=self.config['ES_TIMEOUT'], connection_class=ProxiesConnection, proxies = self.config['ES_PROXY'],ssl_context=context)
          else:
-            self.es=Elasticsearch(self.config['ES_URIS'],timeout=self.config['ES_TIMEOUT'])
+            self.es=Elasticsearch(self.config['ES_URIS'],timeout=self.config['ES_TIMEOUT'],ssl_context=context)
          self.index=self.config['ES_INDEX']
          self.logger=logger
          self.serializer=CustomSerializer(logger)
