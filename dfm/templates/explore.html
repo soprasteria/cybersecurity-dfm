@@ -18,6 +18,14 @@
       class="parasol"
       data-settings='{
 "networks": [
+{ "url": "/api/graph?gte=now-1y/d", "name": "Yearly", "fetchOptions": {"credentials": "include"},
+ "options": {
+   "layout": "forcelink",
+   "loader": {
+     "name": "json"
+   }
+ }
+},
   { "url": "/api/graph", "name": "Monthly", "fetchOptions": {"credentials": "include"},
    "options": {
      "layout": "forcelink",
@@ -76,7 +84,10 @@
       "easing": "cubicInOut",
       "randomize": "locally",
       "slowDown": 1,
-      "timeout": 1000
+      "timeout": 1000,
+      "labelThreshold": 10,
+      "labelSize": 5,
+      "labelSizeRatio": 0.2
 
     }
   }
