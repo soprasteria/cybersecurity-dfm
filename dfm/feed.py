@@ -668,7 +668,7 @@ class Feed:
                     url=doc['link']
                     summary=""
                     tags=[]
-                    results.add_error({'url':doc['link'],'lib':"tweepy",'message':str(e)})
+                    results.add_error({'url':doc['link'],'lib':"tweepy",'message':"Tweepy Error"})
 
         res = self.http.request('GET', url, preload_content=False)
         doc_type = res.getheader('Content-Type')
