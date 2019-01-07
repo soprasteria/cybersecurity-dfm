@@ -658,10 +658,17 @@ class Feed:
             if matched:
                 twitt_id=matched.group(1)
                 self.logger.debug("Twitt ID: "+twitt_id)
-                twitt=self.twitt_get(self.twt_api.get_status(twitt_id))
-                url=twitt["doc"]["link"]
-                summary=twitt["doc"]["summary"]
-                tags=twitt["doc"]["tags"]
+
+                try:
+                    twitt=self.twitt_get(self.twt_api.get_status(twitt_id))
+                    url=twitt["doc"]["link"]
+                    summary=twitt["doc"]["summary"]
+                    tags=twitt["doc"]["tags"]
+                except TweepError as e:
+                    url=doc['link']
+                    summary=""
+                    tags=[]
+                    results.add_error({'url':doc['link'],'lib':"tweepy",'message':str(e)})
 
         res = self.http.request('GET', url, preload_content=False)
         doc_type = res.getheader('Content-Type')
