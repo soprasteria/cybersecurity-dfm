@@ -249,7 +249,7 @@ class Feed:
 
         #support field feeding from static RegEx rules in config file section [extraction_rules]
         #format field_name = r'RegEx'
-        if config..RawConfigParser().has_section('extraction_rules'):
+        if config.RawConfigParser().has_section('extraction_rules'):
             self.extraction_rules=dict(config.items('extraction_rules'))
             for key in self.extraction_rules:
                 self.extraction_rules[key]=re.compile(self.extraction_rules[key], flags=re.IGNORECASE|re.MULTILINE)
