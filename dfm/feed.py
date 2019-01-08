@@ -247,7 +247,7 @@ class Feed:
         r'(?::\d+)?' # optional port
         r'(?:/?|[/?]\S+)$', flags=re.IGNORECASE|re.MULTILINE)
 
-        #support field feed from static RegEx rules in config file section [extraction_rules]
+        #support field feeding from static RegEx rules in config file section [extraction_rules]
         #format field_name = r'RegEx'
         if config.has_section('extraction_rules'):
             self.extraction_rules=dict(config.items('extraction_rules'))
@@ -862,7 +862,6 @@ class Feed:
         if len(text)>0:
             doc["text"]=text
             #extract all static rules to custom fields in doc
-            if self.extraction_rules
             for key in self.extraction_rules:
                 doc[key]=self.extraction_rules[key].findall(text)
 
