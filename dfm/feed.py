@@ -253,9 +253,9 @@ class Feed:
             self.extraction_rules=dict(config['extraction_rules'])
             for key in self.extraction_rules:
                 self.extraction_rules[key]=re.compile(self.extraction_rules[key], flags=re.IGNORECASE|re.MULTILINE)
-            except KeyError:
-                self.extraction_rules=dict()
-        
+        except KeyError:
+            self.extraction_rules=dict()
+
         self.uri_exclusion=self.config['EXCLUDED_URIS']
         self.file_extensions_exclusion=self.config['EXCLUDED_FILE_EXTENSIONS']
 
