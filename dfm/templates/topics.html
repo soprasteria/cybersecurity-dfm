@@ -41,7 +41,7 @@
       <!--<input type="hidden" name="topics" value="{}"/>-->
       <!--<input type="hidden" name="active" value="true"/>-->
     <div class="form-group">
-      <label for="tags">Top 1000 Tags</label>
+      <label for="tags">Top 10000 Tags</label>
       <!--<select multiple name="tags" id="tags" class="form-control" size="20">
       </select>-->
       <input id="tags" type="text" class="form-control"
@@ -122,7 +122,7 @@ function serializeForm(originForm){
 function refreshTags(){
   console.log("Refesh Tags");
   $("#tags").empty()
-  $.getJSON( "/api/tags?size=1000", function( data ) {
+  $.getJSON( "/api/tags?size=10000", function( data ) {
       //drawList(data.aggregations.group_by_state.buckets);
       items=[]
       wdata=data.aggregations.group_by_state.buckets
