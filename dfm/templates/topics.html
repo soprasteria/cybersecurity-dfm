@@ -28,7 +28,7 @@
 
     <div class="form-group">
       <label for="title">Topic</label>
-      <input type="text" name="title" id="title" class="form-control" placeholder="Topic" required autofocus/>
+      <input type="text" name="title" id="title" class="form-control" onblur="sanitize(this.value)" placeholder="Topic" required autofocus/>
     </div>
     <div class="form-group">
       <label for="summary">Summary</label>
@@ -74,6 +74,7 @@
 
   <script type="text/javascript">
   $(document).ready(function(){
+
     $('#addTopicButton').click(function() {
         $.ajax({
             contentType: 'application/json',
@@ -96,6 +97,10 @@
     refreshTopics();
     refreshTags();
 });
+
+function sanitize(p) {
+  document.getElementById("title").value = p.replace(/-/g, '_');
+}
 
 function serializeForm(originForm){
   arr=originForm.serializeArray();
