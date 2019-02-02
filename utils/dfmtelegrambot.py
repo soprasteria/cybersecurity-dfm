@@ -13,7 +13,7 @@ from urllib3.exceptions import ReadTimeoutError
 import json
 import feedparser
 import threading
-
+import re
 import os
 import random
 import schedule
@@ -191,7 +191,7 @@ def botAnswer(results,chat_id,msg,keywords):
             if "tags" in results["_source"]:
                 if type(results["_source"]["tags"])==list and len(results["_source"]["tags"])>0:
                     for tag in results["_source"]["tags"]:
-                        tags_message=tags_message+" #"+tag
+                        tags_message=tags_message+" #"+re.sub('[^A-Za-z0-9]+', '', tag)
                     tags_message=tags_message
                     tags_message_list=tags_message.split(" ")
             else:
