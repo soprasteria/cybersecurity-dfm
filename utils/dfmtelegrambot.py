@@ -231,6 +231,7 @@ def botAnswer(results,chat_id,msg,keywords):
             try:
                 bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
             except TelegramError:
+                print(safe_message)
                 bot.sendMessage(chat_id,safe_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
 
 
