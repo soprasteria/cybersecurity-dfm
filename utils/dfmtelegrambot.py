@@ -210,11 +210,11 @@ def botAnswer(results,chat_id,msg,keywords):
                 title=results["_source"]["title"]
 
             extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-            built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
+            built_message="["+sanitize_string(title)+"]("+results["_source"]["link"]+")\n\n"
             built_message+="```"+extract+"...```\n\n"
             built_message+=tags_message+"\n\n posted by: ["+sanitize_string(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
             built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+sanitize_string(title)+" "+sanitize_string(results["_source"]["link"])+")"
-            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+sanitize_string(results["_source"]["link"])+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+sanitize_string(results["_source"]["link"])+"&summary="+sanitize_string(title)+" #"+sanitize_string(topics_message)+" #"+sanitize_string(tags_message_list[0])+" #"+sanitize_string(tags_message_list[1])+" #"+sanitize_string(tags_message_list[2])+")"
             built_message+=", [Reddit](https://www.reddit.com/submit?url="+sanitize_string(results["_source"]["link"])+")"
 
             markup = InlineKeyboardMarkup(inline_keyboard=[
