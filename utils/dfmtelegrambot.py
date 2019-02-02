@@ -19,6 +19,7 @@ import random
 import schedule
 
 import telepot
+from telepot.exception import TelegramError
 from telepot.namedtuple import InlineQueryResultArticle, InputTextMessageContent
 from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove, ForceReply
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
@@ -210,12 +211,16 @@ def botAnswer(results,chat_id,msg,keywords):
                 title=results["_source"]["title"]
 
             extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-            built_message="["+sanitize_string(title)+"]("+results["_source"]["link"]+")\n\n"
+            built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
             built_message+="```"+extract+"...```\n\n"
             built_message+=tags_message+"\n\n posted by: ["+sanitize_string(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
             built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+sanitize_string(title)+"%20"+sanitize_string(results["_source"]["link"])+")"
             built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+sanitize_string(results["_source"]["link"])+"&summary="+sanitize_string(title)+"%20#"+sanitize_string(topics_message)+"%20#"+sanitize_string(tags_message_list[0])+"%20#"+sanitize_string(tags_message_list[1])+"%20#"+sanitize_string(tags_message_list[2])+")"
             built_message+=", [Reddit](https://www.reddit.com/submit?url="+sanitize_string(results["_source"]["link"])+")"
+
+            safe_message=title+"\n\n"
+            safe_message+=results["_source"]["link"]+"\n\n"
+            safe_message+=tags_message+"\n\n posted by: ["+sanitize_string(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
 
             markup = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text=u'\u274c', callback_data=0),
@@ -224,7 +229,11 @@ def botAnswer(results,chat_id,msg,keywords):
             ])
             print(built_message)
 
-            bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
+            try:
+                bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
+            except TelegramError:
+                bot.sendMessage(chat_id,safe_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
+
 
         else:
             bot.sendMessage(chat_id,"I was not able to read your news "+msg['from']['first_name']+".")
