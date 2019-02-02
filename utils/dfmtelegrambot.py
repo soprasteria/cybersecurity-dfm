@@ -218,7 +218,7 @@ def botAnswer(results,chat_id,msg,keywords):
             built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+sanitize_string(results["_source"]["link"])+"&summary="+sanitize_string(title)+"%20#"+sanitize_string(topics_message)+"%20#"+sanitize_string(tags_message_list[0])+"%20#"+sanitize_string(tags_message_list[1])+"%20#"+sanitize_string(tags_message_list[2])+")"
             built_message+=", [Reddit](https://www.reddit.com/submit?url="+sanitize_string(results["_source"]["link"])+")"
 
-            safe_message=+sanitize_string(title)+"\n\n"
+            safe_message=sanitize_string(title)+"\n\n"
             safe_message+=results["_source"]["link"]+"\n\n"
             safe_message+=tags_message+"\n\n posted by: ["+sanitize_string(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
 
