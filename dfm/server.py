@@ -151,7 +151,7 @@ storage=Storage(app.logger,config)
 @app.route('/<int:size>')
 def home(size=config['NODES_SIZE']):
     sources=storage.query({"query":{"type":{"value":"source"}}})[0]
-    app.logger.debug("API: Sources List:"+json.dumps(sources))
+    app.logger.debug("HOME API: Sources List:"+json.dumps(sources))
     dic_source={}
 
     for source in sources['hits']['hits']:
@@ -864,6 +864,7 @@ class Schedule(Resource):
                 if os.path.exists(training_path):
                     shutil.rmtree(training_path)
                 os.makedirs(training_path)
+                os.chmod(training_path, 0o755)
 
                 for curr_topic in model["_source"]["related_topics"]:
                     app.logger.debug("[model training] topic:"+curr_topic)
@@ -934,7 +935,7 @@ class Schedule(Resource):
                 if os.path.exists(model_path):
                     shutil.rmtree(model_path)
                 os.makedirs(model_path)
-                os.chmod(model_path, 0o770)
+                os.chmod(model_path, 0o777)
                 if config['MODEL_TYPE']=='caffe':
                     trainer_def={
                      "model-repo":os.path.abspath(model_path),
