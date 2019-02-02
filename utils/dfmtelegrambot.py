@@ -36,6 +36,8 @@ else:
     print("can't find telegrambot.cfg")
 
 bot = telepot.Bot(config.get('variables', 'BOT_TOKEN'))
+dfm_api_base = config.get('variables', 'DFM_API_BASE')
+dfm_feed=config.get('variables', 'DFM_FEED')
 
 def generate_uuid(data):
      """ Generate UUID for any entry in ElasticSearch
