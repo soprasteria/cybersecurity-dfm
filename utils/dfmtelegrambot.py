@@ -219,7 +219,7 @@ def botAnswer(results,chat_id,msg,keywords):
             built_message+=", [Reddit](https://www.reddit.com/submit?url="+sanitize_string(results["_source"]["link"])+")"
 
             safe_message=sanitize_string(title)+"\n\n"
-            safe_message+=results["_source"]["link"]+"\n\n"
+            safe_message+=sanitize_string(results["_source"]["link"])+"\n\n"
             safe_message+=tags_message+"\n\n posted by: ["+sanitize_string(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
 
             markup = InlineKeyboardMarkup(inline_keyboard=[
