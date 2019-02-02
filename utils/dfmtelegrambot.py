@@ -226,12 +226,12 @@ def botAnswer(results,chat_id,msg,keywords):
             InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
             InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
             ])
-            print(built_message)
+            print(built_message.encode("ascii","ignore"))
 
             try:
                 bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
             except TelegramError:
-                print(safe_message)
+                print(safe_message.encode("ascii","ignore"))
                 bot.sendMessage(chat_id,safe_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
 
 
