@@ -24,8 +24,7 @@ from telepot.namedtuple import ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboar
 from telepot.namedtuple import InlineKeyboardMarkup, InlineKeyboardButton
 from telepot.namedtuple import InlineQueryResultArticle, InlineQueryResultPhoto, InputTextMessageContent
 
-dfm_api_base='http://localhost:12345/api/'
-dfm_feed='http://localhost:12345/atom.xml?size=10'
+
 telegram_dfm_id="/api/telegram"
 recent_id=""
 http=urllib3.PoolManager(num_pools=3,timeout=urllib3.Timeout(connect=10, read=10),retries=urllib3.Retry(3, redirect=1))
@@ -204,10 +203,10 @@ def botAnswer(results,chat_id,msg,keywords):
             extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
             built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
             built_message+="```"+extract+"...```\n\n"
-            built_message+=tags_message+"\n\n posted by: ["+msg['from']['first_name']+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+title+" "+results["_source"]["link"]+")"
-            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+results["_source"]["link"]+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-            built_message+=", [Reddit](https://www.reddit.com/submit?url="+results["_source"]["link"]+")"
+            built_message+=tags_message+"\n\n posted by: ["+urllib.quote(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+urllib.quote(title)+" "+urllib.quote(results["_source"]["link"])+")"
+            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+urllib.quote(results["_source"]["link"])+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+            built_message+=", [Reddit](https://www.reddit.com/submit?url="+urllib.quote(results["_source"]["link"])+")"
 
             markup = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text=u'\u274c', callback_data=0),
