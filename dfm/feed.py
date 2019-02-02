@@ -432,11 +432,11 @@ class Feed:
         #tweepy.debug(True)
 
         ssearches=[]
-        # gather stored seraches from your twitter account
-        for ssearch in self.twt_api.saved_searches():
-            ssearches.append(ssearch.query)
-        #add search from current source
-        ssearches.append(self.structure['_source']['link'])
+        # Legacy saved search used in twitter to gather stored seraches from your twitter account
+        # for ssearch in self.twt_api.saved_searches():
+        #    ssearches.append(ssearch.query)
+        # add search from current source
+        # ssearches.append(self.structure['_source']['link'])
 
         for ssearch in ssearches:
             result={}
