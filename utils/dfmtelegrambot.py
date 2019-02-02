@@ -210,7 +210,7 @@ def botAnswer(results,chat_id,msg,keywords):
                 title=results["_source"]["title"]
 
             extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
-            built_message="["+sanitize_string(title)+"]("+results["_source"]["link"]+")\n\n"
+            built_message="["+sanitize_string(title)+"]("+sanitize_string(results["_source"]["link"]+")\n\n"
             built_message+="```"+extract+"...```\n\n"
             built_message+=tags_message+"\n\n posted by: ["+sanitize_string(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
             built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+sanitize_string(title)+" "+sanitize_string(results["_source"]["link"])+")"
@@ -222,7 +222,7 @@ def botAnswer(results,chat_id,msg,keywords):
             InlineKeyboardButton(text=u'\u2b50\ufe0f', callback_data=1),
             InlineKeyboardButton(text=u'\u2b50\ufe0f\u2b50\ufe0f', callback_data=2)]
             ])
-
+            print(built_message)
             bot.sendMessage(chat_id,built_message,parse_mode="MARKDOWN",reply_to_message_id=msg['message_id'],reply_markup=markup)
 
         else:
