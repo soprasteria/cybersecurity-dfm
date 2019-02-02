@@ -835,11 +835,14 @@ class Feed:
             summarizer.stop_words = get_stop_words(self.LANGUAGES[lang_detect])
 
             #build title from summary
-            for sentence in summarizer(parser.document, 1):
-                sum_title+=sentence.__unicode__()
+            try:
+                for sentence in summarizer(parser.document, 1):
+                    sum_title+=sentence.__unicode__()
             # build summary
-            for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
-                sumy_summary+=sentence.__unicode__()+u"\n"
+                for sentence in summarizer(parser.document, self.SENTENCES_COUNT):
+                    sumy_summary+=sentence.__unicode__()+u"\n"
+            except:
+                sumy_summary=""
 
         doc={"link":url,"content":[{"base":url,"language":lang_detect}]}
 
@@ -864,6 +867,7 @@ class Feed:
             #extract all static rules to custom fields in doc
             for key in self.extraction_rules:
                 doc[key]=self.extraction_rules[key].findall(text)
+                self.logger("Source extract "+key+": "+doc[key])
 
         if len(tags)>0:
             clean_tags=[]
