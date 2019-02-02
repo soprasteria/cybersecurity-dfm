@@ -39,6 +39,13 @@ bot = telepot.Bot(config.get('variables', 'BOT_TOKEN'))
 dfm_api_base = config.get('variables', 'DFM_API_BASE')
 dfm_feed=config.get('variables', 'DFM_FEED')
 
+def sanitize_string(text):
+    """ Sinitaze stings to be used in url and in Markdown
+    :text: str text to be sanitized
+    :result: str sanitized_string
+    """
+    return urllib.quote_plus(text.encode('utf8'))
+
 def generate_uuid(data):
      """ Generate UUID for any entry in ElasticSearch
 
@@ -51,11 +58,11 @@ def generate_uuid(data):
      #manage bug of hash generation for twitter and other api with query searches instead of standard uri
      if full_uri.find("//") > -1:
          obj_uri=urlparse.urlparse(full_uri)
-         to_hash_uri=urllib.quote_plus(obj_uri.scheme + "://" + obj_uri.netloc + obj_uri.path)
+         to_hash_uri=sanitize_string(obj_uri.scheme + "://" + obj_uri.netloc + obj_uri.path)
 
      else:
          #if uri not detected hash directly the query
-         to_hash_uri=urllib.quote_plus(full_uri)
+         to_hash_uri=sanitize_string(full_uri)
      hasher.update(to_hash_uri)
      item_id=hasher.hexdigest()
      print "UUID generated:"+item_id+"\r\nfor: "+to_hash_uri
@@ -205,10 +212,10 @@ def botAnswer(results,chat_id,msg,keywords):
             extract=" ".join(results["_source"]["text"][0:250].strip().replace('(','').replace(')','').replace('[','').replace(']','').replace('$','').splitlines())
             built_message="["+title+"]("+results["_source"]["link"]+")\n\n"
             built_message+="```"+extract+"...```\n\n"
-            built_message+=tags_message+"\n\n posted by: ["+urllib.quote_plus(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
-            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+urllib.quote_plus(title)+" "+urllib.quote_plus(results["_source"]["link"])+")"
-            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+urllib.quote_plus(results["_source"]["link"])+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
-            built_message+=", [Reddit](https://www.reddit.com/submit?url="+urllib.quote_plus(results["_source"]["link"])+")"
+            built_message+=tags_message+"\n\n posted by: ["+sanitize_string(msg['from']['first_name'])+"](tg://user?id="+str(msg['from']['id'])+") topic: #"+topics_message+"  score:"+str(average_score)+"\n\n"
+            built_message+="Share on: [Twitter](https://twitter.com/intent/tweet?text="+sanitize_string(title)+" "+sanitize_string(results["_source"]["link"])+")"
+            built_message+=", [Linkedin](https://www.linkedin.com/shareArticle?mini=true&url="+sanitize_string(results["_source"]["link"])+"&summary="+title+" #"+topics_message+" #"+tags_message_list[0]+" #"+tags_message_list[1]+" #"+tags_message_list[2]+")"
+            built_message+=", [Reddit](https://www.reddit.com/submit?url="+sanitize_string(results["_source"]["link"])+")"
 
             markup = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text=u'\u274c', callback_data=0),
@@ -404,7 +411,7 @@ def postJob():
         time.sleep(1)
 
 def postVote(news_id,voter_id,name,score):
-    response = http.request('GET',dfm_api_base+"rank?id="+urllib.quote_plus(str(news_id))+"&voter="+urllib.quote_plus(str(voter_id))+"&name="+urllib.quote_plus(str(name))+"&score="+score) #auth=('user', 'password'))
+    response = http.request('GET',dfm_api_base+"rank?id="+sanitize_string(str(news_id))+"&voter="+sanitize_string(str(voter_id))+"&name="+sanitize_string(str(name))+"&score="+score) #auth=('user', 'password'))
     print "GET "+dfm_api_base+"rank?id="+str(news_id)+"&voter="+str(voter_id)+"&name="+str(name)+"&score="+str(score)+" status:"+str(response.status)
 
 
