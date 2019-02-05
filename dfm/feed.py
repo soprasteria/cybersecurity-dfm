@@ -198,7 +198,8 @@ class Feed:
             self.logger.debug(self.structure)
         else:
             self.id=self.structure["_id"]
-        self.content=self.structure["_source"]["enable_content"]
+        """self.content=self.structure["_source"]["enable_content"] """
+        self.content=True 
         """ **enable_content** field crawl content if True """
         self.logger.debug("Content crawled enabled:"+str(self.content))
 
