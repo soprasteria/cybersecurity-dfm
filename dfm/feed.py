@@ -869,7 +869,9 @@ class Feed:
             #extract all static rules to custom fields in doc
             for key in self.extraction_rules:
                 doc[key]=self.extraction_rules[key].findall(text)
-                self.logger("Source extract "+key+": "+doc[key])
+                self.logger("Source extract "+key+":")
+                self.logger(doc[key])
+
 
         if len(tags)>0:
             clean_tags=[]
