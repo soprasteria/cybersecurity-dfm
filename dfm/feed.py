@@ -249,13 +249,14 @@ class Feed:
 
         #support field feeding from static RegEx rules in config file section [extraction_rules]
         #format field_name = r'RegEx'
+        self.extraction_rules=dict()
         try:
             erules=self.config['EXTRACTION_RULES']
             for key in erules:
                 self.extraction_rules[key]=re.compile(erules[key],re.I|re.M)
 
         except KeyError:
-            self.extraction_rules=dict()
+            pass
 
         self.uri_exclusion=self.config['EXCLUDED_URIS']
         self.file_extensions_exclusion=self.config['EXCLUDED_FILE_EXTENSIONS']
