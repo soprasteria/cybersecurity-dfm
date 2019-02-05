@@ -250,9 +250,11 @@ class Feed:
         #support field feeding from static RegEx rules in config file section [extraction_rules]
         #format field_name = r'RegEx'
         try:
-            self.extraction_rules=config['extraction_rules']
+            self.extraction_rules=self.config['EXTRACTION_RULES']
             for key in self.extraction_rules:
+                self.logger.debug("Compile Extraction Rule: "+self.extraction_rules[key])
                 self.extraction_rules[key]=re.compile(self.extraction_rules[key], flags=re.IGNORECASE|re.MULTILINE)
+
         except KeyError:
             self.extraction_rules=dict()
 
