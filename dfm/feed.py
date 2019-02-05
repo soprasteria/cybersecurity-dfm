@@ -252,7 +252,6 @@ class Feed:
         try:
             self.extraction_rules=self.config['EXTRACTION_RULES']
             for key in self.extraction_rules:
-                self.logger.debug("Compile Extraction Rule: "+self.extraction_rules[key])
                 self.extraction_rules[key]=re.compile(self.extraction_rules[key], flags=re.IGNORECASE|re.MULTILINE)
 
         except KeyError:
