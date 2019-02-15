@@ -446,7 +446,7 @@ class Feed:
         try:
            lastest_id=self.storage.query(query)[0]['hits']['hits'][0]['fields']["id"]
         except:
-            results.add_error({'url':twitt_link,'message':str(e)})
+            results.add_error({'source':self.structure['_source']['link'],'message':str(e)})
             lastest_id=0
         twitts=[]
         try:
