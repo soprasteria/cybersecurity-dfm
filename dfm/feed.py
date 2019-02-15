@@ -466,7 +466,7 @@ class Feed:
                 #    break
 
         except tweepy.error.TweepError as e:
-            results.add_error({'url':twitt_link,'message':str(e)})
+            results.add_error({'source':self.structure['_source']['link'],'message':str(e)})
         self.logger.debug("Pushing Twitts")
         result=self.update(twitts)
         results.add_success(result)
