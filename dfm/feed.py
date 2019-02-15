@@ -441,13 +441,13 @@ class Feed:
         # ssearches.append(self.structure['_source']['link'])
         #
         # for ssearch in ssearches:
-        #     result={}
-        #     query={"fields":["id"],"from":0,"size":1,"query" : {"match":{"_parent":self.structure['_parent']}},"sort" : [{"id" : {"order" : "dsc","mode" : "max"}}]}
-        #     try:
-        #        lastest_id=self.storage.query(query)[0]['hits']['hits'][0]['fields']["id"]
-        #     except:
-        #         results.add_error({'url':twitt_link,'message':str(e)})
-        #         lastest_id=0
+        result={}
+        query={"fields":["id"],"from":0,"size":1,"query" : {"match":{"_parent":self.structure['_id']}},"sort" : [{"id" : {"order" : "dsc","mode" : "max"}}]}
+        try:
+           lastest_id=self.storage.query(query)[0]['hits']['hits'][0]['fields']["id"]
+        except:
+            results.add_error({'url':twitt_link,'message':str(e)})
+            lastest_id=0
         twitts=[]
         try:
             for raw_twitt in tweepy.Cursor(self.twt_api.search,q=self.structure['_source']['link'],
