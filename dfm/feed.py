@@ -448,29 +448,29 @@ class Feed:
         #     except:
         #         results.add_error({'url':twitt_link,'message':str(e)})
         #         lastest_id=0
-            twitts=[]
-            try:
-                for raw_twitt in tweepy.Cursor(self.twt_api.search,q=self.structure['_source']['link'],
-                               count=self.structure['_source']['limit'],
-                               result_type='recent',
-                               #since=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
-                               #until=datetime.now().strftime("%Y-%m-%d"),
-                               since_id=lastest_id,
-                               include_entities=True,
-                               monitor_rate_limit=True,
-                               wait_on_rate_limit=True,
-                               lang="en").items(self.limit):
-                               #bulk helpers format http://elasticsearch-py.readthedocs.io/en/master/helpers.html#bulk-helpers
-                               twitts.append(self.twitt_get(raw_twitt))
-                    #if (time.time()-start_time)>10:
-                    #    break
+        twitts=[]
+        try:
+            for raw_twitt in tweepy.Cursor(self.twt_api.search,q=self.structure['_source']['link'],
+                           count=self.structure['_source']['limit'],
+                           result_type='recent',
+                           #since=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
+                           #until=datetime.now().strftime("%Y-%m-%d"),
+                           since_id=lastest_id,
+                           include_entities=True,
+                           monitor_rate_limit=True,
+                           wait_on_rate_limit=True,
+                           lang="en").items(self.limit):
+                           #bulk helpers format http://elasticsearch-py.readthedocs.io/en/master/helpers.html#bulk-helpers
+                           twitts.append(self.twitt_get(raw_twitt))
+                #if (time.time()-start_time)>10:
+                #    break
 
-            except tweepy.error.TweepError as e:
-                results.add_error({'url':twitt_link,'message':str(e)})
-            self.logger.debug("Pushing Twitts")
-            result=self.update(twitts)
-            results.add_success(result)
-            del twitts
+        except tweepy.error.TweepError as e:
+            results.add_error({'url':twitt_link,'message':str(e)})
+        self.logger.debug("Pushing Twitts")
+        result=self.update(twitts)
+        results.add_success(result)
+        del twitts
 
         del self.twt_api,ssearches
         gc.collect()
