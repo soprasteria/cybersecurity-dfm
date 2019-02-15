@@ -445,7 +445,7 @@ class Feed:
         query={"fields":["id"],"from":0,"size":1,"query" : {"match":{"_parent":self.structure['_id']}},"sort" : [{"id" : {"order" : "dsc","mode" : "max"}}]}
         try:
            lastest_id=self.storage.query(query)[0]['hits']['hits'][0]['fields']["id"]
-       except Exception as e:
+        except Exception as e:
             results.add_error({'source':self.structure['_source']['link'],'message':str(e)})
             lastest_id=0
         twitts=[]
