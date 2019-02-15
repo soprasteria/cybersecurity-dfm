@@ -439,17 +439,18 @@ class Feed:
         #    ssearches.append(ssearch.query)
         # add search from current source
         # ssearches.append(self.structure['_source']['link'])
-
-        for ssearch in ssearches:
-            result={}
-            query={"fields":["id"],"from":0,"size":1,"query" : {"match":{"_parent":"848efa1a0badd5cfa5b07598067a526b"}},"sort" : [{"id" : {"order" : "dsc","mode" : "max"}}]}
-            try:
-               lastest_id=self.storage.query(query)[0]['hits']['hits'][0]['fields']["id"]
-            except:
-                lastest_id=0
+        #
+        # for ssearch in ssearches:
+        #     result={}
+        #     query={"fields":["id"],"from":0,"size":1,"query" : {"match":{"_parent":self.structure['_parent']}},"sort" : [{"id" : {"order" : "dsc","mode" : "max"}}]}
+        #     try:
+        #        lastest_id=self.storage.query(query)[0]['hits']['hits'][0]['fields']["id"]
+        #     except:
+        #         results.add_error({'url':twitt_link,'message':str(e)})
+        #         lastest_id=0
             twitts=[]
             try:
-                for raw_twitt in tweepy.Cursor(self.twt_api.search,q=ssearch,
+                for raw_twitt in tweepy.Cursor(self.twt_api.search,q=self.structure['_source']['link'],
                                count=self.structure['_source']['limit'],
                                result_type='recent',
                                #since=(datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d"),
