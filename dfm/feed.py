@@ -202,8 +202,8 @@ class Feed:
         """ **enable_content** field crawl content if True """
         self.logger.debug("Content crawled enabled:"+str(self.content))
 
-        predict_config=self.structure["_source"]["predict"]
-        self.predict=predict_config and config['TOPICS_PREDICTION']
+        self.predict_config=self.structure["_source"]["predict"]
+        self.predict=self.predict_config and config['TOPICS_PREDICTION']
         """ if **predict** field and in DFM config **TOPICS_PREDICTION** are both true, DeepDetect prediction is called """
         self.logger.debug("Content prediction:"+str(self.predict))
 
