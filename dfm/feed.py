@@ -438,7 +438,7 @@ class Feed:
         # for ssearch in self.twt_api.saved_searches():
         #    ssearches.append(ssearch.query)
         # add search from current source
-        # ssearches.append(self.structure['_source']['link'])
+        ssearches.append(self.structure['_source']['link'])
 
         for ssearch in ssearches:
             result={}
