@@ -438,7 +438,7 @@ class Feed:
         # for ssearch in self.twt_api.saved_searches():
         #    ssearches.append(ssearch.query)
         # add search from current source
-        # ssearches.append(self.structure['_source']['link'])
+        ssearches.append(self.structure['_source']['link'])
         #
         # for ssearch in ssearches:
         result={}
@@ -469,6 +469,7 @@ class Feed:
             results.add_error({'source':self.structure['_source']['link'],'message':str(e)})
         self.logger.debug("Pushing Twitts")
         result=self.update(twitts)
+        self.logger.debug(result)
         results.add_success(result)
         del twitts
 
