@@ -381,7 +381,7 @@ class Feed:
 
         hashtags=[]
         for curr_hashtag in raw_twitt.entities['hashtags']:
-            hashtags.append(curr_hashtag['text'])
+            hashtags.append(curr_hashtag['text'].strip().lower().replace("news","").replace(" ","_").encode('ascii', 'ignore'))
 
         #detect language of the twitt
         try:
