@@ -419,6 +419,8 @@ class Feed:
             results.add_success(twitt_link)
             return {"_parent":self.id,"_routing":self.id,"_type":"doc","doc":twitt}
         else:
+            if twitt_link is None:
+                twitt_link="https://twitter.com/"+raw_twitt.user.screen_name+"/status/"+raw_twitt.id_str
             results.add_fail({'url':twitt_link,'message':'No link in this twitt'})
             twitt.update({
              "related_links": [],
