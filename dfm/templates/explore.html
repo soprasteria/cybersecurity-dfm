@@ -18,15 +18,7 @@
       class="parasol"
       data-settings='{
 "networks": [
-{ "url": "/api/graph?gte=now-1y/d", "name": "Yearly", "fetchOptions": {"credentials": "include"},
- "options": {
-   "layout": "forcelink",
-   "loader": {
-     "name": "json"
-   }
- }
-},
-  { "url": "/api/graph", "name": "Monthly", "fetchOptions": {"credentials": "include"},
+  { "url": "/api/graph?gte=now-1d/d", "name": "Daily", "fetchOptions": {"credentials": "include"},
    "options": {
      "layout": "forcelink",
      "loader": {
@@ -42,36 +34,67 @@
      }
    }
   },
-  { "url": "/api/graph?gte=now-1d/d", "name": "Daily", "fetchOptions": {"credentials": "include"},
+  { "url": "/api/graph", "name": "Monthly", "fetchOptions": {"credentials": "include"},
    "options": {
      "layout": "forcelink",
      "loader": {
        "name": "json"
      }
    }
-  }
+  },
+{ "url": "/api/graph?gte=now-1y/d", "name": "Yearly", "fetchOptions": {"credentials": "include"},
+ "options": {
+   "layout": "forcelink",
+   "loader": {
+     "name": "json"
+   }
+ }
+}
 ],
 "ui": {
+ "drawers": [
+        { "id": "left",
+          "open": true,
+          "components": [
+            {"name": "NetworkList"},
+            {"name": "Divider"},
+            {"name": "Legend"},
+            {"name": "Divider"},
+            {"name": "ForceLinkSettings"}
+          ]
+        },
+        { "id": "right",
+          "open": true,
+          "openSecondary": true,
+          "components": [
+            {"name": "SearchInput"},
+            {"name": "Divider"},
+            {"name": "AppBar"},
+            {"name": "Divider"},
+            {"name": "SelectedNode"},
+            {"name": "ShowSelected"}
+          ]
+        }
+      ],
   "muiTheme": "dark",
-  "componentOptions": {
+ "componentOptions": {
       "selectedNode": {
       "content": [
-        {
-          "type": "link",
-          "hrefKey": "metadata.url",
-          "hrefPrefix": ""
-        }
+          {"type":"link", "hrefKey":"metadata.url", "hrefPrefix": ""}
+
       ]
-  }}},
+
+  }}
+},
 "layout" : {
     "params": {
 
       "barnesHutOptimize": true,
       "barnesHutTheta": 0.5,
-      "adjustSizes": false,
+      "adjustSizes":true,
       "iterationsPerRender": 1,
       "linLogMode": true,
-      "outboundAttractionDistribution": false,
+      "outboundAttractionDistribution": true,
       "edgeWeightInfluence": 1,
       "scalingRatio": 1,
       "strongGravityMode": false,
@@ -85,9 +108,9 @@
       "randomize": "locally",
       "slowDown": 1,
       "timeout": 1000,
-      "labelThreshold": 10,
-      "labelSize": 5,
-      "labelSizeRatio": 0.2
+      "labelThreshold": 1,
+      "labelSize": 1,
+      "labelSizeRatio": 1
 
     }
   }
