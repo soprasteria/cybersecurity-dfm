@@ -1044,10 +1044,10 @@ class Schedule(Resource):
         else:
             app.logger.debug("crawl source:"+src_id)
             feed=Feed(storage.get(src_id)[0],app.logger,storage,config)
-            result+=str(feed.crawl())
+            app.logger.debug(feed.crawl())
             query={ "query":{ "bool": { "must_not": [{"exists" : { "field" : "text" } }],"must": [ {"type":{"value":"doc"}} ]}}}
             query['query']['bool']['must'].append({ "parent_id":{"type":"doc","id":src_id}})
-            result+=str(multithreaded_processor("contents_crawl",query,doc_type='doc',content_crawl=True,content_predict=True))
+            result=str(multithreaded_processor("contents_crawl",query,doc_type='doc',content_crawl=True,content_predict=True))
             del feed
 
         gc.collect()
