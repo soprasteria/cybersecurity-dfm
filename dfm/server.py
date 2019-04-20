@@ -1047,9 +1047,7 @@ class Schedule(Resource):
             result+=str(feed.crawl())
             query={ "query":{ "bool": { "must_not": [{"exists" : { "field" : "text" } }],"must": [ {"type":{"value":"doc"}} ]}}}
             query['query']['bool']['must'].append({ "parent_id":{"type":"doc","id":src_id}})
-
-            print(query)
-            result+=multithreaded_processor("contents_crawl",query,doc_type='doc',content_crawl=True,content_predict=True)
+            result+=str(multithreaded_processor("contents_crawl",query,doc_type='doc',content_crawl=True,content_predict=True))
             del feed
 
         gc.collect()
