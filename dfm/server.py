@@ -1004,8 +1004,8 @@ class Schedule(Resource):
                     retry+=1
                     if retry>10:
                         break
-                app.logger.debug("dd.put_service("+model["_source"]["title"]+","+str(model_def)+","+model["_source"]["summary"]+",xgboost,"+str(parameters_input)+","+str(parameters_mllib)+","+str(parameters_output)+", mltype='supervised')")
-                result=dd.put_service(model["_source"]["title"],model_def,model["_source"]["summary"],"xgboost",parameters_input,parameters_mllib,parameters_output, mltype='supervised')
+                app.logger.debug("dd.put_service("+model["_source"]["title"]+","+str(model_def)+","+model["_source"]["summary"]+","+config['MODEL_TYPE']+","+str(parameters_input)+","+str(parameters_mllib)+","+str(parameters_output)+", mltype='supervised')")
+                result=dd.put_service(model["_source"]["title"],model_def,model["_source"]["summary"],config['MODEL_TYPE'],parameters_input,parameters_mllib,parameters_output, mltype='supervised')
                 app.logger.debug(result)
         elif src_id=="sources_crawl":
             app.logger.debug("sources crawl:"+src_id)
