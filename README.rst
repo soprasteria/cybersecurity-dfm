@@ -2,6 +2,9 @@
 Data Feeds Manager
 ****************************************
 
+![Analysis](analysis.png)
+![Explore](explore.png)
+
 =============
 License
 =============
