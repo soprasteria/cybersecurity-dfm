@@ -360,6 +360,9 @@ def recent_feed():
         if 'summary' in news:
             if len(news['summary']) < 5:
                 news['summary']="No summary"
+            else:
+                news['content']=news['summary']
+
         if 'title' not in news or len(news['title'])<5:
             news['title']=news['summary']
         if 'author' not in news:
