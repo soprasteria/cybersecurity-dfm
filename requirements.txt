@@ -24,7 +24,7 @@ pycallgraph
 pylint
 selenium
 six==1.7.3
-urllib3==1.21.1
+urllib3==1.26.5
 nltk==2.0.5
 telepot
 textract==1.5.0
